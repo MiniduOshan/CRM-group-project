@@ -1,116 +1,102 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { 
   Plus, 
   Search, 
-  MoreVertical, 
   Phone, 
   MapPin, 
   User,
   Filter,
   PhoneCall,
   Clock,
-  NotebookPen
+  NotebookPen,
+  AlertTriangle,
+  Trash2
 } from 'lucide-react';
-import { motion } from 'motion/react';
-import { Lead, LeadStatus } from '../types';
+import { CustomerProfile, LeadStatus } from '../types';
 
-const mockLeads: Lead[] = [
-  {
-    id: '1',
-    name: 'Sarah Jenkins',
-    phone: '0771234567',
-    address: '123 Main St, Colombo',
-    salesperson: 'Alex Smith',
-    status: 'In Progress',
-    createdAt: '2024-03-20T10:00:00Z',
-    history: [],
-    callLogs: [
-      {
-        id: 'call-1',
-        timestamp: '2024-03-20T11:00:00Z',
-        agent: 'Alex Smith',
-        summary: 'Discussed kitchen layout and booked site visit.',
-        durationMinutes: 12
-      },
-      {
-        id: 'call-2',
-        timestamp: '2024-03-21T16:30:00Z',
-        agent: 'Alex Smith',
-        summary: 'Shared quotation draft and answered material questions.',
-        durationMinutes: 9
-      }
-    ]
-  },
-  {
-    id: '2',
-    name: 'Michael Chen',
-    phone: '0779876543',
-    address: '45 Park Ave, Kandy',
-    salesperson: 'Sarah Connor',
-    status: 'New',
-    createdAt: '2024-03-21T14:30:00Z',
-    history: [],
-    callLogs: [
-      {
-        id: 'call-3',
-        timestamp: '2024-03-21T15:10:00Z',
-        agent: 'Sarah Connor',
-        summary: 'Initial inquiry call and collected room measurements.',
-        durationMinutes: 7
-      }
-    ]
-  },
-  {
-    id: '3',
-    name: 'Robert Wilson',
-    phone: '0775556667',
-    address: '78 Lake View, Negombo',
-    salesperson: 'Alex Smith',
-    status: 'Completed',
-    createdAt: '2024-02-15T09:00:00Z',
-    history: [],
-    callLogs: [
-      {
-        id: 'call-4',
-        timestamp: '2024-02-16T13:00:00Z',
-        agent: 'Alex Smith',
-        summary: 'Confirmed installation date and payment milestone.',
-        durationMinutes: 10
-      },
-      {
-        id: 'call-5',
-        timestamp: '2024-03-01T10:40:00Z',
-        agent: 'Alex Smith',
-        summary: 'Post-installation follow-up and service feedback.',
-        durationMinutes: 6
-      }
-    ]
+interface LeadsProps {
+  customers: CustomerProfile[];
+  selectedCustomerId: string;
+  currentSalesperson: string;
+  salespersonOptions: string[];
+  onSelectCustomer: (customerId: string) => void;
+  onSetCurrentSalesperson: (salesperson: string) => void;
+  onRegisterCustomer: (customer: { name: string; phone: string; address: string }, actor: string) => CustomerProfile;
+  onAddCallLog: (customerId: string, callLog: { agent: string; summary: string; durationMinutes: number; callTime?: string; direction: 'Incoming' | 'Outgoing' }) => void;
+  onDeleteCallLog: (customerId: string, callLogId: string) => void;
+  onDeleteCustomer: (customerId: string) => void;
+}
+
+const getLeadStatus = (customer: CustomerProfile): LeadStatus => {
+  if (customer.invoiceIds.length > 0) {
+    return 'Completed';
   }
-];
+  if (customer.quotationIds.length > 0) {
+    return 'In Progress';
+  }
+  return 'New';
+};
 
-export default function Leads() {
-  const [leads, setLeads] = useState<Lead[]>(mockLeads);
+export default function Leads({
+  customers,
+  selectedCustomerId,
+  currentSalesperson,
+  salespersonOptions,
+  onSelectCustomer,
+  onSetCurrentSalesperson,
+  onRegisterCustomer,
+  onAddCallLog,
+  onDeleteCallLog,
+  onDeleteCustomer
+}: LeadsProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [search, setSearch] = useState('');
-  const [selectedLeadId, setSelectedLeadId] = useState(mockLeads[0]?.id ?? '');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [newLeadForm, setNewLeadForm] = useState({
     name: '',
     phone: '',
-    address: '',
-    salesperson: 'Alex Smith'
+    address: ''
   });
   const [newCall, setNewCall] = useState({
-    agent: 'Alex Smith',
+    callTime: new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16),
     durationMinutes: '5',
-    summary: ''
+    summary: '',
+    direction: 'Outgoing' as 'Incoming' | 'Outgoing'
   });
 
-  const filteredLeads = leads.filter(lead => 
-    lead.name.toLowerCase().includes(search.toLowerCase()) ||
-    lead.phone.includes(search)
-  );
+  const filteredLeads = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    const base = query
+      ? customers.filter(
+          (lead) => lead.name.toLowerCase().includes(query) || lead.phone.includes(search.trim())
+        )
+      : customers;
 
-  const selectedLead = leads.find((lead) => lead.id === selectedLeadId);
+    return [...base].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+  }, [customers, search]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredLeads.length / pageSize));
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, pageSize]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  const paginatedLeads = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredLeads.slice(start, start + pageSize);
+  }, [currentPage, filteredLeads, pageSize]);
+
+  const pageStart = filteredLeads.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const pageEnd = Math.min(currentPage * pageSize, filteredLeads.length);
+
+  const selectedLead = customers.find((lead) => lead.id === selectedCustomerId) ?? filteredLeads[0];
 
   const getStatusColor = (status: LeadStatus) => {
     switch (status) {
@@ -125,26 +111,19 @@ export default function Leads() {
   const handleCreateLead = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const phoneExists = leads.some((lead) => lead.phone === newLeadForm.phone.trim());
+    const phoneExists = customers.some((lead) => lead.phone === newLeadForm.phone.trim());
     if (phoneExists) {
       return;
     }
 
-    const lead: Lead = {
-      id: String(Date.now()),
-      name: newLeadForm.name.trim(),
-      phone: newLeadForm.phone.trim(),
-      address: newLeadForm.address.trim(),
-      salesperson: newLeadForm.salesperson,
-      status: 'New',
-      createdAt: new Date().toISOString(),
-      history: [],
-      callLogs: []
-    };
+    const customer = onRegisterCustomer({
+      name: newLeadForm.name,
+      phone: newLeadForm.phone,
+      address: newLeadForm.address
+    }, currentSalesperson);
 
-    setLeads((prev) => [lead, ...prev]);
-    setSelectedLeadId(lead.id);
-    setNewLeadForm({ name: '', phone: '', address: '', salesperson: 'Alex Smith' });
+    onSelectCustomer(customer.id);
+    setNewLeadForm({ name: '', phone: '', address: '' });
     setIsAdding(false);
   };
 
@@ -159,21 +138,20 @@ export default function Leads() {
       return;
     }
 
-    const callLog = {
-      id: `call-${Date.now()}`,
-      timestamp: new Date().toISOString(),
-      agent: newCall.agent,
+    onAddCallLog(selectedLead.id, {
+      agent: currentSalesperson,
       summary: newCall.summary.trim(),
-      durationMinutes: duration
-    };
+      durationMinutes: duration,
+      callTime: newCall.callTime,
+      direction: newCall.direction
+    });
 
-    setLeads((prev) =>
-      prev.map((lead) =>
-        lead.id === selectedLead.id ? { ...lead, callLogs: [callLog, ...lead.callLogs] } : lead
-      )
-    );
-
-    setNewCall({ agent: newCall.agent, durationMinutes: '5', summary: '' });
+    setNewCall({
+      callTime: new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16),
+      durationMinutes: '5',
+      summary: '',
+      direction: 'Outgoing'
+    });
   };
 
   return (
@@ -182,6 +160,20 @@ export default function Leads() {
         <div>
           <h2 className="text-xl md:text-2xl font-bold tracking-tight">Customer Registration & Call Tracking</h2>
           <p className="text-gray-500 text-sm">Register by phone number and view every call made with each customer.</p>
+          <div className="flex flex-wrap items-center gap-2 mt-2">
+            <span className="text-xs font-semibold text-gray-500">Assign Salesperson</span>
+            <select
+              value={currentSalesperson}
+              onChange={(e) => {
+                onSetCurrentSalesperson(e.target.value);
+              }}
+              className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-sm font-semibold text-gray-700"
+            >
+              {salespersonOptions.map((salesperson) => (
+                <option key={salesperson} value={salesperson}>{salesperson}</option>
+              ))}
+            </select>
+          </div>
         </div>
         <button 
           onClick={() => setIsAdding(true)}
@@ -222,11 +214,11 @@ export default function Leads() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {filteredLeads.map((lead) => (
+            {paginatedLeads.map((lead) => (
               <tr
                 key={lead.id}
-                className={`hover:bg-gray-50/50 transition-colors group cursor-pointer ${selectedLeadId === lead.id ? 'bg-brand-accent/5' : ''}`}
-                onClick={() => setSelectedLeadId(lead.id)}
+                className={`hover:bg-gray-50/50 transition-colors group cursor-pointer ${selectedLead?.id === lead.id ? 'bg-brand-accent/5' : ''}`}
+                onClick={() => onSelectCustomer(lead.id)}
               >
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
@@ -236,7 +228,7 @@ export default function Leads() {
                     <div>
                       <p className="text-sm font-bold">{lead.name}</p>
                       <p className="text-[10px] text-gray-400 flex items-center gap-1">
-                        <MapPin size={10} /> {lead.address}
+                        <MapPin size={10} /> {lead.address || 'No address provided'}
                       </p>
                     </div>
                   </div>
@@ -249,12 +241,12 @@ export default function Leads() {
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-2">
                     <User size={12} className="text-gray-400" />
-                    <span className="text-xs font-medium text-gray-600">{lead.salesperson}</span>
+                    <span className="text-xs font-medium text-gray-600">{lead.ownerName}</span>
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <span className={`px-2 py-1 rounded text-[10px] font-bold border ${getStatusColor(lead.status)}`}>
-                    {lead.status.toUpperCase()}
+                  <span className={`px-2 py-1 rounded text-[10px] font-bold border ${getStatusColor(getLeadStatus(lead))}`}>
+                    {getLeadStatus(lead).toUpperCase()}
                   </span>
                 </td>
                 <td className="px-6 py-4">
@@ -263,8 +255,17 @@ export default function Leads() {
                   </p>
                 </td>
                 <td className="px-6 py-4 text-right">
-                  <button className="p-1 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
-                    <MoreVertical size={16} />
+                  <button
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      if (window.confirm(`Delete customer ${lead.name}?`)) {
+                        onDeleteCustomer(lead.id);
+                      }
+                    }}
+                    className="p-1 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50"
+                    title="Delete customer"
+                  >
+                    <Trash2 size={16} />
                   </button>
                 </td>
               </tr>
@@ -272,6 +273,40 @@ export default function Leads() {
           </tbody>
         </table>
       </div>
+        <div className="px-4 md:px-6 py-3 border-t border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-gray-50/40">
+          <p className="text-xs text-gray-500">
+            Showing {pageStart}-{pageEnd} of {filteredLeads.length} customers
+          </p>
+          <div className="flex items-center gap-2">
+            <label className="text-xs text-gray-500">Rows</label>
+            <select
+              value={pageSize}
+              onChange={(e) => setPageSize(Number(e.target.value))}
+              className="px-2 py-1.5 border border-gray-200 rounded-md bg-white text-xs"
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+            </select>
+            <button
+              type="button"
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1.5 border border-gray-200 rounded-md text-xs bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Prev
+            </button>
+            <span className="text-xs text-gray-500">Page {currentPage} / {totalPages}</span>
+            <button
+              type="button"
+              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1.5 border border-gray-200 rounded-md text-xs bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+          </div>
+        </div>
       </div>
 
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
@@ -282,6 +317,11 @@ export default function Leads() {
               <p className="text-xs text-gray-500 mt-1">
                 {selectedLead ? `Customer: ${selectedLead.name} (${selectedLead.phone})` : 'Select a customer to view calls'}
               </p>
+              {selectedLead && selectedLead.ownerName !== currentSalesperson && (
+                <p className="text-xs text-amber-700 mt-1 inline-flex items-center gap-1 font-semibold">
+                  <AlertTriangle size={12} /> This customer belongs to {selectedLead.ownerName}. Your updates will be saved under your name.
+                </p>
+              )}
             </div>
             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
               {selectedLead ? `${selectedLead.callLogs.length} calls` : '0 calls'}
@@ -296,8 +336,28 @@ export default function Leads() {
                     <span className="inline-flex items-center gap-1"><PhoneCall size={12} /> {new Date(log.timestamp).toLocaleString()}</span>
                     <span className="inline-flex items-center gap-1"><Clock size={12} /> {log.durationMinutes} min</span>
                   </div>
+                  <span className={`inline-flex px-2 py-1 rounded-full text-[10px] font-bold border ${log.direction === 'Incoming' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-indigo-50 text-indigo-700 border-indigo-200'}`}>
+                    {log.direction}
+                  </span>
                   <p className="text-sm font-semibold text-gray-700">{log.agent}</p>
                   <p className="text-sm text-gray-600 mt-1">{log.summary}</p>
+                  <div className="mt-2 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!selectedLead) {
+                          return;
+                        }
+                        if (window.confirm('Delete this call log?')) {
+                          onDeleteCallLog(selectedLead.id, log.id);
+                        }
+                      }}
+                      className="p-1 text-gray-400 hover:text-red-600 rounded hover:bg-red-50"
+                      title="Delete call log"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 </div>
               ))
             ) : (
@@ -312,14 +372,24 @@ export default function Leads() {
           </h3>
           <form className="space-y-3" onSubmit={handleAddCall}>
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-gray-400 uppercase">Staff</label>
+              <label className="text-[10px] font-bold text-gray-400 uppercase">Call Time</label>
+              <input
+                required
+                type="datetime-local"
+                value={newCall.callTime}
+                onChange={(e) => setNewCall((prev) => ({ ...prev, callTime: e.target.value }))}
+                className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-gray-400 uppercase">Call Direction</label>
               <select
-                value={newCall.agent}
-                onChange={(e) => setNewCall((prev) => ({ ...prev, agent: e.target.value }))}
+                value={newCall.direction}
+                onChange={(e) => setNewCall((prev) => ({ ...prev, direction: e.target.value as 'Incoming' | 'Outgoing' }))}
                 className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm"
               >
-                <option>Alex Smith</option>
-                <option>Sarah Connor</option>
+                <option value="Outgoing">Outgoing</option>
+                <option value="Incoming">Incoming</option>
               </select>
             </div>
             <div className="space-y-1">
@@ -333,7 +403,7 @@ export default function Leads() {
               />
             </div>
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-gray-400 uppercase">Call Summary</label>
+              <label className="text-[10px] font-bold text-gray-400 uppercase">Remark</label>
               <textarea
                 required
                 value={newCall.summary}
@@ -386,26 +456,23 @@ export default function Leads() {
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase">Address</label>
+                  <label className="text-[10px] font-bold text-gray-400 uppercase">Address (Optional)</label>
                   <textarea
-                    required
                     value={newLeadForm.address}
                     onChange={(e) => setNewLeadForm((prev) => ({ ...prev, address: e.target.value }))}
+                    placeholder="Enter address if available"
                     className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-brand-accent/20 focus:outline-none h-20"
                   />
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold text-gray-400 uppercase">Salesperson</label>
-                  <select
-                    value={newLeadForm.salesperson}
-                    onChange={(e) => setNewLeadForm((prev) => ({ ...prev, salesperson: e.target.value }))}
-                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-brand-accent/20 focus:outline-none"
-                  >
-                    <option>Alex Smith</option>
-                    <option>Sarah Connor</option>
-                  </select>
+                  <input
+                    value={currentSalesperson}
+                    readOnly
+                    className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-sm text-gray-500"
+                  />
                 </div>
-                {leads.some((lead) => lead.phone === newLeadForm.phone.trim()) && (
+                {customers.some((lead) => lead.phone === newLeadForm.phone.trim()) && (
                   <p className="text-xs text-red-600">This telephone number is already registered to another customer.</p>
                 )}
                 <div className="pt-4 flex gap-3">
@@ -418,7 +485,7 @@ export default function Leads() {
                   </button>
                   <button 
                     type="submit"
-                    disabled={leads.some((lead) => lead.phone === newLeadForm.phone.trim())}
+                    disabled={customers.some((lead) => lead.phone === newLeadForm.phone.trim())}
                     className="flex-1 px-4 py-2 bg-brand-accent text-white rounded-lg text-sm font-bold hover:bg-blue-700"
                   >
                     Register Customer

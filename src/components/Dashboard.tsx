@@ -1,197 +1,198 @@
-import { useMemo, useRef, useState, type FormEvent } from 'react';
+import { useMemo, useState, type FormEvent } from 'react';
 import {
   Users,
   UserPlus,
   FileText,
-  Calculator,
   Phone,
   ClipboardList,
   NotebookPen,
-  Upload,
   Plus,
   Pencil,
   MapPin,
   Clock3,
   Crown,
-  CircleDot,
   Search,
-  X
+  X,
+  ReceiptText,
+  History,
+  PlaySquare,
+  PhoneCall,
+  AlertTriangle,
+  Trash2
 } from 'lucide-react';
+import type { CallLog, CustomerProfile, Quotation } from '../types';
 
-interface DashboardCustomer {
-  id: string;
-  name: string;
-  phone: string;
-  address: string;
+interface DashboardProps {
+  customers: CustomerProfile[];
+  quotations: Quotation[];
+  selectedCustomerId: string;
+  selectedCustomer?: CustomerProfile;
+  currentSalesperson: string;
+  onSelectCustomer: (customerId: string) => void;
+  onRegisterCustomer: (customer: { name: string; phone: string; address: string }, actor: string) => CustomerProfile;
+  onUpdateCustomer: (customerId: string, customer: { name: string; phone: string; address: string }, actor: string) => void;
+  onAddCallLog: (customerId: string, callLog: Omit<CallLog, 'id' | 'customerId' | 'timestamp'> & { callTime?: string }) => void;
+  onDeleteCallLog: (customerId: string, callLogId: string) => void;
+  onDeleteCustomer: (customerId: string) => void;
+  onOpenQuotationComposer: (customerId: string) => void;
 }
 
-interface DashboardQuotation {
-  id: string;
-  customerId: string;
-  customerName: string;
-  amount: number;
-  discount: number;
-  finalAmount: number;
-  createdAt: string;
-  note?: string;
-}
+const emptyCustomer = { name: '', phone: '', address: '' };
 
-const initialCustomers: DashboardCustomer[] = [
-  { id: 'c-1', name: 'Sarah Jenkins', phone: '0771234567', address: '123 Main St, Colombo' },
-  { id: 'c-2', name: 'Michael Chen', phone: '0779876543', address: '45 Park Ave, Kandy' }
-];
+const formatRelativeTime = (timestamp: string) => {
+  const eventTime = new Date(timestamp).getTime();
+  const diffMs = Date.now() - eventTime;
+  const minutes = Math.floor(diffMs / 60000);
 
-export default function Dashboard() {
-  const [customers, setCustomers] = useState<DashboardCustomer[]>(initialCustomers);
-  const [quotations, setQuotations] = useState<DashboardQuotation[]>([]);
-  const [activeCustomerId, setActiveCustomerId] = useState<string>('');
+  if (minutes < 1) {
+    return 'Just now';
+  }
+  if (minutes < 60) {
+    return `${minutes} min ago`;
+  }
 
-  // State for the Activity Pop-up Modal
-  const [showActivity, setShowActivity] = useState(false);
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) {
+    return `${hours} hr ago`;
+  }
 
+  const days = Math.floor(hours / 24);
+  return `${days} day${days > 1 ? 's' : ''} ago`;
+};
+
+export default function Dashboard({
+  customers,
+  quotations,
+  selectedCustomerId,
+  selectedCustomer,
+  currentSalesperson,
+  onSelectCustomer,
+  onRegisterCustomer,
+  onUpdateCustomer,
+  onAddCallLog,
+  onDeleteCallLog,
+  onDeleteCustomer,
+  onOpenQuotationComposer
+}: DashboardProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
-
-  const [newCustomer, setNewCustomer] = useState({ name: '', phone: '', address: '' });
-  const [quoteForm, setQuoteForm] = useState({ amount: '0', discount: '0', note: '' });
-
   const [isEditingCustomer, setIsEditingCustomer] = useState(false);
-  const [editCustomer, setEditCustomer] = useState({ name: '', phone: '', address: '' });
-  const amountInputRef = useRef<HTMLInputElement | null>(null);
+  const [newCustomer, setNewCustomer] = useState(emptyCustomer);
+  const [editCustomer, setEditCustomer] = useState(emptyCustomer);
+  const [callForm, setCallForm] = useState({
+    callTime: new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16),
+    summary: '',
+    durationMinutes: '5',
+    direction: 'Outgoing' as 'Incoming' | 'Outgoing'
+  });
 
-  const selectedCustomer = customers.find((customer) => customer.id === activeCustomerId);
+  const activeCustomer = selectedCustomer ?? customers.find((customer) => customer.id === selectedCustomerId);
 
-  // Filtered customers: Return empty array if search is empty
   const filteredCustomers = useMemo(() => {
-    if (!searchQuery.trim()) return [];
+    if (!searchQuery.trim()) {
+      return [];
+    }
+
     const query = searchQuery.toLowerCase();
     return customers.filter(
-      (c) => c.name.toLowerCase().includes(query) || c.phone.includes(query)
+      (customer) => customer.name.toLowerCase().includes(query) || customer.phone.includes(query)
     );
   }, [customers, searchQuery]);
 
-  const quoteAmount = Number(quoteForm.amount) || 0;
-  const quoteDiscount = Number(quoteForm.discount) || 0;
-  const quoteFinal = Math.max(0, quoteAmount - quoteDiscount);
-
-  const selectedCustomerQuotations = useMemo(
-    () => quotations.filter((quotation) => quotation.customerId === activeCustomerId),
-    [quotations, activeCustomerId]
+  const customerQuotations = useMemo(
+    () => quotations.filter((quotation) => quotation.customerId === activeCustomer?.id),
+    [quotations, activeCustomer?.id]
   );
 
-  const addCustomer = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const phoneExists = customers.some((customer) => customer.phone === newCustomer.phone.trim());
-    if (phoneExists) {
+  const recentHistory = useMemo(
+    () => (activeCustomer ? [...activeCustomer.history] : []),
+    [activeCustomer]
+  );
+
+  const callLogById = useMemo(
+    () => new Map(activeCustomer?.callLogs.map((log) => [log.id, log]) ?? []),
+    [activeCustomer]
+  );
+
+  const customerDuplicatePhone = customers.some((customer) => customer.phone === newCustomer.phone.trim());
+  const editDuplicatePhone = activeCustomer
+    ? customers.some(
+        (customer) => customer.id !== activeCustomer.id && customer.phone === editCustomer.phone.trim()
+      )
+    : false;
+
+  const inputStyles = 'w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all duration-200 placeholder:text-slate-400';
+
+  const handleRegisterCustomer = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (customerDuplicatePhone) {
       return;
     }
 
-    const customer: DashboardCustomer = {
-      id: `c-${Date.now()}`,
-      name: newCustomer.name.trim(),
-      phone: newCustomer.phone.trim(),
-      address: newCustomer.address.trim()
-    };
-
-    setCustomers((prev) => [customer, ...prev]);
-    setActiveCustomerId(customer.id);
-    setNewCustomer({ name: '', phone: '', address: '' });
+    const createdCustomer = onRegisterCustomer(newCustomer, currentSalesperson);
+    setNewCustomer(emptyCustomer);
     setIsRegistering(false);
     setSearchQuery('');
-    setShowActivity(false);
-
-    setTimeout(() => amountInputRef.current?.focus(), 100);
+    setIsEditingCustomer(false);
+    onSelectCustomer(createdCustomer.id);
   };
 
-  const beginEditSelectedCustomer = () => {
-    if (!selectedCustomer) return;
+  const handleSaveCustomer = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!activeCustomer || editDuplicatePhone) {
+      return;
+    }
+
+    onUpdateCustomer(activeCustomer.id, editCustomer, currentSalesperson);
+    setIsEditingCustomer(false);
+  };
+
+  const startEditCustomer = () => {
+    if (!activeCustomer) {
+      return;
+    }
+
     setEditCustomer({
-      name: selectedCustomer.name,
-      phone: selectedCustomer.phone,
-      address: selectedCustomer.address
+      name: activeCustomer.name,
+      phone: activeCustomer.phone,
+      address: activeCustomer.address
     });
     setIsEditingCustomer(true);
   };
 
-  const saveSelectedCustomer = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!selectedCustomer) return;
-
-    const duplicatePhone = customers.some(
-      (customer) => customer.id !== selectedCustomer.id && customer.phone === editCustomer.phone.trim()
-    );
-
-    if (duplicatePhone) return;
-
-    setCustomers((prev) =>
-      prev.map((customer) =>
-        customer.id === selectedCustomer.id
-          ? {
-            ...customer,
-            name: editCustomer.name.trim(),
-            phone: editCustomer.phone.trim(),
-            address: editCustomer.address.trim()
-          }
-          : customer
-      )
-    );
-
-    setIsEditingCustomer(false);
-  };
-
-  const createQuotation = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!selectedCustomer || quoteAmount <= 0) return;
-
-    const quotation: DashboardQuotation = {
-      id: `QT-${new Date().getFullYear()}-${String(quotations.length + 1).padStart(3, '0')}`,
-      customerId: selectedCustomer.id,
-      customerName: selectedCustomer.name,
-      amount: quoteAmount,
-      discount: quoteDiscount,
-      finalAmount: quoteFinal,
-      createdAt: new Date().toISOString(),
-      note: quoteForm.note.trim()
-    };
-
-    setQuotations((prev) => [quotation, ...prev]);
-    setQuoteForm({ amount: '0', discount: '0', note: '' });
-    setShowActivity(true); // Pop up the timeline automatically when a quote is created
-  };
-
-  const handleQuickAction = (action: 'call-note' | 'generate-quote' | 'upload-design') => {
-    if (action === 'call-note') {
-      setQuoteForm((prev) => ({
-        ...prev,
-        note: prev.note.trim() === '' ? `Call note for ${selectedCustomer?.name ?? 'customer'}: ` : prev.note
-      }));
+  const handleAddCallLog = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!activeCustomer || callForm.summary.trim() === '') {
       return;
     }
-    if (action === 'generate-quote') {
-      amountInputRef.current?.focus();
-      return;
-    }
-    setQuoteForm((prev) => ({
-      ...prev,
-      note: prev.note.trim() === '' ? 'Design document uploaded and shared.' : prev.note
-    }));
+
+    onAddCallLog(activeCustomer.id, {
+      agent: currentSalesperson,
+      summary: callForm.summary.trim(),
+      durationMinutes: Number(callForm.durationMinutes) || 0,
+      callTime: callForm.callTime,
+      direction: callForm.direction
+    });
+
+    setCallForm({
+      callTime: new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16),
+      summary: '',
+      durationMinutes: '5',
+      direction: 'Outgoing'
+    });
   };
-
-  const customerDuplicatePhone = customers.some((customer) => customer.phone === newCustomer.phone.trim());
-
-  const inputStyles = "w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all duration-200 placeholder:text-slate-400";
 
   return (
     <div className="min-h-screen bg-slate-50/50 p-4 md:p-8 font-sans text-slate-800">
-
       <div className="space-y-8 max-w-7xl mx-auto">
         <header className="space-y-1">
           <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">Workspace</h2>
-          <p className="text-slate-500 text-sm font-medium">Search or register a customer, then generate a quotation.</p>
+          <p className="text-slate-500 text-sm font-medium">
+            Register customers, log calls by phone number, then jump into quotations and invoices.
+          </p>
         </header>
 
-        {/* Top Stat Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center justify-between">
             <div>
               <p className="text-xs uppercase tracking-widest text-slate-400 font-bold mb-1">Total Customers</p>
@@ -202,9 +203,7 @@ export default function Dashboard() {
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center justify-between">
             <div className="truncate pr-4">
               <p className="text-xs uppercase tracking-widest text-slate-400 font-bold mb-1">Active Customer</p>
-              <p className="text-lg font-bold text-slate-800 truncate">
-                {selectedCustomer?.name ?? 'None selected'}
-              </p>
+              <p className="text-lg font-bold text-slate-800 truncate">{activeCustomer?.name ?? 'None selected'}</p>
             </div>
             <div className="p-3 bg-amber-50 text-amber-600 rounded-xl"><Crown size={24} /></div>
           </div>
@@ -215,113 +214,170 @@ export default function Dashboard() {
             </div>
             <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl"><ClipboardList size={24} /></div>
           </div>
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-slate-400 font-bold mb-1">Call Logs</p>
+              <p className="text-2xl font-black text-slate-800">{customers.reduce((sum, customer) => sum + customer.callLogs.length, 0)}</p>
+            </div>
+            <div className="p-3 bg-sky-50 text-sky-600 rounded-xl"><PhoneCall size={24} /></div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-
-          {/* STEP 1: Find or Register Customer OR Active Profile */}
-          <section className="bg-white rounded-2xl border border-slate-100 p-4 md:p-6 shadow-sm flex flex-col h-[400px] md:h-[450px]">
+          <section className="bg-white rounded-2xl border border-slate-100 p-4 md:p-6 shadow-sm flex flex-col h-[520px] md:h-[560px]">
             <div className="flex items-center justify-between mb-5">
               <h3 className="font-bold text-slate-800 flex items-center gap-2">
                 <span className="bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-black">1</span>
-                {selectedCustomer ? 'Active Customer' : 'Find or Register'}
+                {activeCustomer ? 'Active Customer' : 'Find or Register'}
               </h3>
 
-              {selectedCustomer && !isEditingCustomer ? (
+              {activeCustomer && !isEditingCustomer ? (
                 <button
                   onClick={() => {
-                    setActiveCustomerId('');
+                    onSelectCustomer('');
                     setSearchQuery('');
-                    setShowActivity(false);
                   }}
                   className="text-xs font-bold text-slate-400 hover:text-slate-600 flex items-center gap-1"
                 >
                   <X size={14} /> Clear Selection
                 </button>
               ) : isRegistering ? (
-                <button onClick={() => setIsRegistering(false)} className="text-xs font-bold text-slate-400 hover:text-slate-600 flex items-center gap-1">
+                <button
+                  onClick={() => {
+                    setIsRegistering(false);
+                    setNewCustomer(emptyCustomer);
+                  }}
+                  className="text-xs font-bold text-slate-400 hover:text-slate-600 flex items-center gap-1"
+                >
                   <X size={14} /> Cancel
                 </button>
               ) : null}
             </div>
 
-            {selectedCustomer ? (
-              <div className="flex-1 flex flex-col animate-in fade-in zoom-in-95 duration-200">
+            {activeCustomer ? (
+              <div className="flex-1 flex flex-col animate-in fade-in zoom-in-95 duration-200 overflow-hidden">
                 {isEditingCustomer ? (
-                  <div className="flex-1 flex flex-col justify-center">
-                    <h3 className="font-bold text-slate-800 flex items-center gap-2 mb-4 text-sm">
+                  <form onSubmit={handleSaveCustomer} className="space-y-3">
+                    <h3 className="font-bold text-slate-800 flex items-center gap-2 mb-2 text-sm">
                       <Pencil size={14} className="text-amber-500" /> Edit Information
                     </h3>
-                    <form onSubmit={saveSelectedCustomer} className="space-y-3">
-                      <input
-                        required
-                        value={editCustomer.name}
-                        onChange={(e) => setEditCustomer((prev) => ({ ...prev, name: e.target.value }))}
-                        className={inputStyles}
-                      />
+                    <input
+                      required
+                      value={editCustomer.name}
+                      onChange={(event) => setEditCustomer((prev) => ({ ...prev, name: event.target.value }))}
+                      className={inputStyles}
+                    />
+                    <div>
                       <input
                         required
                         value={editCustomer.phone}
-                        onChange={(e) => setEditCustomer((prev) => ({ ...prev, phone: e.target.value }))}
-                        className={inputStyles}
+                        onChange={(event) => setEditCustomer((prev) => ({ ...prev, phone: event.target.value }))}
+                        className={`${inputStyles} ${editDuplicatePhone ? 'border-red-300 bg-red-50 focus:border-red-500' : ''}`}
                       />
-                      <textarea
-                        required
-                        value={editCustomer.address}
-                        onChange={(e) => setEditCustomer((prev) => ({ ...prev, address: e.target.value }))}
-                        className={`${inputStyles} h-20 resize-none`}
-                      />
-                      <div className="flex gap-3 pt-2">
-                        <button type="button" onClick={() => setIsEditingCustomer(false)} className="flex-1 px-4 py-2.5 border border-slate-200 bg-white hover:bg-slate-50 rounded-xl text-sm font-bold text-slate-600 transition-colors">
-                          Cancel
-                        </button>
-                        <button type="submit" className="flex-1 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm active:scale-[0.98] transition-all">
-                          Save
-                        </button>
-                      </div>
-                    </form>
-                  </div>
+                      {editDuplicatePhone && (
+                        <p className="text-xs text-red-500 font-medium mt-1.5 ml-1">Phone number already registered.</p>
+                      )}
+                    </div>
+                    <textarea
+                      value={editCustomer.address}
+                      onChange={(event) => setEditCustomer((prev) => ({ ...prev, address: event.target.value }))}
+                      placeholder="Address (optional)"
+                      className={`${inputStyles} h-20 resize-none`}
+                    />
+                    <div className="flex gap-3 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingCustomer(false)}
+                        className="flex-1 px-4 py-2.5 border border-slate-200 bg-white hover:bg-slate-50 rounded-xl text-sm font-bold text-slate-600 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="flex-1 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm active:scale-[0.98] transition-all"
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </form>
                 ) : (
                   <div className="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden relative flex-1 flex flex-col h-full">
                     <div className="h-16 bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-700 opacity-90" />
-                    <div className="px-5 pb-5 -mt-8 relative z-10 flex-1 flex flex-col">
+                    <div className="px-5 pb-5 -mt-8 relative z-10 flex-1 flex flex-col overflow-hidden">
                       <div className="w-16 h-16 rounded-xl border-4 border-white bg-slate-900 text-white flex items-center justify-center text-lg font-black shadow-md">
-                        {selectedCustomer.name.split(' ').map((part) => part[0]).join('').slice(0, 2)}
+                        {activeCustomer.name
+                          .split(' ')
+                          .map((part) => part[0])
+                          .join('')
+                          .slice(0, 2)}
                       </div>
 
-                      <p className="mt-3 text-lg font-black text-slate-900">{selectedCustomer.name}</p>
+                      <p className="mt-3 text-lg font-black text-slate-900">{activeCustomer.name}</p>
 
                       <div className="flex items-center gap-2 mt-1.5">
                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold uppercase tracking-wider flex items-center gap-1">
                           <Crown size={10} /> Premium
                         </span>
                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold uppercase tracking-wider">
-                          Stage: {selectedCustomerQuotations.length > 0 ? 'Active' : 'Lead'}
+                          {customerQuotations.length > 0 ? 'Customer has quotations' : 'New lead'}
                         </span>
                       </div>
 
                       <div className="mt-4 space-y-2 text-xs text-slate-600 font-medium">
                         <div className="flex items-center gap-2 p-2 bg-white rounded-lg border border-slate-100 shadow-sm">
                           <Phone size={14} className="text-indigo-500" />
-                          <p>{selectedCustomer.phone}</p>
+                          <p>{activeCustomer.phone}</p>
                         </div>
                         <div className="flex items-start gap-2 p-2 bg-white rounded-lg border border-slate-100 shadow-sm">
                           <MapPin size={14} className="text-slate-400 mt-0.5" />
-                          <p className="leading-relaxed line-clamp-2">{selectedCustomer.address}</p>
+                          <p className="leading-relaxed line-clamp-2">{activeCustomer.address || 'No address provided'}</p>
+                        </div>
+                      </div>
+
+                      <div className="mt-3 p-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600">
+                        <p className="font-bold text-slate-700">Customer Owner: {activeCustomer.ownerName}</p>
+                        {activeCustomer.ownerName !== currentSalesperson && (
+                          <p className="mt-1 inline-flex items-center gap-1 text-amber-700 font-semibold">
+                            <AlertTriangle size={12} /> This customer belongs to {activeCustomer.ownerName}. Your update will still be recorded under your name.
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="mt-4 grid grid-cols-2 gap-2 text-[11px] text-slate-600">
+                        <div className="bg-white border border-slate-100 rounded-lg p-2">
+                          <p className="text-slate-400 uppercase tracking-wider font-semibold">Quotations</p>
+                          <p className="font-bold text-slate-900">{customerQuotations.length}</p>
+                        </div>
+                        <div className="bg-white border border-slate-100 rounded-lg p-2">
+                          <p className="text-slate-400 uppercase tracking-wider font-semibold">Calls</p>
+                          <p className="font-bold text-slate-900">{activeCustomer.callLogs.length}</p>
                         </div>
                       </div>
 
                       <div className="mt-auto pt-3 flex gap-2">
-                        <button onClick={beginEditSelectedCustomer} className="flex-1 flex justify-center items-center gap-1.5 bg-white border border-slate-200 px-3 py-2 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm">
+                        <button
+                          onClick={startEditCustomer}
+                          className="flex-1 flex justify-center items-center gap-1.5 bg-white border border-slate-200 px-3 py-2 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
+                        >
                           <Pencil size={12} /> Edit
                         </button>
 
-                        {/* Check Activity Button */}
                         <button
-                          onClick={() => setShowActivity(true)}
+                          onClick={() => onOpenQuotationComposer(activeCustomer.id)}
                           className="flex-1 flex justify-center items-center gap-1.5 bg-slate-900 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-slate-800 shadow-sm transition-colors active:scale-[0.98]"
                         >
-                          <Clock3 size={12} /> Activity
+                          <FileText size={12} /> Quote
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            if (window.confirm(`Delete customer ${activeCustomer.name}?`)) {
+                              onDeleteCustomer(activeCustomer.id);
+                            }
+                          }}
+                          className="flex-1 flex justify-center items-center gap-1.5 bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors"
+                        >
+                          <Trash2 size={12} /> Delete
                         </button>
                       </div>
                     </div>
@@ -334,8 +390,8 @@ export default function Dashboard() {
                   <Search className="absolute left-3.5 top-3 text-slate-400" size={18} />
                   <input
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search by name or phone..."
+                    onChange={(event) => setSearchQuery(event.target.value)}
+                    placeholder="Search by name or telephone number..."
                     className={`${inputStyles} pl-10`}
                   />
                 </div>
@@ -363,10 +419,9 @@ export default function Dashboard() {
                         <button
                           key={customer.id}
                           onClick={() => {
-                            setActiveCustomerId(customer.id);
+                            onSelectCustomer(customer.id);
                             setIsEditingCustomer(false);
-                            setShowActivity(false);
-                            amountInputRef.current?.focus();
+                            setIsRegistering(false);
                           }}
                           className="w-full text-left rounded-xl px-4 py-3 transition-all duration-200 border border-slate-100 bg-slate-50 hover:bg-slate-100 hover:border-slate-200"
                         >
@@ -395,11 +450,11 @@ export default function Dashboard() {
                 </div>
               </>
             ) : (
-              <form onSubmit={addCustomer} className="space-y-4 flex-1 flex flex-col justify-center animate-in fade-in slide-in-from-bottom-4 duration-300">
+              <form onSubmit={handleRegisterCustomer} className="space-y-4 flex-1 flex flex-col justify-center animate-in fade-in slide-in-from-bottom-4 duration-300">
                 <input
                   required
                   value={newCustomer.name}
-                  onChange={(e) => setNewCustomer((prev) => ({ ...prev, name: e.target.value }))}
+                  onChange={(event) => setNewCustomer((prev) => ({ ...prev, name: event.target.value }))}
                   placeholder="Full Name"
                   className={inputStyles}
                 />
@@ -407,17 +462,16 @@ export default function Dashboard() {
                   <input
                     required
                     value={newCustomer.phone}
-                    onChange={(e) => setNewCustomer((prev) => ({ ...prev, phone: e.target.value }))}
+                    onChange={(event) => setNewCustomer((prev) => ({ ...prev, phone: event.target.value }))}
                     placeholder="Telephone Number"
                     className={`${inputStyles} ${customerDuplicatePhone ? 'border-red-300 bg-red-50 focus:border-red-500' : ''}`}
                   />
                   {customerDuplicatePhone && <p className="text-xs text-red-500 font-medium mt-1.5 ml-1">Phone number already registered.</p>}
                 </div>
                 <textarea
-                  required
                   value={newCustomer.address}
-                  onChange={(e) => setNewCustomer((prev) => ({ ...prev, address: e.target.value }))}
-                  placeholder="Full Address"
+                  onChange={(event) => setNewCustomer((prev) => ({ ...prev, address: event.target.value }))}
+                  placeholder="Full Address (optional)"
                   className={`${inputStyles} h-24 resize-none`}
                 />
                 <button
@@ -431,181 +485,195 @@ export default function Dashboard() {
             )}
           </section>
 
-          {/* STEP 2: Make Quotation */}
-          <section className={`bg-white rounded-2xl border border-slate-100 p-6 shadow-sm h-[450px] transition-opacity duration-300 relative ${!selectedCustomer ? 'opacity-50' : 'opacity-100'}`}>
-            {!selectedCustomer && (
+          <section className={`bg-white rounded-2xl border border-slate-100 p-4 md:p-6 shadow-sm h-[520px] md:h-[560px] transition-opacity duration-300 relative ${!activeCustomer ? 'opacity-50' : 'opacity-100'}`}>
+            {!activeCustomer && (
               <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/40 backdrop-blur-[1px] rounded-2xl">
                 <p className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg">Select a customer first</p>
               </div>
             )}
 
-            <h3 className="font-bold text-slate-800 flex items-center gap-2 mb-5">
-              <span className="bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-black">2</span>
-              Create Quotation
-            </h3>
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                <span className="bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-black">2</span>
+                Call Logs & History
+              </h3>
+              {activeCustomer && (
+                <span className="text-[10px] px-2 py-1 rounded-full bg-slate-100 text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1">
+                  <History size={10} /> Timeline
+                </span>
+              )}
+            </div>
 
-            <form onSubmit={createQuotation} className="space-y-4 flex flex-col h-[calc(100%-2.5rem)]">
-              <div className="flex gap-4">
-                <div className="relative flex-1">
-                  <span className="absolute left-4 top-3 text-slate-400 font-semibold">$</span>
-                  <input
-                    ref={amountInputRef}
-                    type="number"
-                    min="0"
-                    value={quoteForm.amount}
-                    onChange={(e) => setQuoteForm((prev) => ({ ...prev, amount: e.target.value }))}
-                    placeholder="Amount"
-                    className={`${inputStyles} pl-8`}
-                    disabled={!selectedCustomer}
+            {activeCustomer ? (
+              <div className="flex flex-col h-[calc(100%-2.5rem)] gap-4 overflow-hidden">
+                <form onSubmit={handleAddCallLog} className="space-y-3 bg-slate-50 border border-slate-200 rounded-xl p-4">
+                  <div className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    <NotebookPen size={14} /> Add Call Log
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <input
+                      required
+                      type="datetime-local"
+                      value={callForm.callTime}
+                      onChange={(event) => setCallForm((prev) => ({ ...prev, callTime: event.target.value }))}
+                      className={inputStyles}
+                    />
+                    <input
+                      type="number"
+                      min="1"
+                      value={callForm.durationMinutes}
+                      onChange={(event) => setCallForm((prev) => ({ ...prev, durationMinutes: event.target.value }))}
+                      placeholder="Duration (min)"
+                      className={inputStyles}
+                    />
+                  </div>
+                  <select
+                    value={callForm.direction}
+                    onChange={(event) => setCallForm((prev) => ({ ...prev, direction: event.target.value as 'Incoming' | 'Outgoing' }))}
+                    className={inputStyles}
+                  >
+                    <option value="Outgoing">Outgoing Call</option>
+                    <option value="Incoming">Incoming Call</option>
+                  </select>
+                  <textarea
+                    required
+                    value={callForm.summary}
+                    onChange={(event) => setCallForm((prev) => ({ ...prev, summary: event.target.value }))}
+                    placeholder="Remark: what was discussed"
+                    className={`${inputStyles} h-24 resize-none`}
                   />
-                </div>
+                  <button
+                    type="submit"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm active:scale-[0.98] transition-all"
+                  >
+                    <Plus size={14} /> Save Call Log
+                  </button>
+                </form>
 
-                <div className="relative flex-1">
-                  <span className="absolute left-4 top-3 text-slate-400 font-semibold">$</span>
-                  <input
-                    type="number"
-                    min="0"
-                    value={quoteForm.discount}
-                    onChange={(e) => setQuoteForm((prev) => ({ ...prev, discount: e.target.value }))}
-                    placeholder="Discount"
-                    className={`${inputStyles} pl-8`}
-                    disabled={!selectedCustomer}
-                  />
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex-1 overflow-hidden flex flex-col">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400 flex items-center gap-1">
+                      <Clock3 size={12} /> Interaction Timeline
+                    </p>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Ongoing</span>
+                  </div>
+                  <div className="space-y-0 overflow-y-auto pr-1">
+                    {recentHistory.length === 0 ? (
+                      <p className="text-sm text-slate-500">No activity history yet.</p>
+                    ) : (
+                      recentHistory.map((entry) => {
+                        const linkedCall = entry.refId ? callLogById.get(entry.refId) : undefined;
+                        const isIncomingCall = linkedCall?.direction === 'Incoming';
+
+                        return (
+                          <div key={entry.id} className="relative pl-7 pb-5 last:pb-0">
+                            <div className="absolute left-2 top-2 bottom-0 w-px bg-slate-200" />
+                            <span className={`absolute left-0 top-2 h-4 w-4 rounded-full border-2 ${isIncomingCall ? 'bg-emerald-100 border-emerald-500' : 'bg-indigo-100 border-indigo-500'}`} />
+
+                            <div className="bg-white border border-slate-100 rounded-lg p-3 shadow-sm">
+                              <div className="flex items-center justify-between gap-2 text-[11px] font-semibold">
+                                <span className="uppercase tracking-wider text-slate-500">{entry.action}</span>
+                                <span className="text-slate-400">{formatRelativeTime(entry.timestamp)}</span>
+                              </div>
+                              <p className="text-sm text-slate-800 mt-1">{entry.note}</p>
+                              <div className="mt-2 flex items-center gap-2 text-[11px]">
+                                <span className={`px-2 py-0.5 rounded-full font-bold border ${isIncomingCall ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-indigo-50 text-indigo-700 border-indigo-200'}`}>
+                                  {linkedCall ? linkedCall.direction : entry.type}
+                                </span>
+                                <span className="text-slate-500">{entry.user}</span>
+                                {linkedCall && <span className="text-slate-400">{linkedCall.durationMinutes} min</span>}
+                                {linkedCall && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      if (window.confirm('Delete this call log?')) {
+                                        onDeleteCallLog(activeCustomer.id, linkedCall.id);
+                                      }
+                                    }}
+                                    className="ml-auto p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded"
+                                    title="Delete call log"
+                                  >
+                                    <Trash2 size={12} />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
                 </div>
               </div>
-
-              <textarea
-                value={quoteForm.note}
-                onChange={(e) => setQuoteForm((prev) => ({ ...prev, note: e.target.value }))}
-                placeholder="Optional notes or terms..."
-                className={`${inputStyles} h-24 resize-none`}
-                disabled={!selectedCustomer}
-              />
-
-              <div className="bg-slate-900 rounded-xl p-4 text-white shadow-md mt-auto mb-4">
-                <p className="flex items-center gap-2 text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
-                  <Calculator size={14} /> Final Total
-                </p>
-                <p className="text-3xl font-black">${quoteFinal.toFixed(2)}</p>
+            ) : (
+              <div className="h-[calc(100%-2.5rem)] flex flex-col items-center justify-center text-center space-y-4 pt-8">
+                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300">
+                  <NotebookPen size={32} />
+                </div>
+                <div>
+                  <p className="text-slate-800 font-bold">Call log workspace</p>
+                  <p className="text-sm text-slate-500 mt-1 max-w-sm">Search by telephone number, open a customer, and capture every call in their profile history.</p>
+                </div>
               </div>
-
-              <button
-                type="submit"
-                disabled={!selectedCustomer || quoteAmount <= 0}
-                className="w-full bg-indigo-600 text-white px-4 py-3 rounded-xl text-sm font-bold hover:bg-indigo-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-              >
-                Generate Document
-              </button>
-            </form>
+            )}
           </section>
 
-          {/* Quick Actions */}
-          <aside className="bg-slate-100/50 rounded-2xl border border-slate-200 p-6 shadow-inner h-[450px] flex flex-col">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-5">Quick Tools</p>
-
-            <div className="space-y-3">
-              {[
-                { id: 'call-note', icon: NotebookPen, label: 'Log a Call/Note' },
-                { id: 'generate-quote', icon: FileText, label: 'Prepare Quote' },
-                { id: 'upload-design', icon: Upload, label: 'Upload Design Doc' }
-              ].map((action) => (
+          <aside className="bg-slate-100/50 rounded-2xl border border-slate-200 p-4 md:p-6 shadow-inner h-[520px] md:h-[560px] flex flex-col gap-4">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-3">Quick Tools</p>
+              <div className="space-y-3">
                 <button
-                  key={action.id}
                   type="button"
-                  onClick={() => handleQuickAction(action.id as any)}
-                  disabled={!selectedCustomer}
+                  onClick={() => activeCustomer && onOpenQuotationComposer(activeCustomer.id)}
+                  disabled={!activeCustomer}
                   className="group w-full flex items-center justify-between rounded-xl bg-white border border-slate-200 px-4 py-4 text-sm font-bold text-slate-700 hover:border-indigo-300 hover:shadow-sm transition-all disabled:opacity-50 disabled:pointer-events-none"
                 >
                   <span className="flex items-center gap-3">
-                    <action.icon size={18} className="text-slate-400 group-hover:text-indigo-500 transition-colors" />
-                    {action.label}
+                    <FileText size={18} className="text-slate-400 group-hover:text-indigo-500 transition-colors" />
+                    Create Quotation
                   </span>
                   <Plus size={16} className="text-slate-300 group-hover:text-indigo-500 transition-colors" />
                 </button>
-              ))}
+                <button
+                  type="button"
+                  onClick={() => onSelectCustomer('')}
+                  className="group w-full flex items-center justify-between rounded-xl bg-white border border-slate-200 px-4 py-4 text-sm font-bold text-slate-700 hover:border-slate-300 hover:shadow-sm transition-all"
+                >
+                  <span className="flex items-center gap-3">
+                    <PlaySquare size={18} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
+                    Customer Search
+                  </span>
+                  <Search size={16} className="text-slate-300 group-hover:text-slate-500 transition-colors" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (activeCustomer) {
+                      onSelectCustomer(activeCustomer.id);
+                    }
+                  }}
+                  disabled={!activeCustomer}
+                  className="group w-full flex items-center justify-between rounded-xl bg-white border border-slate-200 px-4 py-4 text-sm font-bold text-slate-700 hover:border-slate-300 hover:shadow-sm transition-all disabled:opacity-50 disabled:pointer-events-none"
+                >
+                  <span className="flex items-center gap-3">
+                    <ReceiptText size={18} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
+                    Customer Documents
+                  </span>
+                  <History size={16} className="text-slate-300 group-hover:text-slate-500 transition-colors" />
+                </button>
+              </div>
             </div>
 
-            <div className="mt-auto pt-4">
+            <div className="mt-auto pt-2">
               <div className="text-xs text-slate-500 bg-white/60 border border-slate-200 rounded-xl p-4 text-center">
-                Active Context:<br />
-                <span className="font-bold text-slate-800 text-sm mt-1 block truncate">
-                  {selectedCustomer?.name ?? '—'}
-                </span>
+                Active Context:
+                <br />
+                <span className="font-bold text-slate-800 text-sm mt-1 block truncate">{activeCustomer?.name ?? '—'}</span>
               </div>
             </div>
           </aside>
         </div>
       </div>
-
-      {/* Activity Pop-up Modal */}
-      {selectedCustomer && showActivity && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200"
-          onClick={() => setShowActivity(false)}
-        >
-          <div
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col animate-in zoom-in-95 duration-200 overflow-hidden"
-            onClick={(e) => e.stopPropagation()} // Prevent clicks inside the modal from closing it
-          >
-            {/* Modal Header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-white z-10">
-              <div className="flex flex-col">
-                <h3 className="font-bold text-slate-900 flex items-center gap-2 text-xl">
-                  <Clock3 size={22} className="text-indigo-500" /> Activity Timeline
-                </h3>
-                <p className="text-sm text-slate-500 font-medium ml-8">
-                  History for <span className="text-slate-700 font-bold">{selectedCustomer.name}</span>
-                </p>
-              </div>
-              <button
-                onClick={() => setShowActivity(false)}
-                className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors"
-                aria-label="Close activity modal"
-              >
-                <X size={24} />
-              </button>
-            </div>
-
-            {/* Modal Content (Scrollable) */}
-            <div className="overflow-y-auto p-6 flex-1 bg-slate-50/30">
-              <div className="space-y-5 max-w-2xl mx-auto">
-                {selectedCustomerQuotations.length === 0 ? (
-                  <div className="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center text-sm text-slate-500 font-medium bg-slate-50/50">
-                    No activity tracked yet. Generate a quotation to start the timeline.
-                  </div>
-                ) : (
-                  selectedCustomerQuotations.map((quotation, index) => (
-                    <div key={`timeline-${quotation.id}`} className="relative border border-slate-100 rounded-2xl p-6 pl-12 bg-white shadow-sm hover:shadow-md transition-shadow">
-                      <div className="absolute left-5 top-7 text-indigo-500"><CircleDot size={16} /></div>
-                      {index !== selectedCustomerQuotations.length - 1 && (
-                        <div className="absolute left-[1.65rem] top-12 bottom-[-1.5rem] w-px bg-slate-200" />
-                      )}
-
-                      <div className="flex items-center justify-between mb-1">
-                        <p className="text-xs font-black text-indigo-600 uppercase tracking-widest">Quotation Created</p>
-                        <span className="text-[11px] px-3 py-1 rounded-md bg-slate-100 text-slate-600 font-bold">
-                          {new Date(quotation.createdAt).toLocaleDateString()}
-                        </span>
-                      </div>
-
-                      <p className="text-slate-800 mt-2 font-medium">
-                        Generated <strong className="text-slate-900">{quotation.id}</strong>. Final amount finalized at <strong className="text-emerald-600">${quotation.finalAmount.toFixed(2)}</strong>.
-                      </p>
-
-                      {quotation.note && (
-                        <div className="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-100 text-sm text-slate-600 italic">
-                          "{quotation.note}"
-                        </div>
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
     </div>
   );
 }

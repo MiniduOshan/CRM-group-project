@@ -8,7 +8,8 @@ import {
   Check,
   Users,
   UserCheck,
-  Briefcase
+  Briefcase,
+  Trash2
 } from 'lucide-react';
 import { StaffUser, UserPermission } from '../types';
 
@@ -23,31 +24,13 @@ const permissionOptions: UserPermission[] = [
 
 const defaultStaffPermissions: UserPermission[] = ['Dashboard', 'Customer Management'];
 
-const initialUsers: StaffUser[] = [
-  {
-    id: 'u-1',
-    name: 'Adele Dias',
-    role: 'Manager',
-    phone: '0774001223',
-    email: 'adele@pantrysolutions.com',
-    status: 'Active',
-    createdAt: '2024-01-08T09:00:00Z',
-    permissions: [...permissionOptions]
-  },
-  {
-    id: 'u-2',
-    name: 'Nimal Perera',
-    role: 'Sales Person',
-    phone: '0779881122',
-    email: 'nimal@pantrysolutions.com',
-    status: 'Active',
-    createdAt: '2024-02-12T10:30:00Z',
-    permissions: ['Dashboard', 'Customer Management', 'Quotations']
-  }
-];
+interface UserManagementProps {
+  users: StaffUser[];
+  onCreateUser: (user: StaffUser) => void;
+  onDeleteUser: (userId: string) => void;
+}
 
-export default function UserManagement() {
-  const [users, setUsers] = useState<StaffUser[]>(initialUsers);
+export default function UserManagement({ users, onCreateUser, onDeleteUser }: UserManagementProps) {
   const [newUser, setNewUser] = useState({
     name: '',
     role: 'Sales Person' as StaffUser['role'],
@@ -108,7 +91,7 @@ export default function UserManagement() {
       permissions: newUser.permissions
     };
 
-    setUsers((prev) => [user, ...prev]);
+    onCreateUser(user);
     setNewUser({
       name: '',
       role: 'Sales Person',
@@ -311,6 +294,19 @@ export default function UserManagement() {
                   <span className="px-2 py-1 rounded text-[10px] font-bold border bg-green-50 text-green-700 border-green-100">
                     {user.status.toUpperCase()}
                   </span>
+                  <button
+                    type="button"
+                    disabled={user.role === 'Manager'}
+                    onClick={() => {
+                      if (window.confirm(`Delete user ${user.name}?`)) {
+                        onDeleteUser(user.id);
+                      }
+                    }}
+                    className="ml-3 p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded disabled:opacity-40 disabled:cursor-not-allowed"
+                    title={user.role === 'Manager' ? 'Manager cannot be deleted' : 'Delete user'}
+                  >
+                    <Trash2 size={14} />
+                  </button>
                 </td>
               </tr>
             ))}
@@ -326,9 +322,24 @@ export default function UserManagement() {
                   <p className="text-sm font-semibold text-gray-700">{user.name}</p>
                   <p className="text-xs text-gray-500">{user.role}</p>
                 </div>
-                <span className="px-2 py-1 rounded text-[10px] font-bold border bg-green-50 text-green-700 border-green-100">
-                  {user.status.toUpperCase()}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-1 rounded text-[10px] font-bold border bg-green-50 text-green-700 border-green-100">
+                    {user.status.toUpperCase()}
+                  </span>
+                  <button
+                    type="button"
+                    disabled={user.role === 'Manager'}
+                    onClick={() => {
+                      if (window.confirm(`Delete user ${user.name}?`)) {
+                        onDeleteUser(user.id);
+                      }
+                    }}
+                    className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded disabled:opacity-40 disabled:cursor-not-allowed"
+                    title={user.role === 'Manager' ? 'Manager cannot be deleted' : 'Delete user'}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
               </div>
               <p className="text-xs text-gray-600 flex items-center gap-1">
                 <Phone size={12} className="text-gray-400" /> {user.phone}

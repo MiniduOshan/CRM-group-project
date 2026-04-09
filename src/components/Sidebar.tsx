@@ -6,13 +6,16 @@ import {
   Package, 
   MapPin, 
   BarChart3,
+  ReceiptText,
   Settings,
   ChevronRight
 } from 'lucide-react';
 import { motion } from 'motion/react';
+import type { StaffUser } from '../types';
 
 interface SidebarProps {
   activeTab: string;
+  activeUser?: StaffUser;
   setActiveTab: (tab: string) => void;
 }
 
@@ -20,6 +23,7 @@ const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'leads', label: 'Leads', icon: Users },
   { id: 'quotations', label: 'Quotations', icon: FileText },
+  { id: 'invoices', label: 'Invoices', icon: ReceiptText },
   { id: 'site-visits', label: 'Site Visits', icon: MapPin },
   { id: 'inventory', label: 'Inventory', icon: Package },
   { id: 'user-management', label: 'User Management', icon: UserCog },
@@ -27,7 +31,15 @@ const navItems = [
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
-export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
+const formatDate = (value: string) => {
+  const date = new Date(value);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
+export default function Sidebar({ activeTab, activeUser, setActiveTab }: SidebarProps) {
   return (
     <div className="w-64 h-screen bg-white border-r border-brand-line flex flex-col shadow-lg lg:shadow-none">
       <div className="p-6 border-b border-brand-line">
@@ -70,13 +82,21 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
       </nav>
       
       <div className="p-6 border-t border-brand-line">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold">
-            CS
-          </div>
-          <div>
-            <p className="text-xs font-bold">Admin User</p>
-            <p className="text-[10px] text-gray-400 uppercase">Staff</p>
+        <div className="space-y-3">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold">
+              {activeUser?.name
+                .split(' ')
+                .map((part) => part[0])
+                .join('')
+                .slice(0, 2)
+                .toUpperCase() || 'NA'}
+            </div>
+            <div>
+              <p className="text-xs font-bold">{activeUser?.name ?? 'No Active User'}</p>
+              <p className="text-[10px] text-gray-400">Joined {activeUser ? formatDate(activeUser.createdAt) : '--/--/----'}</p>
+              <p className="text-[10px] text-gray-400 uppercase">{activeUser?.role ?? 'Staff'}</p>
+            </div>
           </div>
         </div>
       </div>
