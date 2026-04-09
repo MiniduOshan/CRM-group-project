@@ -186,50 +186,54 @@ export default function Dashboard({
     <div className="p-4 md:p-8 w-full max-w-7xl mx-auto animate-in fade-in duration-500">
       <div className="space-y-8">
         <header className="space-y-1">
-          <h2 className="text-2xl md:text-3xl font-black tracking-tight text-brand-ink">Dashboard</h2>
+          <h2 className="text-xl md:text-2xl font-black tracking-tight text-brand-ink">Dashboard</h2>
           <p className="text-brand-text text-sm font-medium mt-1">
             Register customers, log calls by phone number, then jump into quotations and invoices.
           </p>
         </header>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
-          <div className="card flex items-center justify-between group hover:border-brand-accent/30 hover:shadow-elevated">
-            <div>
-              <p className="text-xs uppercase tracking-widest text-brand-text font-bold mb-1">Total Customers</p>
+          <div className="card flex items-center justify-between group hover:border-brand-accent/50 hover:shadow-lg hover:bg-indigo-50/30 transition-all">
+            <div className="flex-1">
+              <p className="text-[10px] uppercase tracking-wider text-brand-text font-bold mb-2">Total Customers</p>
               <p className="text-2xl font-black text-brand-ink">{customers.length}</p>
             </div>
-            <div className="p-3 bg-indigo-50 text-brand-accent rounded-xl group-hover:scale-110 transition-transform"><Users size={24} /></div>
+            <div className="p-3 bg-indigo-100 text-brand-accent rounded-xl group-hover:scale-125 transition-transform"><Users size={24} /></div>
           </div>
-          <div className="card flex items-center justify-between group hover:border-amber-500/30 hover:shadow-elevated">
-            <div className="truncate pr-4">
-              <p className="text-xs uppercase tracking-widest text-brand-text font-bold mb-1">Active Customer</p>
-              <p className="text-lg font-bold text-brand-ink truncate">{activeCustomer?.name ?? 'None selected'}</p>
+          <div className="card flex items-center justify-between group hover:border-amber-500/50 hover:shadow-lg hover:bg-amber-50/30 transition-all">
+            <div className="flex-1 truncate pr-4">
+              <p className="text-[10px] uppercase tracking-wider text-brand-text font-bold mb-2">Active Customer</p>
+              <p className="text-base font-bold text-brand-ink truncate" title={activeCustomer?.name}>{activeCustomer?.name ?? 'None selected'}</p>
             </div>
-            <div className="p-3 bg-amber-50 text-amber-600 rounded-xl group-hover:scale-110 transition-transform"><Crown size={24} /></div>
+            <div className="p-3 bg-amber-100 text-amber-600 rounded-xl group-hover:scale-125 transition-transform"><Crown size={24} /></div>
           </div>
-          <div className="card flex items-center justify-between group hover:border-emerald-500/30 hover:shadow-elevated">
-            <div>
-              <p className="text-xs uppercase tracking-widest text-brand-text font-bold mb-1">Quotations</p>
+          <div className="card flex items-center justify-between group hover:border-emerald-500/50 hover:shadow-lg hover:bg-emerald-50/30 transition-all">
+            <div className="flex-1">
+              <p className="text-[10px] uppercase tracking-wider text-brand-text font-bold mb-2">Quotations</p>
               <p className="text-2xl font-black text-brand-ink">{quotations.length}</p>
             </div>
-            <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl group-hover:scale-110 transition-transform"><ClipboardList size={24} /></div>
+            <div className="p-3 bg-emerald-100 text-emerald-600 rounded-xl group-hover:scale-125 transition-transform"><ClipboardList size={24} /></div>
           </div>
-          <div className="card flex items-center justify-between group hover:border-sky-500/30 hover:shadow-elevated">
-            <div>
-              <p className="text-xs uppercase tracking-widest text-brand-text font-bold mb-1">Call Logs</p>
+          <div className="card flex items-center justify-between group hover:border-sky-500/50 hover:shadow-lg hover:bg-sky-50/30 transition-all">
+            <div className="flex-1">
+              <p className="text-[10px] uppercase tracking-wider text-brand-text font-bold mb-2">Call Logs</p>
               <p className="text-2xl font-black text-brand-ink">{customers.reduce((sum, customer) => sum + customer.callLogs.length, 0)}</p>
             </div>
-            <div className="p-3 bg-sky-50 text-sky-600 rounded-xl group-hover:scale-110 transition-transform"><PhoneCall size={24} /></div>
+            <div className="p-3 bg-sky-100 text-sky-600 rounded-xl group-hover:scale-125 transition-transform"><PhoneCall size={24} /></div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-          <section className="card flex flex-col h-[520px] md:h-[560px]">
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="font-bold text-brand-ink flex items-center gap-2">
-                <span className="bg-brand-accent text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-black shadow-sm">1</span>
-                {activeCustomer ? 'Active Customer' : 'Find or Register'}
-              </h3>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Left: Customer Search & Selection - spans 5 columns */}
+          <section className="lg:col-span-5 card flex flex-col h-[600px]">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="font-bold text-lg text-brand-ink flex items-center gap-2">
+                  <span className="bg-brand-accent text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-black shadow-md">1</span>
+                  {activeCustomer ? 'Customer Profile' : 'Find a Customer'}
+                </h3>
+                <p className="text-xs text-brand-text mt-1">{activeCustomer ? 'View and manage customer details' : 'Search or create new customer'}</p>
+              </div>
 
               {activeCustomer && !isEditingCustomer ? (
                 <button
@@ -304,7 +308,7 @@ export default function Dashboard({
                   <div className="bg-brand-subtle border border-brand-line rounded-xl overflow-hidden relative flex-1 flex flex-col h-full shadow-inner">
                     <div className="h-20 bg-gradient-to-br from-brand-gradient-start via-purple-500 to-brand-gradient-end" />
                     <div className="px-5 pb-5 -mt-10 relative z-10 flex-1 flex flex-col overflow-hidden">
-                      <div className="w-20 h-20 rounded-2xl border-4 border-white bg-brand-ink text-white flex items-center justify-center text-xl font-black shadow-lg">
+                      <div className="w-20 h-20 rounded-2xl border-4 border-white bg-brand-ink text-white flex items-center justify-center text-lg font-black shadow-lg">
                         {activeCustomer.name
                           .split(' ')
                           .map((part) => part[0])
@@ -312,7 +316,7 @@ export default function Dashboard({
                           .slice(0, 2)}
                       </div>
                       
-                      <p className="mt-3 text-xl font-black text-brand-ink">{activeCustomer.name}</p>
+                      <p className="mt-3 text-lg font-black text-brand-ink">{activeCustomer.name}</p>
 
                       <div className="flex items-center gap-2 mt-1.5">
                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold uppercase tracking-wider flex items-center gap-1">
@@ -354,19 +358,19 @@ export default function Dashboard({
                         </div>
                       </div>
 
-                      <div className="mt-auto pt-4 flex gap-2">
+                      <div className="mt-auto pt-4 flex gap-3">
                         <button
                           onClick={startEditCustomer}
-                          className="flex-1 btn-secondary !py-2 !text-xs"
+                          className="flex-1 btn-secondary !py-2.5 !text-sm flex items-center justify-center gap-2"
                         >
-                          <Pencil size={12} /> Edit
+                          <Pencil size={14} /> Edit
                         </button>
 
                         <button
                           onClick={() => onOpenQuotationComposer(activeCustomer.id)}
-                          className="flex-1 btn-primary !py-2 !text-xs"
+                          className="flex-1 btn-primary !py-2.5 !text-sm flex items-center justify-center gap-2"
                         >
-                          <FileText size={12} /> Quote
+                          <FileText size={14} /> Quote
                         </button>
 
                         <button
@@ -375,7 +379,7 @@ export default function Dashboard({
                               onDeleteCustomer(activeCustomer.id);
                             }
                           }}
-                          className="flex-1 btn-danger !py-2 !text-xs"
+                          className="flex-1 btn-danger !py-2.5 !text-sm flex items-center justify-center gap-2"
                         >
                           <Trash2 size={12} /> Delete
                         </button>
@@ -450,34 +454,43 @@ export default function Dashboard({
                 </div>
               </>
             ) : (
-              <form onSubmit={handleRegisterCustomer} className="space-y-4 flex-1 flex flex-col justify-center animate-in fade-in slide-in-from-bottom-4 duration-300">
-                <input
-                  required
-                  value={newCustomer.name}
-                  onChange={(event) => setNewCustomer((prev) => ({ ...prev, name: event.target.value }))}
-                  placeholder="Full Name"
-                  className={inputStyles}
-                />
-                <div>
-                  <input
-                    required
-                    value={newCustomer.phone}
-                    onChange={(event) => setNewCustomer((prev) => ({ ...prev, phone: event.target.value }))}
-                    placeholder="Telephone Number"
-                    className={`${inputStyles} ${customerDuplicatePhone ? 'border-red-300 bg-red-50 focus:border-red-500' : ''}`}
-                  />
-                  {customerDuplicatePhone && <p className="text-xs text-red-500 font-medium mt-1.5 ml-1">Phone number already registered.</p>}
+              <form onSubmit={handleRegisterCustomer} className="space-y-4 flex-1 flex flex-col justify-between animate-in fade-in slide-in-from-bottom-4 duration-300">
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-xs font-bold text-brand-text uppercase tracking-wider block mb-1.5">Full Name *</label>
+                    <input
+                      required
+                      value={newCustomer.name}
+                      onChange={(event) => setNewCustomer((prev) => ({ ...prev, name: event.target.value }))}
+                      placeholder="Enter customer name"
+                      className={inputStyles}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-brand-text uppercase tracking-wider block mb-1.5">Phone Number *</label>
+                    <input
+                      required
+                      value={newCustomer.phone}
+                      onChange={(event) => setNewCustomer((prev) => ({ ...prev, phone: event.target.value }))}
+                      placeholder="Enter telephone number"
+                      className={`${inputStyles} ${customerDuplicatePhone ? 'border-red-300 bg-red-50 focus:border-red-500' : ''}`}
+                    />
+                    {customerDuplicatePhone && <p className="text-xs text-red-500 font-medium mt-1.5 ml-1">Phone number already registered.</p>}
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-brand-text uppercase tracking-wider block mb-1.5">Address (Optional)</label>
+                    <textarea
+                      value={newCustomer.address}
+                      onChange={(event) => setNewCustomer((prev) => ({ ...prev, address: event.target.value }))}
+                      placeholder="Enter full address"
+                      className={`${inputStyles} h-24 resize-none`}
+                    />
+                  </div>
                 </div>
-                <textarea
-                  value={newCustomer.address}
-                  onChange={(event) => setNewCustomer((prev) => ({ ...prev, address: event.target.value }))}
-                  placeholder="Full Address (optional)"
-                  className={`${inputStyles} h-24 resize-none`}
-                />
                 <button
                   type="submit"
                   disabled={customerDuplicatePhone}
-                  className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed mt-auto"
+                  className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed mt-4"
                 >
                   Save & Continue
                 </button>
@@ -485,21 +498,24 @@ export default function Dashboard({
             )}
           </section>
 
-          <section className={`bg-white rounded-2xl border border-slate-100 p-4 md:p-6 shadow-sm h-[520px] md:h-[560px] transition-opacity duration-300 relative ${!activeCustomer ? 'opacity-50' : 'opacity-100'}`}>
+          <section className={`bg-white rounded-2xl border border-slate-100 p-4 md:p-6 shadow-sm h-[600px] transition-opacity duration-300 relative lg:col-span-4 ${!activeCustomer ? 'opacity-50' : 'opacity-100'}`}>
             {!activeCustomer && (
               <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-sm rounded-2xl">
                 <p className="bg-brand-ink text-white px-4 py-2 rounded-xl text-sm font-bold shadow-xl">Select a customer first</p>
               </div>
             )}
 
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="font-bold text-brand-ink flex items-center gap-2">
-                <span className="bg-brand-accent text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-black shadow-sm">2</span>
-                Call Logs & History
-              </h3>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="font-bold text-lg text-brand-ink flex items-center gap-2">
+                  <span className="bg-brand-accent text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-black shadow-md">2</span>
+                  Call Logs
+                </h3>
+                <p className="text-xs text-brand-text mt-1">Outgoing and incoming call history</p>
+              </div>
               {activeCustomer && (
-                <span className="text-[10px] px-2 py-1 rounded-full bg-slate-100 text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1">
-                  <History size={10} /> Timeline
+                <span className="text-[10px] px-2.5 py-1.5 rounded-full bg-brand-accent/10 text-brand-accent font-bold uppercase tracking-wider flex items-center gap-1 border border-brand-accent/20">
+                  <History size={11} /> {activeCustomer.callLogs.length} calls
                 </span>
               )}
             </div>
@@ -606,69 +622,50 @@ export default function Dashboard({
                 </div>
               </div>
             ) : (
-              <div className="h-[calc(100%-2.5rem)] flex flex-col items-center justify-center text-center space-y-4 pt-8">
-                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300">
-                  <NotebookPen size={32} />
+              <div className="h-[calc(100%-3rem)] flex flex-col items-center justify-center text-center space-y-5 py-8">
+                <div className="w-16 h-16 bg-brand-accent/10 rounded-2xl flex items-center justify-center text-brand-accent">
+                  <Phone size={32} />
                 </div>
                 <div>
-                  <p className="text-brand-ink font-extrabold text-lg">Call log workspace</p>
-                  <p className="text-sm text-brand-text mt-1 max-w-sm">Search by telephone number, open a customer, and capture every call in their profile history.</p>
+                  <p className="text-brand-ink font-bold text-base">Select a Customer</p>
+                  <p className="text-xs text-brand-text mt-1.5">Choose a customer from the left panel to view and log their calls here.</p>
                 </div>
               </div>
             )}
           </section>
 
-          <aside className="bg-slate-100/50 rounded-2xl border border-slate-200 p-4 md:p-6 shadow-inner h-[520px] md:h-[560px] flex flex-col gap-4">
+          <aside className="bg-slate-100/50 rounded-2xl border border-slate-200 p-4 md:p-6 shadow-inner h-[600px] flex flex-col gap-4 lg:col-span-3">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-3">Quick Tools</p>
-              <div className="space-y-3">
+              <p className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 mb-4 flex items-center gap-2">
+                <span className="w-1.5 h-1.5 bg-brand-accent rounded-full"></span>
+                Quick Actions
+              </p>
+              <div className="space-y-2.5">
                 <button
                   type="button"
                   onClick={() => activeCustomer && onOpenQuotationComposer(activeCustomer.id)}
                   disabled={!activeCustomer}
-                  className="group w-full flex items-center justify-between rounded-xl bg-white border border-brand-line px-4 py-4 text-sm font-bold text-brand-text hover:border-brand-accent/50 hover:shadow-md transition-all disabled:opacity-50 disabled:pointer-events-none"
+                  className="group w-full flex items-center justify-center gap-2 rounded-xl bg-brand-accent hover:bg-brand-accent-hover text-white px-4 py-3 font-semibold text-sm transition-all shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:shadow-md"
                 >
-                  <span className="flex items-center gap-3">
-                    <FileText size={18} className="text-brand-accent group-hover:scale-110 transition-transform" />
-                    <span className="text-brand-ink group-hover:text-brand-accent transition-colors">Create Quotation</span>
-                  </span>
-                  <Plus size={16} className="text-slate-300 group-hover:text-brand-accent transition-colors" />
+                  <FileText size={18} />
+                  Create Quotation
                 </button>
                 <button
                   type="button"
                   onClick={() => onSelectCustomer('')}
-                  className="group w-full flex items-center justify-between rounded-xl bg-white border border-brand-line px-4 py-4 text-sm font-bold text-brand-text hover:border-brand-accent/50 hover:shadow-md transition-all"
+                  className="group w-full flex items-center justify-center gap-2 rounded-xl bg-white border-2 border-slate-200 hover:border-brand-accent text-brand-ink px-4 py-3 font-semibold text-sm transition-all hover:shadow-md"
                 >
-                  <span className="flex items-center gap-3">
-                    <PlaySquare size={18} className="text-amber-500 group-hover:scale-110 transition-transform" />
-                    <span className="text-brand-ink group-hover:text-brand-accent transition-colors">Customer Search</span>
-                  </span>
-                  <Search size={16} className="text-slate-300 group-hover:text-brand-accent transition-colors" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (activeCustomer) {
-                      onSelectCustomer(activeCustomer.id);
-                    }
-                  }}
-                  disabled={!activeCustomer}
-                  className="group w-full flex items-center justify-between rounded-xl bg-white border border-brand-line px-4 py-4 text-sm font-bold text-brand-text hover:border-brand-accent/50 hover:shadow-md transition-all disabled:opacity-50 disabled:pointer-events-none"
-                >
-                  <span className="flex items-center gap-3">
-                    <ReceiptText size={18} className="text-emerald-500 group-hover:scale-110 transition-transform" />
-                    <span className="text-brand-ink group-hover:text-brand-accent transition-colors">Customer Documents</span>
-                  </span>
-                  <History size={16} className="text-slate-300 group-hover:text-brand-accent transition-colors" />
+                  <Search size={18} />
+                  Find Customer
                 </button>
               </div>
             </div>
 
-            <div className="mt-auto pt-2">
-              <div className="text-xs text-slate-500 bg-white/60 border border-slate-200 rounded-xl p-4 text-center">
-                Active Context:
-                <br />
-                <span className="font-bold text-slate-800 text-sm mt-1 block truncate">{activeCustomer?.name ?? '—'}</span>
+            <div className="mt-auto pt-4 border-t border-slate-200">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2.5">Current Selection</p>
+              <div className="bg-white rounded-xl border border-slate-200 p-3.5 text-center">
+                <p className="text-sm font-bold text-brand-ink truncate">{activeCustomer?.name ?? 'No customer'}</p>
+                <p className="text-[10px] text-slate-400 mt-1">{activeCustomer ? activeCustomer.phone : 'Select one to begin'}</p>
               </div>
             </div>
           </aside>
