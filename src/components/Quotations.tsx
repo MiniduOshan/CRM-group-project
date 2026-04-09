@@ -315,12 +315,12 @@ export default function Quotations({
     <div className="relative p-4 md:p-8 space-y-4 md:space-y-6">
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-xl md:text-2xl font-bold tracking-tight">Quotations</h2>
-          <p className="text-gray-500 text-sm">Create, edit, and hand over quotations to invoices without losing history.</p>
+          <h2 className="text-xl md:text-2xl font-black tracking-tight text-brand-ink">Quotations</h2>
+          <p className="text-brand-text font-medium text-sm mt-1">Create, edit, and hand over quotations to invoices without losing history.</p>
         </div>
         <button
           onClick={openCreateComposer}
-          className="bg-brand-accent text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-blue-700 transition-colors shadow-lg shadow-brand-accent/20 w-full sm:w-auto justify-center"
+          className="btn-primary w-full sm:w-auto flex items-center justify-center gap-2"
         >
           <Plus size={18} />
           New Quotation
@@ -328,27 +328,27 @@ export default function Quotations({
       </header>
 
       {selectedCustomer && (
-        <div className="bg-white p-4 rounded-xl border border-brand-line shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="card !p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div>
-            <p className="text-[10px] uppercase tracking-widest text-gray-400 font-bold">Selected Customer</p>
-            <p className="text-sm font-semibold text-gray-900 mt-1">
-              {selectedCustomer.name} <span className="text-gray-400 font-medium">({selectedCustomer.phone})</span>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-brand-text font-black">Selected Customer</p>
+            <p className="text-sm font-bold text-brand-ink mt-1">
+              {selectedCustomer.name} <span className="text-slate-500 font-medium">({selectedCustomer.phone})</span>
             </p>
           </div>
-          <div className="flex items-center gap-2 text-xs text-gray-500">
-            <UserRound size={14} />
+          <div className="flex items-center gap-2 text-xs text-brand-text font-semibold">
+            <UserRound size={16} className="text-brand-accent" />
             The next quotation will be linked to this customer.
           </div>
         </div>
       )}
 
-      <div className="bg-white p-4 rounded-xl border border-brand-line shadow-sm flex gap-4 items-center">
+      <div className="card !p-4 flex gap-4 items-center">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <input
             type="text"
             placeholder="Search quotations by ID, customer, phone, or status"
-            className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent/20"
+            className="input-field pl-10"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
@@ -357,7 +357,7 @@ export default function Quotations({
 
       <div className="grid grid-cols-1 gap-4">
         {filteredQuotations.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-dashed border-brand-line p-10 text-center text-sm text-gray-500">
+          <div className="card border-dashed p-10 text-center text-sm font-semibold text-brand-text">
             No quotations found. Create the first quotation for the selected customer.
           </div>
         ) : (
@@ -369,33 +369,33 @@ export default function Quotations({
                 key={quotation.id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className={`bg-white p-6 rounded-xl border shadow-sm transition-all group ${isSelected ? 'border-brand-accent/40 ring-1 ring-brand-accent/20' : 'border-brand-line hover:border-brand-accent/30'}`}
+                className={`card transition-all group ${isSelected ? 'border-brand-accent/50 ring-2 ring-brand-accent/20 shadow-md' : 'hover:border-brand-accent/30 hover:shadow-elevated'}`}
               >
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-brand-accent/5 group-hover:text-brand-accent transition-colors">
+                    <div className="w-12 h-12 rounded-xl bg-brand-subtle flex items-center justify-center text-slate-400 group-hover:bg-brand-accent/10 group-hover:text-brand-accent transition-colors shadow-sm">
                       <FileText size={24} />
                     </div>
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="font-bold text-sm tracking-tight">{quotation.id}</h3>
+                        <h3 className="font-extrabold text-sm tracking-tight text-brand-ink">{quotation.id}</h3>
                         <span
-                          className={`px-2 py-0.5 rounded-[4px] text-[10px] font-bold uppercase tracking-wider border ${
+                          className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border ${
                             quotation.status === 'Draft'
-                              ? 'bg-gray-50 text-gray-500 border-gray-200'
+                              ? 'bg-slate-50 text-slate-500 border-slate-200'
                               : quotation.status === 'Sent'
-                                ? 'bg-blue-50 text-blue-600 border-blue-100'
+                                ? 'bg-blue-50 text-blue-600 border-blue-200'
                                 : quotation.status === 'Invoiced'
-                                  ? 'bg-violet-50 text-violet-600 border-violet-100'
-                                  : 'bg-green-50 text-green-600 border-green-100'
+                                  ? 'bg-violet-50 text-violet-600 border-violet-200'
+                                  : 'bg-emerald-50 text-emerald-600 border-emerald-200'
                           }`}
                         >
                           {quotation.status}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-400 mt-0.5">
+                      <p className="text-xs text-brand-text mt-1 font-medium">
                         Customer:{' '}
-                        <span className="text-gray-600 font-medium">
+                        <span className="text-slate-600 font-bold">
                           {quotation.customerName ? `${quotation.customerName} (${quotation.customerPhone})` : `Lead #${quotation.leadId}`}
                         </span>
                       </p>
@@ -404,29 +404,29 @@ export default function Quotations({
 
                   <div className="flex items-center gap-8">
                     <div className="text-right">
-                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Total Amount</p>
-                      <p className="text-lg font-bold font-mono text-brand-ink">${quotation.totalAmount.toFixed(2)}</p>
+                      <p className="text-[10px] text-brand-text font-black uppercase tracking-[0.1em]">Total Amount</p>
+                      <p className="text-lg font-black font-mono text-brand-ink mt-0.5">${quotation.totalAmount.toFixed(2)}</p>
                     </div>
 
-                    <div className="flex items-center gap-2 flex-wrap justify-end">
+                    <div className="flex items-center gap-1.5 flex-wrap justify-end">
                       <button
                         title="Edit"
                         onClick={() => openEditComposer(quotation)}
-                        className="p-2 text-gray-400 hover:text-brand-accent hover:bg-brand-accent/5 rounded-lg transition-colors"
+                        className="p-2.5 text-slate-400 hover:text-brand-accent hover:bg-brand-accent/10 rounded-xl transition-all font-bold shadow-sm border border-transparent hover:border-brand-accent/20"
                       >
                         <Edit3 size={18} />
                       </button>
                       <button
                         title="Hand over to invoice"
                         onClick={() => onRequestInvoice(quotation.id)}
-                        className="p-2 text-gray-400 hover:text-brand-accent hover:bg-brand-accent/5 rounded-lg transition-colors"
+                        className="p-2.5 text-slate-400 hover:text-brand-accent hover:bg-brand-accent/10 rounded-xl transition-all font-bold shadow-sm border border-transparent hover:border-brand-accent/20"
                       >
                         <Send size={18} />
                       </button>
                       <button
                         title="Status: Sent"
                         onClick={() => handleQuotationStatus(quotation.id, 'Sent')}
-                        className="p-2 text-gray-400 hover:text-brand-accent hover:bg-brand-accent/5 rounded-lg transition-colors"
+                        className="p-2.5 text-slate-400 hover:text-brand-accent hover:bg-brand-accent/10 rounded-xl transition-all font-bold shadow-sm border border-transparent hover:border-brand-accent/20"
                       >
                         <ArrowRightLeft size={18} />
                       </button>
@@ -436,11 +436,11 @@ export default function Quotations({
                           setSelectedDetailId((current) => (current === quotation.id ? '' : quotation.id));
                           onSelectQuotation(quotation.id);
                         }}
-                        className="p-2 text-gray-400 hover:text-brand-accent hover:bg-brand-accent/5 rounded-lg transition-colors"
+                        className={`p-2.5 rounded-xl transition-all font-bold shadow-sm border ${selectedDetailId === quotation.id ? 'bg-brand-accent/10 border-brand-accent/20 text-brand-accent' : 'text-slate-400 hover:text-brand-accent hover:bg-brand-accent/10 border-transparent hover:border-brand-accent/20'}`}
                       >
                         <History size={18} />
                       </button>
-                      <div className="w-px h-6 bg-gray-100 mx-1" />
+                      <div className="w-px h-6 bg-slate-200 mx-1" />
                       <button
                         title="Delete"
                         onClick={() => {
@@ -448,7 +448,7 @@ export default function Quotations({
                             onDeleteQuotation(quotation.id);
                           }
                         }}
-                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-2.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all font-bold shadow-sm border border-transparent hover:border-red-200"
                       >
                         <Trash2 size={18} />
                       </button>
@@ -456,62 +456,60 @@ export default function Quotations({
                   </div>
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-gray-50 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                <div className="mt-5 pt-4 border-t border-brand-line flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                   <div className="flex items-center gap-4 flex-wrap">
-                    <div className="flex items-center gap-1 text-[10px] text-gray-400">
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-brand-text">
                       <span>GRN-linked items keep original base price; only discount is adjusted.</span>
                     </div>
                   </div>
-                  <p className="text-[10px] text-gray-400 font-mono">Last modified: {new Date(quotation.updatedAt).toLocaleString()}</p>
+                  <p className="text-[10px] text-slate-400 font-mono font-medium">Last modified: {new Date(quotation.updatedAt).toLocaleString()}</p>
                 </div>
 
-                {selectedDetailId === quotation.id && (
-                  <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-widest text-gray-400 flex items-center gap-2 mb-3">
-                        <History size={14} /> Revision History
+                  <div className="mt-4 pt-4 border-t border-brand-line grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div className="bg-brand-subtle border border-brand-line rounded-xl p-4">
+                      <p className="text-xs font-black uppercase tracking-[0.1em] text-brand-text flex items-center gap-2 mb-3">
+                        <History size={14} className="text-brand-accent" /> Revision History
                       </p>
-                      <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                      <div className="space-y-3 max-h-56 overflow-y-auto pr-1">
                         {quotation.history.length === 0 ? (
-                          <p className="text-sm text-gray-500">No edits yet.</p>
+                          <p className="text-sm text-slate-500">No edits yet.</p>
                         ) : (
                           quotation.history.slice().reverse().map((entry) => (
-                            <div key={entry.id} className="bg-white border border-gray-100 rounded-lg p-3 shadow-sm">
-                              <div className="flex items-center justify-between gap-2 text-[11px] text-gray-400 font-semibold">
+                            <div key={entry.id} className="bg-white border border-brand-line rounded-xl p-3 shadow-sm">
+                              <div className="flex items-center justify-between gap-2 text-[11px] text-slate-400 font-bold tracking-wider uppercase">
                                 <span>{entry.editor}</span>
                                 <span>{new Date(entry.timestamp).toLocaleDateString()}</span>
                               </div>
-                              <p className="text-sm text-gray-700 mt-1">{entry.note}</p>
-                              <p className="text-xs text-gray-500 mt-1">Total: ${entry.totalAmount.toFixed(2)} | Discount: ${entry.discount.toFixed(2)}</p>
+                              <p className="text-sm text-brand-ink font-semibold mt-1">{entry.note}</p>
+                              <p className="text-xs text-brand-text font-medium mt-1">Total: <span className="font-bold text-brand-ink">${entry.totalAmount.toFixed(2)}</span> | Discount: ${entry.discount.toFixed(2)}</p>
                             </div>
                           ))
                         )}
                       </div>
                     </div>
 
-                    <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-widest text-gray-400 flex items-center gap-2 mb-3">
-                        <Calculator size={14} /> Document Preview
+                    <div className="bg-brand-bg border border-brand-line rounded-xl p-4">
+                      <p className="text-xs font-black uppercase tracking-[0.1em] text-brand-text flex items-center gap-2 mb-3">
+                        <Calculator size={14} className="text-brand-accent" /> Document Preview
                       </p>
-                      <div className="space-y-2 text-sm text-gray-600">
+                      <div className="space-y-3 text-sm text-brand-text font-medium">
                         {quotation.items.map((item) => (
-                          <div key={item.itemId} className="flex items-center justify-between gap-4 bg-white border border-gray-100 rounded-lg px-3 py-2">
+                          <div key={item.itemId} className="flex items-center justify-between gap-4 card !p-3">
                             <div>
-                              <p className="font-semibold text-gray-800">{item.name}</p>
-                              <p className="text-xs text-gray-500">Qty {item.quantity} x ${item.unitPrice.toFixed(2)} | {item.sourceType ?? 'DIRECT'}</p>
+                              <p className="font-bold text-brand-ink">{item.name}</p>
+                              <p className="text-xs text-slate-500 mt-0.5">Qty <span className="font-bold">{item.quantity}</span> x ${item.unitPrice.toFixed(2)} | {item.sourceType ?? 'DIRECT'}</p>
                             </div>
-                            <p className="font-semibold text-gray-900">${item.total.toFixed(2)}</p>
+                            <p className="font-black text-brand-ink">${item.total.toFixed(2)}</p>
                           </div>
                         ))}
-                        <div className="pt-2 border-t border-gray-200 space-y-1 text-xs text-gray-500">
-                          <p>Subtotal: ${quotation.items.reduce((sum, item) => sum + item.total, 0).toFixed(2)}</p>
-                          <p>Discount: ${quotation.discount.toFixed(2)}</p>
-                          <p className="text-sm font-bold text-brand-accent">Total: ${quotation.totalAmount.toFixed(2)}</p>
+                        <div className="pt-3 border-t border-brand-line space-y-1.5 text-xs text-brand-text">
+                          <p className="flex justify-between"><span>Subtotal:</span> <span>${quotation.items.reduce((sum, item) => sum + item.total, 0).toFixed(2)}</span></p>
+                          <p className="flex justify-between"><span>Discount:</span> <span>${quotation.discount.toFixed(2)}</span></p>
+                          <p className="flex justify-between text-sm font-black text-brand-ink mt-1 pt-1 border-t border-slate-200"><span>Total:</span> <span>${quotation.totalAmount.toFixed(2)}</span></p>
                         </div>
                       </div>
                     </div>
                   </div>
-                )}
               </motion.div>
             );
           })
@@ -529,18 +527,27 @@ export default function Quotations({
             >
               <div className="p-6 border-b border-brand-line flex items-center justify-between gap-4">
                 <div>
-                  <h3 className="font-bold text-lg">{editingQuotationId ? 'Edit Quotation' : 'Create New Quotation'}</h3>
-                  <p className="text-xs text-gray-500">Choose stock items or add ad-hoc lines. GRN item price is locked; use discount.</p>
+                  <h3 className="font-extrabold text-lg text-brand-ink">{editingQuotationId ? 'Edit Quotation' : 'Create New Quotation'}</h3>
+                  <p className="text-xs text-brand-text font-medium mt-1">Choose stock items or add ad-hoc lines. GRN item price is locked; use discount.</p>
                 </div>
-                <button onClick={closeComposer} className="text-gray-400 hover:text-gray-600">
-                  <X size={20} />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={closeComposer}
+                    className="btn-secondary !py-1.5 !px-3 text-xs"
+                  >
+                    Cancel
+                  </button>
+                  <button onClick={closeComposer} className="text-slate-400 hover:text-slate-600 ml-2" title="Close">
+                    <X size={20} />
+                  </button>
+                </div>
               </div>
 
               <form onSubmit={handleSaveQuotation} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase">Customer</label>
+                    <label className="text-[10px] uppercase font-black tracking-[0.1em] text-brand-text">Customer</label>
                     <select
                       value={newQuotation.customerId}
                       onChange={(event) => {
@@ -553,7 +560,7 @@ export default function Quotations({
                         }));
                         onSelectCustomer(event.target.value);
                       }}
-                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm"
+                      className="input-field !py-2.5"
                     >
                       <option value="">Select customer</option>
                       {customers.map((customer) => (
@@ -564,55 +571,55 @@ export default function Quotations({
                     </select>
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase">Customer Phone</label>
+                    <label className="text-[10px] uppercase font-black tracking-[0.1em] text-brand-text">Customer Phone</label>
                     <input
                       required
                       value={newQuotation.customerPhone}
                       onChange={(event) => setNewQuotation((prev) => ({ ...prev, customerPhone: event.target.value }))}
-                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm"
+                      className="input-field !py-2.5"
                       placeholder="0771234567"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase">Customer Name</label>
+                  <label className="text-[10px] uppercase font-black tracking-[0.1em] text-brand-text">Customer Name</label>
                   <input
                     required
                     value={newQuotation.customerName}
                     onChange={(event) => setNewQuotation((prev) => ({ ...prev, customerName: event.target.value }))}
-                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm"
+                    className="input-field !py-2.5"
                     placeholder="Enter customer name"
                   />
                 </div>
 
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-bold">Line Items</h4>
+                    <h4 className="text-sm font-extrabold text-brand-ink">Line Items</h4>
                     <button
                       type="button"
                       onClick={addLineItem}
-                      className="text-xs px-3 py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50"
+                      className="btn-secondary !py-1.5 !px-3 text-xs"
                     >
                       Add Item
                     </button>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-4">
                     {lineItems.map((item, index) => (
-                      <div key={`line-${index}`} className="grid grid-cols-1 md:grid-cols-12 gap-2 items-center bg-gray-50 p-2 rounded-lg border border-gray-200">
-                        <div className="md:col-span-2 flex gap-1">
+                      <div key={`line-${index}`} className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center bg-brand-subtle p-3 rounded-xl border border-brand-line">
+                        <div className="md:col-span-2 flex gap-1 bg-white border border-brand-line rounded-lg p-1">
                           <button
                             type="button"
                             onClick={() => toggleLineMode(index, 'catalog')}
-                            className={`flex-1 text-[11px] py-2 rounded border ${item.mode === 'catalog' ? 'bg-white border-brand-accent text-brand-accent font-bold' : 'border-gray-200 text-gray-500'}`}
+                            className={`flex-1 text-[11px] py-1.5 rounded-md font-bold transition-colors ${item.mode === 'catalog' ? 'bg-brand-accent text-white shadow-sm' : 'text-slate-500 hover:text-brand-ink'}`}
                           >
                             Catalog
                           </button>
                           <button
                             type="button"
                             onClick={() => toggleLineMode(index, 'adhoc')}
-                            className={`flex-1 text-[11px] py-2 rounded border ${item.mode === 'adhoc' ? 'bg-white border-brand-accent text-brand-accent font-bold' : 'border-gray-200 text-gray-500'}`}
+                            className={`flex-1 text-[11px] py-1.5 rounded-md font-bold transition-colors ${item.mode === 'adhoc' ? 'bg-brand-accent text-white shadow-sm' : 'text-slate-500 hover:text-brand-ink'}`}
                           >
                             Ad-hoc
                           </button>
@@ -621,7 +628,7 @@ export default function Quotations({
                           <select
                             value={item.inventoryItemId}
                             onChange={(event) => applyCatalogItem(index, event.target.value)}
-                            className="md:col-span-3 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm"
+                            className="md:col-span-3 input-field !py-2.5"
                             required
                           >
                             <option value="">Select item</option>
@@ -635,7 +642,7 @@ export default function Quotations({
                           <input
                             value={item.name}
                             onChange={(event) => updateLineItem(index, 'name', event.target.value)}
-                            className="md:col-span-3 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm"
+                            className="md:col-span-3 input-field !py-2.5"
                             placeholder="Custom item name"
                             required
                           />
@@ -643,7 +650,7 @@ export default function Quotations({
                         <input
                           value={item.unit}
                           onChange={(event) => updateLineItem(index, 'unit', event.target.value)}
-                          className="md:col-span-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm"
+                          className="md:col-span-1 input-field !py-2.5"
                           placeholder="Unit"
                           required
                         />
@@ -652,7 +659,7 @@ export default function Quotations({
                           min="1"
                           value={item.quantity}
                           onChange={(event) => updateLineItem(index, 'quantity', event.target.value)}
-                          className="md:col-span-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm"
+                          className="md:col-span-1 input-field !py-2.5"
                           placeholder="Qty"
                           required
                         />
@@ -663,7 +670,7 @@ export default function Quotations({
                           value={item.unitPrice}
                           onChange={(event) => updateLineItem(index, 'unitPrice', event.target.value)}
                           readOnly={item.lockPrice}
-                          className="md:col-span-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm read-only:bg-gray-100"
+                          className="md:col-span-2 input-field !py-2.5 read-only:bg-slate-100 read-only:text-slate-500"
                           placeholder="Unit price"
                           required
                         />
@@ -673,19 +680,19 @@ export default function Quotations({
                           step="0.01"
                           value={item.lineDiscount}
                           onChange={(event) => updateLineItem(index, 'lineDiscount', event.target.value)}
-                          className="md:col-span-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm"
+                          className="md:col-span-1 input-field !py-2.5"
                           placeholder="Disc"
                         />
                         <button
                           type="button"
                           onClick={() => removeLineItem(index)}
                           disabled={lineItems.length === 1}
-                          className="md:col-span-2 px-3 py-2 border border-gray-200 rounded-lg text-sm text-red-500 hover:bg-red-50 disabled:text-gray-300 disabled:hover:bg-transparent"
+                          className="md:col-span-2 btn-danger disabled:opacity-50 disabled:cursor-not-allowed !py-2.5 w-full"
                         >
                           Remove
                         </button>
                         {item.lockPrice && (
-                          <p className="md:col-span-12 text-[11px] text-amber-700 px-2">GRN item detected: base selling price is locked. Apply discount only.</p>
+                          <p className="md:col-span-12 text-[11px] text-amber-600 px-2 font-bold flex items-center gap-1.5"><History size={12}/> GRN item detected: base selling price is locked. Apply discount only.</p>
                         )}
                       </div>
                     ))}
@@ -694,35 +701,35 @@ export default function Quotations({
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase">Discount</label>
+                    <label className="text-[10px] uppercase font-black tracking-[0.1em] text-brand-text">Overall Discount</label>
                     <input
                       type="number"
                       min="0"
                       step="0.01"
                       value={newQuotation.discount}
                       onChange={(event) => setNewQuotation((prev) => ({ ...prev, discount: event.target.value }))}
-                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm"
+                      className="input-field !py-2.5"
                     />
                   </div>
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm">
-                    <p className="text-gray-500 flex items-center gap-1 mb-1"><Calculator size={14} /> Summary</p>
-                    <p>Subtotal: <span className="font-semibold">${subTotal.toFixed(2)}</span></p>
-                    <p>Discount: <span className="font-semibold">${discountValue.toFixed(2)}</span></p>
-                    <p className="text-base mt-1">Total: <span className="font-bold text-brand-accent">${total.toFixed(2)}</span></p>
+                  <div className="card !p-4 bg-brand-subtle flex flex-col justify-center">
+                    <p className="text-brand-text font-black text-xs uppercase tracking-[0.1em] flex items-center gap-2 mb-2"><Calculator size={14} className="text-brand-accent" /> Summary</p>
+                    <p className="flex justify-between items-center text-sm font-medium text-slate-600">Subtotal: <span className="font-bold text-brand-ink">${subTotal.toFixed(2)}</span></p>
+                    <p className="flex justify-between items-center text-sm font-medium text-slate-600">Discount: <span className="font-bold text-brand-ink">${discountValue.toFixed(2)}</span></p>
+                    <p className="flex justify-between items-center text-sm font-black text-brand-ink mt-2 pt-2 border-t border-brand-line">Total: <span className="text-brand-accent text-lg">${total.toFixed(2)}</span></p>
                   </div>
                 </div>
 
-                <div className="pt-2 flex gap-3">
+                <div className="pt-4 mt-6 border-t border-brand-line flex gap-3">
                   <button
                     type="button"
                     onClick={closeComposer}
-                    className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm font-bold text-gray-600 hover:bg-gray-50"
+                    className="flex-1 btn-secondary"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 px-4 py-2 bg-brand-accent text-white rounded-lg text-sm font-bold hover:bg-blue-700"
+                    className="flex-1 btn-primary"
                   >
                     {editingQuotationId ? 'Save Changes' : 'Save Quotation'}
                   </button>

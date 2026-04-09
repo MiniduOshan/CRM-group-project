@@ -121,7 +121,7 @@ export default function Dashboard({
       )
     : false;
 
-  const inputStyles = 'w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all duration-200 placeholder:text-slate-400';
+  const inputStyles = 'input-field';
 
   const handleRegisterCustomer = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -183,51 +183,51 @@ export default function Dashboard({
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 p-4 md:p-8 font-sans text-slate-800">
-      <div className="space-y-8 max-w-7xl mx-auto">
+    <div className="p-4 md:p-8 w-full max-w-7xl mx-auto animate-in fade-in duration-500">
+      <div className="space-y-8">
         <header className="space-y-1">
-          <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">Workspace</h2>
-          <p className="text-slate-500 text-sm font-medium">
+          <h2 className="text-2xl md:text-3xl font-black tracking-tight text-brand-ink">Dashboard</h2>
+          <p className="text-brand-text text-sm font-medium mt-1">
             Register customers, log calls by phone number, then jump into quotations and invoices.
           </p>
         </header>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center justify-between">
+          <div className="card flex items-center justify-between group hover:border-brand-accent/30 hover:shadow-elevated">
             <div>
-              <p className="text-xs uppercase tracking-widest text-slate-400 font-bold mb-1">Total Customers</p>
-              <p className="text-2xl font-black text-slate-800">{customers.length}</p>
+              <p className="text-xs uppercase tracking-widest text-brand-text font-bold mb-1">Total Customers</p>
+              <p className="text-2xl font-black text-brand-ink">{customers.length}</p>
             </div>
-            <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl"><Users size={24} /></div>
+            <div className="p-3 bg-indigo-50 text-brand-accent rounded-xl group-hover:scale-110 transition-transform"><Users size={24} /></div>
           </div>
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center justify-between">
+          <div className="card flex items-center justify-between group hover:border-amber-500/30 hover:shadow-elevated">
             <div className="truncate pr-4">
-              <p className="text-xs uppercase tracking-widest text-slate-400 font-bold mb-1">Active Customer</p>
-              <p className="text-lg font-bold text-slate-800 truncate">{activeCustomer?.name ?? 'None selected'}</p>
+              <p className="text-xs uppercase tracking-widest text-brand-text font-bold mb-1">Active Customer</p>
+              <p className="text-lg font-bold text-brand-ink truncate">{activeCustomer?.name ?? 'None selected'}</p>
             </div>
-            <div className="p-3 bg-amber-50 text-amber-600 rounded-xl"><Crown size={24} /></div>
+            <div className="p-3 bg-amber-50 text-amber-600 rounded-xl group-hover:scale-110 transition-transform"><Crown size={24} /></div>
           </div>
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center justify-between">
+          <div className="card flex items-center justify-between group hover:border-emerald-500/30 hover:shadow-elevated">
             <div>
-              <p className="text-xs uppercase tracking-widest text-slate-400 font-bold mb-1">Quotations</p>
-              <p className="text-2xl font-black text-slate-800">{quotations.length}</p>
+              <p className="text-xs uppercase tracking-widest text-brand-text font-bold mb-1">Quotations</p>
+              <p className="text-2xl font-black text-brand-ink">{quotations.length}</p>
             </div>
-            <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl"><ClipboardList size={24} /></div>
+            <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl group-hover:scale-110 transition-transform"><ClipboardList size={24} /></div>
           </div>
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center justify-between">
+          <div className="card flex items-center justify-between group hover:border-sky-500/30 hover:shadow-elevated">
             <div>
-              <p className="text-xs uppercase tracking-widest text-slate-400 font-bold mb-1">Call Logs</p>
-              <p className="text-2xl font-black text-slate-800">{customers.reduce((sum, customer) => sum + customer.callLogs.length, 0)}</p>
+              <p className="text-xs uppercase tracking-widest text-brand-text font-bold mb-1">Call Logs</p>
+              <p className="text-2xl font-black text-brand-ink">{customers.reduce((sum, customer) => sum + customer.callLogs.length, 0)}</p>
             </div>
-            <div className="p-3 bg-sky-50 text-sky-600 rounded-xl"><PhoneCall size={24} /></div>
+            <div className="p-3 bg-sky-50 text-sky-600 rounded-xl group-hover:scale-110 transition-transform"><PhoneCall size={24} /></div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-          <section className="bg-white rounded-2xl border border-slate-100 p-4 md:p-6 shadow-sm flex flex-col h-[520px] md:h-[560px]">
+          <section className="card flex flex-col h-[520px] md:h-[560px]">
             <div className="flex items-center justify-between mb-5">
-              <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                <span className="bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-black">1</span>
+              <h3 className="font-bold text-brand-ink flex items-center gap-2">
+                <span className="bg-brand-accent text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-black shadow-sm">1</span>
                 {activeCustomer ? 'Active Customer' : 'Find or Register'}
               </h3>
 
@@ -288,31 +288,31 @@ export default function Dashboard({
                       <button
                         type="button"
                         onClick={() => setIsEditingCustomer(false)}
-                        className="flex-1 px-4 py-2.5 border border-slate-200 bg-white hover:bg-slate-50 rounded-xl text-sm font-bold text-slate-600 transition-colors"
+                        className="flex-1 btn-secondary"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
-                        className="flex-1 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm active:scale-[0.98] transition-all"
+                        className="flex-1 btn-primary"
                       >
                         Save
                       </button>
                     </div>
                   </form>
                 ) : (
-                  <div className="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden relative flex-1 flex flex-col h-full">
-                    <div className="h-16 bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-700 opacity-90" />
-                    <div className="px-5 pb-5 -mt-8 relative z-10 flex-1 flex flex-col overflow-hidden">
-                      <div className="w-16 h-16 rounded-xl border-4 border-white bg-slate-900 text-white flex items-center justify-center text-lg font-black shadow-md">
+                  <div className="bg-brand-subtle border border-brand-line rounded-xl overflow-hidden relative flex-1 flex flex-col h-full shadow-inner">
+                    <div className="h-20 bg-gradient-to-br from-brand-gradient-start via-purple-500 to-brand-gradient-end" />
+                    <div className="px-5 pb-5 -mt-10 relative z-10 flex-1 flex flex-col overflow-hidden">
+                      <div className="w-20 h-20 rounded-2xl border-4 border-white bg-brand-ink text-white flex items-center justify-center text-xl font-black shadow-lg">
                         {activeCustomer.name
                           .split(' ')
                           .map((part) => part[0])
                           .join('')
                           .slice(0, 2)}
                       </div>
-
-                      <p className="mt-3 text-lg font-black text-slate-900">{activeCustomer.name}</p>
+                      
+                      <p className="mt-3 text-xl font-black text-brand-ink">{activeCustomer.name}</p>
 
                       <div className="flex items-center gap-2 mt-1.5">
                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold uppercase tracking-wider flex items-center gap-1">
@@ -323,13 +323,13 @@ export default function Dashboard({
                         </span>
                       </div>
 
-                      <div className="mt-4 space-y-2 text-xs text-slate-600 font-medium">
-                        <div className="flex items-center gap-2 p-2 bg-white rounded-lg border border-slate-100 shadow-sm">
-                          <Phone size={14} className="text-indigo-500" />
+                      <div className="mt-4 space-y-2 text-xs text-brand-text font-medium">
+                        <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-brand-line shadow-sm hover:shadow-md transition-shadow">
+                          <Phone size={16} className="text-brand-accent" />
                           <p>{activeCustomer.phone}</p>
                         </div>
-                        <div className="flex items-start gap-2 p-2 bg-white rounded-lg border border-slate-100 shadow-sm">
-                          <MapPin size={14} className="text-slate-400 mt-0.5" />
+                        <div className="flex items-start gap-3 p-3 bg-white rounded-xl border border-brand-line shadow-sm hover:shadow-md transition-shadow">
+                          <MapPin size={16} className="text-slate-400 mt-0.5" />
                           <p className="leading-relaxed line-clamp-2">{activeCustomer.address || 'No address provided'}</p>
                         </div>
                       </div>
@@ -343,28 +343,28 @@ export default function Dashboard({
                         )}
                       </div>
 
-                      <div className="mt-4 grid grid-cols-2 gap-2 text-[11px] text-slate-600">
-                        <div className="bg-white border border-slate-100 rounded-lg p-2">
-                          <p className="text-slate-400 uppercase tracking-wider font-semibold">Quotations</p>
-                          <p className="font-bold text-slate-900">{customerQuotations.length}</p>
+                      <div className="mt-4 grid grid-cols-2 gap-3 text-[11px] text-brand-text">
+                        <div className="bg-white border border-brand-line rounded-xl p-3 shadow-sm hover:shadow-md transition-all">
+                          <p className="text-slate-400 uppercase tracking-wider font-bold mb-1">Quotations</p>
+                          <p className="font-black text-lg text-brand-ink">{customerQuotations.length}</p>
                         </div>
-                        <div className="bg-white border border-slate-100 rounded-lg p-2">
-                          <p className="text-slate-400 uppercase tracking-wider font-semibold">Calls</p>
-                          <p className="font-bold text-slate-900">{activeCustomer.callLogs.length}</p>
+                        <div className="bg-white border border-brand-line rounded-xl p-3 shadow-sm hover:shadow-md transition-all">
+                          <p className="text-slate-400 uppercase tracking-wider font-bold mb-1">Calls</p>
+                          <p className="font-black text-lg text-brand-ink">{activeCustomer.callLogs.length}</p>
                         </div>
                       </div>
 
-                      <div className="mt-auto pt-3 flex gap-2">
+                      <div className="mt-auto pt-4 flex gap-2">
                         <button
                           onClick={startEditCustomer}
-                          className="flex-1 flex justify-center items-center gap-1.5 bg-white border border-slate-200 px-3 py-2 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
+                          className="flex-1 btn-secondary !py-2 !text-xs"
                         >
                           <Pencil size={12} /> Edit
                         </button>
 
                         <button
                           onClick={() => onOpenQuotationComposer(activeCustomer.id)}
-                          className="flex-1 flex justify-center items-center gap-1.5 bg-slate-900 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-slate-800 shadow-sm transition-colors active:scale-[0.98]"
+                          className="flex-1 btn-primary !py-2 !text-xs"
                         >
                           <FileText size={12} /> Quote
                         </button>
@@ -375,7 +375,7 @@ export default function Dashboard({
                               onDeleteCustomer(activeCustomer.id);
                             }
                           }}
-                          className="flex-1 flex justify-center items-center gap-1.5 bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors"
+                          className="flex-1 btn-danger !py-2 !text-xs"
                         >
                           <Trash2 size={12} /> Delete
                         </button>
@@ -403,11 +403,11 @@ export default function Dashboard({
                         <Search size={32} />
                       </div>
                       <div>
-                        <p className="text-slate-800 font-bold">Search Customer</p>
-                        <p className="text-sm text-slate-500 mt-1 mb-4">Enter a name or phone number to find an existing customer.</p>
+                        <p className="text-brand-ink font-extrabold text-lg">Search Customer</p>
+                        <p className="text-sm text-brand-text mt-1 mb-5">Enter a name or phone number to find an existing customer.</p>
                         <button
                           onClick={() => setIsRegistering(true)}
-                          className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-indigo-700 active:scale-[0.98] transition-all shadow-sm"
+                          className="btn-primary mx-auto"
                         >
                           Register New Customer
                         </button>
@@ -436,11 +436,11 @@ export default function Dashboard({
                         <Users size={32} />
                       </div>
                       <div>
-                        <p className="text-slate-800 font-bold">No customer found</p>
-                        <p className="text-sm text-slate-500 mt-1 mb-4">Try a different search or register a new one.</p>
+                        <p className="text-brand-ink font-extrabold text-lg">No customer found</p>
+                        <p className="text-sm text-brand-text mt-1 mb-5">Try a different search or register a new one.</p>
                         <button
                           onClick={() => setIsRegistering(true)}
-                          className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-indigo-700 active:scale-[0.98] transition-all shadow-sm"
+                          className="btn-primary mx-auto"
                         >
                           Register Customer
                         </button>
@@ -477,7 +477,7 @@ export default function Dashboard({
                 <button
                   type="submit"
                   disabled={customerDuplicatePhone}
-                  className="w-full bg-slate-900 text-white px-4 py-3 rounded-xl text-sm font-bold hover:bg-slate-800 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm mt-auto"
+                  className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed mt-auto"
                 >
                   Save & Continue
                 </button>
@@ -487,14 +487,14 @@ export default function Dashboard({
 
           <section className={`bg-white rounded-2xl border border-slate-100 p-4 md:p-6 shadow-sm h-[520px] md:h-[560px] transition-opacity duration-300 relative ${!activeCustomer ? 'opacity-50' : 'opacity-100'}`}>
             {!activeCustomer && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/40 backdrop-blur-[1px] rounded-2xl">
-                <p className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg">Select a customer first</p>
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-sm rounded-2xl">
+                <p className="bg-brand-ink text-white px-4 py-2 rounded-xl text-sm font-bold shadow-xl">Select a customer first</p>
               </div>
             )}
 
             <div className="flex items-center justify-between mb-5">
-              <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                <span className="bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-black">2</span>
+              <h3 className="font-bold text-brand-ink flex items-center gap-2">
+                <span className="bg-brand-accent text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-black shadow-sm">2</span>
                 Call Logs & History
               </h3>
               {activeCustomer && (
@@ -544,7 +544,7 @@ export default function Dashboard({
                   />
                   <button
                     type="submit"
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm active:scale-[0.98] transition-all"
+                    className="w-full btn-primary"
                   >
                     <Plus size={14} /> Save Call Log
                   </button>
@@ -611,8 +611,8 @@ export default function Dashboard({
                   <NotebookPen size={32} />
                 </div>
                 <div>
-                  <p className="text-slate-800 font-bold">Call log workspace</p>
-                  <p className="text-sm text-slate-500 mt-1 max-w-sm">Search by telephone number, open a customer, and capture every call in their profile history.</p>
+                  <p className="text-brand-ink font-extrabold text-lg">Call log workspace</p>
+                  <p className="text-sm text-brand-text mt-1 max-w-sm">Search by telephone number, open a customer, and capture every call in their profile history.</p>
                 </div>
               </div>
             )}
@@ -626,24 +626,24 @@ export default function Dashboard({
                   type="button"
                   onClick={() => activeCustomer && onOpenQuotationComposer(activeCustomer.id)}
                   disabled={!activeCustomer}
-                  className="group w-full flex items-center justify-between rounded-xl bg-white border border-slate-200 px-4 py-4 text-sm font-bold text-slate-700 hover:border-indigo-300 hover:shadow-sm transition-all disabled:opacity-50 disabled:pointer-events-none"
+                  className="group w-full flex items-center justify-between rounded-xl bg-white border border-brand-line px-4 py-4 text-sm font-bold text-brand-text hover:border-brand-accent/50 hover:shadow-md transition-all disabled:opacity-50 disabled:pointer-events-none"
                 >
                   <span className="flex items-center gap-3">
-                    <FileText size={18} className="text-slate-400 group-hover:text-indigo-500 transition-colors" />
-                    Create Quotation
+                    <FileText size={18} className="text-brand-accent group-hover:scale-110 transition-transform" />
+                    <span className="text-brand-ink group-hover:text-brand-accent transition-colors">Create Quotation</span>
                   </span>
-                  <Plus size={16} className="text-slate-300 group-hover:text-indigo-500 transition-colors" />
+                  <Plus size={16} className="text-slate-300 group-hover:text-brand-accent transition-colors" />
                 </button>
                 <button
                   type="button"
                   onClick={() => onSelectCustomer('')}
-                  className="group w-full flex items-center justify-between rounded-xl bg-white border border-slate-200 px-4 py-4 text-sm font-bold text-slate-700 hover:border-slate-300 hover:shadow-sm transition-all"
+                  className="group w-full flex items-center justify-between rounded-xl bg-white border border-brand-line px-4 py-4 text-sm font-bold text-brand-text hover:border-brand-accent/50 hover:shadow-md transition-all"
                 >
                   <span className="flex items-center gap-3">
-                    <PlaySquare size={18} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
-                    Customer Search
+                    <PlaySquare size={18} className="text-amber-500 group-hover:scale-110 transition-transform" />
+                    <span className="text-brand-ink group-hover:text-brand-accent transition-colors">Customer Search</span>
                   </span>
-                  <Search size={16} className="text-slate-300 group-hover:text-slate-500 transition-colors" />
+                  <Search size={16} className="text-slate-300 group-hover:text-brand-accent transition-colors" />
                 </button>
                 <button
                   type="button"
@@ -653,13 +653,13 @@ export default function Dashboard({
                     }
                   }}
                   disabled={!activeCustomer}
-                  className="group w-full flex items-center justify-between rounded-xl bg-white border border-slate-200 px-4 py-4 text-sm font-bold text-slate-700 hover:border-slate-300 hover:shadow-sm transition-all disabled:opacity-50 disabled:pointer-events-none"
+                  className="group w-full flex items-center justify-between rounded-xl bg-white border border-brand-line px-4 py-4 text-sm font-bold text-brand-text hover:border-brand-accent/50 hover:shadow-md transition-all disabled:opacity-50 disabled:pointer-events-none"
                 >
                   <span className="flex items-center gap-3">
-                    <ReceiptText size={18} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
-                    Customer Documents
+                    <ReceiptText size={18} className="text-emerald-500 group-hover:scale-110 transition-transform" />
+                    <span className="text-brand-ink group-hover:text-brand-accent transition-colors">Customer Documents</span>
                   </span>
-                  <History size={16} className="text-slate-300 group-hover:text-slate-500 transition-colors" />
+                  <History size={16} className="text-slate-300 group-hover:text-brand-accent transition-colors" />
                 </button>
               </div>
             </div>

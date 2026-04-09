@@ -1,16 +1,17 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
-import { 
-  Plus, 
-  Search, 
-  Phone, 
-  MapPin, 
+import {
+  Plus,
+  Search,
+  Phone,
+  MapPin,
   User,
   Filter,
   PhoneCall,
   Clock,
   NotebookPen,
   AlertTriangle,
-  Trash2
+  Trash2,
+  Pencil
 } from 'lucide-react';
 import { CustomerProfile, LeadStatus } from '../types';
 
@@ -22,16 +23,22 @@ interface LeadsProps {
   onSelectCustomer: (customerId: string) => void;
   onSetCurrentSalesperson: (salesperson: string) => void;
   onRegisterCustomer: (customer: { name: string; phone: string; address: string }, actor: string) => CustomerProfile;
+  // වෙනස් කළා: දැන් යවන්නේ ownerName සහ status එක විතරයි
+  onEditCustomer: (customerId: string, updatedData: { ownerName: string; status: LeadStatus }) => void;
   onAddCallLog: (customerId: string, callLog: { agent: string; summary: string; durationMinutes: number; callTime?: string; direction: 'Incoming' | 'Outgoing' }) => void;
   onDeleteCallLog: (customerId: string, callLogId: string) => void;
   onDeleteCustomer: (customerId: string) => void;
 }
 
-const getLeadStatus = (customer: CustomerProfile): LeadStatus => {
-  if (customer.invoiceIds.length > 0) {
+// වෙනස් කළා: Database එකේ manual status එකක් සේව් කරලා තියෙනවා නම් මුලින්ම ඒක අරන්, නැත්නම් auto calculate කරනවා
+const getLeadStatus = (customer: CustomerProfile & { status?: LeadStatus }): LeadStatus => {
+  if (customer.status) {
+    return customer.status;
+  }
+  if (customer.invoiceIds?.length > 0) {
     return 'Completed';
   }
-  if (customer.quotationIds.length > 0) {
+  if (customer.quotationIds?.length > 0) {
     return 'In Progress';
   }
   return 'New';
@@ -45,19 +52,30 @@ export default function Leads({
   onSelectCustomer,
   onSetCurrentSalesperson,
   onRegisterCustomer,
+  onEditCustomer,
   onAddCallLog,
   onDeleteCallLog,
   onDeleteCustomer
 }: LeadsProps) {
   const [isAdding, setIsAdding] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+
   const [newLeadForm, setNewLeadForm] = useState({
     name: '',
     phone: '',
     address: ''
   });
+
+  // වෙනස් කළා: Salesperson සහ Status විතරක් store කරගන්න state එකක්
+  const [editLeadForm, setEditLeadForm] = useState<{ id: string; ownerName: string; status: LeadStatus }>({
+    id: '',
+    ownerName: '',
+    status: 'New'
+  });
+
   const [newCall, setNewCall] = useState({
     callTime: new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16),
     durationMinutes: '5',
@@ -69,8 +87,8 @@ export default function Leads({
     const query = search.trim().toLowerCase();
     const base = query
       ? customers.filter(
-          (lead) => lead.name.toLowerCase().includes(query) || lead.phone.includes(search.trim())
-        )
+        (lead) => lead.name.toLowerCase().includes(query) || lead.phone.includes(search.trim())
+      )
       : customers;
 
     return [...base].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
@@ -127,6 +145,16 @@ export default function Leads({
     setIsAdding(false);
   };
 
+  // වෙනස් කළා: Update වෙන්නේ ownerName එකයි status එකයි විතරයි
+  const handleUpdateLead = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    onEditCustomer(editLeadForm.id, {
+      ownerName: editLeadForm.ownerName,
+      status: editLeadForm.status
+    });
+    setIsEditing(false);
+  };
+
   const handleAddCall = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!selectedLead) {
@@ -158,8 +186,8 @@ export default function Leads({
     <div className="p-4 md:p-8 space-y-4 md:space-y-6">
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-xl md:text-2xl font-bold tracking-tight">Customer Registration & Call Tracking</h2>
-          <p className="text-gray-500 text-sm">Register by phone number and view every call made with each customer.</p>
+          <h2 className="text-xl md:text-2xl font-black tracking-tight text-brand-ink">Customer Registration & Call Tracking</h2>
+          <p className="text-brand-text font-medium text-sm mt-1">Register by phone number and view every call made with each customer.</p>
           <div className="flex flex-wrap items-center gap-2 mt-2">
             <span className="text-xs font-semibold text-gray-500">Assign Salesperson</span>
             <select
@@ -167,7 +195,7 @@ export default function Leads({
               onChange={(e) => {
                 onSetCurrentSalesperson(e.target.value);
               }}
-              className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-sm font-semibold text-gray-700"
+              className="px-3 py-1.5 rounded-lg border border-brand-line bg-white text-sm font-semibold text-brand-ink focus:outline-none focus:ring-2 focus:ring-brand-accent/40"
             >
               {salespersonOptions.map((salesperson) => (
                 <option key={salesperson} value={salesperson}>{salesperson}</option>
@@ -175,9 +203,9 @@ export default function Leads({
             </select>
           </div>
         </div>
-        <button 
+        <button
           onClick={() => setIsAdding(true)}
-          className="bg-brand-accent text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-blue-700 transition-colors w-full sm:w-auto justify-center"
+          className="btn-primary w-full sm:w-auto"
         >
           <Plus size={18} />
           Add New Lead
@@ -187,10 +215,10 @@ export default function Leads({
       <div className="flex gap-4 items-center bg-white p-4 rounded-xl border border-brand-line shadow-sm">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-          <input 
-            type="text" 
-            placeholder="Search by name or phone..." 
-            className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent/20 focus:border-brand-accent"
+          <input
+            type="text"
+            placeholder="Search by name or phone..."
+            className="input-field pl-10 !py-2.5"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -200,79 +228,98 @@ export default function Leads({
         </button>
       </div>
 
-      <div className="bg-white rounded-xl border border-brand-line shadow-sm overflow-hidden">
+      <div className="data-grid w-full">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[600px]">
-          <thead>
-            <tr className="bg-gray-50 border-b border-brand-line">
-              <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Customer</th>
-              <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Contact</th>
-              <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Salesperson</th>
-              <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Status</th>
-              <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Created</th>
-              <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {paginatedLeads.map((lead) => (
-              <tr
-                key={lead.id}
-                className={`hover:bg-gray-50/50 transition-colors group cursor-pointer ${selectedLead?.id === lead.id ? 'bg-brand-accent/5' : ''}`}
-                onClick={() => onSelectCustomer(lead.id)}
-              >
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-bold text-[10px]">
-                      {lead.name.split(' ').map(n => n[0]).join('')}
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold">{lead.name}</p>
-                      <p className="text-[10px] text-gray-400 flex items-center gap-1">
-                        <MapPin size={10} /> {lead.address || 'No address provided'}
-                      </p>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <p className="text-xs font-mono text-gray-600 flex items-center gap-1">
-                    <Phone size={12} className="text-gray-400" /> {lead.phone}
-                  </p>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-2">
-                    <User size={12} className="text-gray-400" />
-                    <span className="text-xs font-medium text-gray-600">{lead.ownerName}</span>
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <span className={`px-2 py-1 rounded text-[10px] font-bold border ${getStatusColor(getLeadStatus(lead))}`}>
-                    {getLeadStatus(lead).toUpperCase()}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <p className="text-[10px] font-mono text-gray-400">
-                    {new Date(lead.createdAt).toLocaleDateString()}
-                  </p>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <button
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      if (window.confirm(`Delete customer ${lead.name}?`)) {
-                        onDeleteCustomer(lead.id);
-                      }
-                    }}
-                    className="p-1 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50"
-                    title="Delete customer"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </td>
+            <thead>
+              <tr>
+                <th className="data-header">Customer</th>
+                <th className="data-header">Contact</th>
+                <th className="data-header">Salesperson</th>
+                <th className="data-header">Status</th>
+                <th className="data-header">Created</th>
+                <th className="data-header"></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="divide-y divide-brand-line">
+              {paginatedLeads.map((lead) => (
+                <tr
+                  key={lead.id}
+                  className={`data-row cursor-pointer ${selectedLead?.id === lead.id ? 'bg-brand-accent/5' : ''}`}
+                  onClick={() => onSelectCustomer(lead.id)}
+                >
+                  <td className="data-cell">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-brand-subtle flex items-center justify-center text-brand-ink font-black text-xs shadow-inner">
+                        {lead.name.split(' ').map(n => n[0]).join('')}
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-brand-ink">{lead.name}</p>
+                        <p className="text-[11px] text-brand-text flex items-center gap-1 font-medium mt-0.5">
+                          <MapPin size={12} className="text-slate-400" /> {lead.address || 'No address provided'}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="data-cell">
+                    <p className="mono-data flex items-center gap-1.5">
+                      <Phone size={12} className="text-slate-400" /> {lead.phone}
+                    </p>
+                  </td>
+                  <td className="data-cell">
+                    <div className="flex items-center gap-2">
+                      <User size={12} className="text-slate-400" />
+                      <span className="text-xs font-semibold text-brand-text">{lead.ownerName}</span>
+                    </div>
+                  </td>
+                  <td className="data-cell">
+                    <span className={`px-2.5 py-1 rounded-md text-[10px] font-black tracking-wide border ${getStatusColor(getLeadStatus(lead))}`}>
+                      {getLeadStatus(lead).toUpperCase()}
+                    </span>
+                  </td>
+                  <td className="data-cell">
+                    <p className="mono-data text-slate-400">
+                      {new Date(lead.createdAt).toLocaleDateString()}
+                    </p>
+                  </td>
+                  <td className="data-cell text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          // Edit button එක click කරද්දි තියෙන current status එකයි owner එකයි form එකට දාගන්නවා
+                          setEditLeadForm({
+                            id: lead.id,
+                            ownerName: lead.ownerName || currentSalesperson,
+                            status: getLeadStatus(lead)
+                          });
+                          setIsEditing(true);
+                        }}
+                        className="p-1 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50"
+                        title="Edit salesperson and status"
+                      >
+                        <Pencil size={16} />
+                      </button>
+
+                      <button
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          if (window.confirm(`Delete customer ${lead.name}?`)) {
+                            onDeleteCustomer(lead.id);
+                          }
+                        }}
+                        className="p-1 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50"
+                        title="Delete customer"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         <div className="px-4 md:px-6 py-3 border-t border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-gray-50/40">
           <p className="text-xs text-gray-500">
             Showing {pageStart}-{pageEnd} of {filteredLeads.length} customers
@@ -310,10 +357,11 @@ export default function Leads({
       </div>
 
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-        <div className="lg:col-span-2 bg-white rounded-xl border border-brand-line shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-brand-line flex items-center justify-between">
+        {/* Call History / Log Call Sections (No changes here) */}
+        <div className="lg:col-span-2 card p-0">
+          <div className="px-6 py-5 border-b border-brand-line bg-brand-subtle flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h3 className="font-bold text-sm">Call History By Telephone</h3>
+              <h3 className="font-extrabold text-sm text-brand-ink">Call History By Telephone</h3>
               <p className="text-xs text-gray-500 mt-1">
                 {selectedLead ? `Customer: ${selectedLead.name} (${selectedLead.phone})` : 'Select a customer to view calls'}
               </p>
@@ -324,12 +372,12 @@ export default function Leads({
               )}
             </div>
             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-              {selectedLead ? `${selectedLead.callLogs.length} calls` : '0 calls'}
+              {selectedLead ? `${selectedLead.callLogs?.length || 0} calls` : '0 calls'}
             </span>
           </div>
 
           <div className="p-6 space-y-4 max-h-[360px] overflow-y-auto">
-            {selectedLead && selectedLead.callLogs.length > 0 ? (
+            {selectedLead && selectedLead.callLogs?.length > 0 ? (
               selectedLead.callLogs.map((log) => (
                 <div key={log.id} className="border border-gray-200 rounded-xl p-4 bg-gray-50/40">
                   <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
@@ -366,56 +414,56 @@ export default function Leads({
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-brand-line shadow-sm p-5">
-          <h3 className="text-sm font-bold mb-4 flex items-center gap-2">
-            <NotebookPen size={16} className="text-brand-accent" /> Log New Call
+        <div className="card">
+          <h3 className="text-sm font-extrabold mb-5 flex items-center gap-2 text-brand-ink">
+            <NotebookPen size={18} className="text-brand-accent p-0.5 bg-brand-subtle rounded" /> Log New Call
           </h3>
           <form className="space-y-3" onSubmit={handleAddCall}>
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-gray-400 uppercase">Call Time</label>
+              <label className="text-[10px] font-bold text-brand-text uppercase tracking-wider">Call Time</label>
               <input
                 required
                 type="datetime-local"
                 value={newCall.callTime}
                 onChange={(e) => setNewCall((prev) => ({ ...prev, callTime: e.target.value }))}
-                className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm"
+                className="input-field !py-2.5"
               />
             </div>
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-gray-400 uppercase">Call Direction</label>
+              <label className="text-[10px] font-bold text-brand-text uppercase tracking-wider">Call Direction</label>
               <select
                 value={newCall.direction}
                 onChange={(e) => setNewCall((prev) => ({ ...prev, direction: e.target.value as 'Incoming' | 'Outgoing' }))}
-                className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm"
+                className="input-field !py-2.5 cursor-pointer"
               >
                 <option value="Outgoing">Outgoing</option>
                 <option value="Incoming">Incoming</option>
               </select>
             </div>
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-gray-400 uppercase">Duration (minutes)</label>
+              <label className="text-[10px] font-bold text-brand-text uppercase tracking-wider">Duration (minutes)</label>
               <input
                 type="number"
                 min="1"
                 value={newCall.durationMinutes}
                 onChange={(e) => setNewCall((prev) => ({ ...prev, durationMinutes: e.target.value }))}
-                className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm"
+                className="input-field !py-2.5"
               />
             </div>
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-gray-400 uppercase">Remark</label>
+              <label className="text-[10px] font-bold text-brand-text uppercase tracking-wider">Remark</label>
               <textarea
                 required
                 value={newCall.summary}
                 onChange={(e) => setNewCall((prev) => ({ ...prev, summary: e.target.value }))}
-                className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm h-24"
+                className="input-field h-24 resize-none"
                 placeholder="What was discussed in this call?"
               />
             </div>
             <button
               type="submit"
               disabled={!selectedLead}
-              className="w-full px-4 py-2 bg-brand-accent text-white rounded-lg text-sm font-bold hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+              className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed mt-2"
             >
               Save Call Log
             </button>
@@ -423,6 +471,7 @@ export default function Leads({
         </div>
       </section>
 
+      {/* Add Customer Modal */}
       {isAdding && (
         <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl border border-brand-line w-full max-w-lg overflow-hidden">
@@ -433,68 +482,130 @@ export default function Leads({
               </button>
             </div>
             <form className="p-6 space-y-4" onSubmit={handleCreateLead}>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase">Full Name</label>
-                    <input
-                      type="text"
-                      required
-                      value={newLeadForm.name}
-                      onChange={(e) => setNewLeadForm((prev) => ({ ...prev, name: e.target.value }))}
-                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-brand-accent/20 focus:outline-none"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase">Telephone Number</label>
-                    <input
-                      type="tel"
-                      required
-                      value={newLeadForm.phone}
-                      onChange={(e) => setNewLeadForm((prev) => ({ ...prev, phone: e.target.value }))}
-                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-brand-accent/20 focus:outline-none"
-                    />
-                  </div>
-                </div>
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase">Address (Optional)</label>
-                  <textarea
-                    value={newLeadForm.address}
-                    onChange={(e) => setNewLeadForm((prev) => ({ ...prev, address: e.target.value }))}
-                    placeholder="Enter address if available"
-                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-brand-accent/20 focus:outline-none h-20"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase">Salesperson</label>
+                  <label className="text-[10px] font-bold text-brand-text uppercase tracking-wider">Full Name</label>
                   <input
-                    value={currentSalesperson}
-                    readOnly
-                    className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-sm text-gray-500"
+                    type="text"
+                    required
+                    value={newLeadForm.name}
+                    onChange={(e) => setNewLeadForm((prev) => ({ ...prev, name: e.target.value }))}
+                    className="input-field !py-2.5"
                   />
                 </div>
-                {customers.some((lead) => lead.phone === newLeadForm.phone.trim()) && (
-                  <p className="text-xs text-red-600">This telephone number is already registered to another customer.</p>
-                )}
-                <div className="pt-4 flex gap-3">
-                  <button 
-                    type="button"
-                    onClick={() => setIsAdding(false)}
-                    className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm font-bold text-gray-600 hover:bg-gray-50"
-                  >
-                    Cancel
-                  </button>
-                  <button 
-                    type="submit"
-                    disabled={customers.some((lead) => lead.phone === newLeadForm.phone.trim())}
-                    className="flex-1 px-4 py-2 bg-brand-accent text-white rounded-lg text-sm font-bold hover:bg-blue-700"
-                  >
-                    Register Customer
-                  </button>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-brand-text uppercase tracking-wider">Telephone Number</label>
+                  <input
+                    type="tel"
+                    required
+                    value={newLeadForm.phone}
+                    onChange={(e) => setNewLeadForm((prev) => ({ ...prev, phone: e.target.value }))}
+                    className="input-field !py-2.5"
+                  />
                 </div>
-              </form>
-            </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-brand-text uppercase tracking-wider">Address (Optional)</label>
+                <textarea
+                  value={newLeadForm.address}
+                  onChange={(e) => setNewLeadForm((prev) => ({ ...prev, address: e.target.value }))}
+                  placeholder="Enter address if available"
+                  className="input-field h-20 resize-none"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-brand-text uppercase tracking-wider">Salesperson</label>
+                <input
+                  value={currentSalesperson}
+                  readOnly
+                  className="input-field !py-2.5 bg-slate-50 cursor-not-allowed text-slate-500"
+                />
+              </div>
+              {customers.some((lead) => lead.phone === newLeadForm.phone.trim()) && (
+                <p className="text-xs text-red-600">This telephone number is already registered to another customer.</p>
+              )}
+              <div className="pt-4 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsAdding(false)}
+                  className="flex-1 btn-secondary"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={customers.some((lead) => lead.phone === newLeadForm.phone.trim())}
+                  className="flex-1 btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Register Customer
+                </button>
+              </div>
+            </form>
           </div>
-        )}
+        </div>
+      )}
+
+      {/* වෙනස් කළා: Edit Salesperson and Status Modal */}
+      {isEditing && (
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl border border-brand-line w-full max-w-sm overflow-hidden">
+            <div className="p-6 border-b border-brand-line flex justify-between items-center">
+              <h3 className="font-bold text-lg">Update Lead Status</h3>
+              <button onClick={() => setIsEditing(false)} className="text-gray-400 hover:text-gray-600">
+                <Plus size={24} className="rotate-45" />
+              </button>
+            </div>
+            <form className="p-6 space-y-4" onSubmit={handleUpdateLead}>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-brand-text uppercase tracking-wider">Assigned Salesperson</label>
+                <select
+                  required
+                  value={editLeadForm.ownerName}
+                  onChange={(e) => setEditLeadForm((prev) => ({ ...prev, ownerName: e.target.value }))}
+                  className="input-field !py-2.5 cursor-pointer"
+                >
+                  {salespersonOptions.map((salesperson) => (
+                    <option key={salesperson} value={salesperson}>{salesperson}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-brand-text uppercase tracking-wider">Lead Status</label>
+                <select
+                  required
+                  value={editLeadForm.status}
+                  onChange={(e) => setEditLeadForm((prev) => ({ ...prev, status: e.target.value as LeadStatus }))}
+                  className="input-field !py-2.5 cursor-pointer"
+                >
+                  <option value="New">New</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Payment Pending">Payment Pending</option>
+                </select>
+              </div>
+
+              <div className="pt-4 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsEditing(false)}
+                  className="flex-1 btn-secondary"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 btn-primary"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

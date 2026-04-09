@@ -52,107 +52,109 @@ const teamRadarData = [
 ];
 
 const systemDetails = [
-  { label: 'Registered Customers', value: 3, tone: 'bg-[#fff9ee] border-[#f8e7c2]' },
-  { label: 'Calls Logged', value: 5, tone: 'bg-[#edf8f2] border-[#d7efdf]' },
-  { label: 'Quotations Created', value: 2, tone: 'bg-[#f1f7ff] border-[#dbeafe]' },
-  { label: 'Site Visits', value: 2, tone: 'bg-[#f8f1fb] border-[#eedcf8]' },
-  { label: 'Inventory Alerts', value: 3, tone: 'bg-[#fff5ef] border-[#fde4d3]' },
-  { label: 'Active Staff Users', value: 2, tone: 'bg-[#f3f4f6] border-[#e5e7eb]' }
+  { label: 'Registered Customers', value: 3, tone: 'bg-indigo-50 border-indigo-100' },
+  { label: 'Calls Logged', value: 5, tone: 'bg-emerald-50 border-emerald-100' },
+  { label: 'Quotations Created', value: 2, tone: 'bg-blue-50 border-blue-100' },
+  { label: 'Site Visits', value: 2, tone: 'bg-violet-50 border-violet-100' },
+  { label: 'Inventory Alerts', value: 3, tone: 'bg-amber-50 border-amber-100' },
+  { label: 'Active Staff Users', value: 2, tone: 'bg-slate-100 border-slate-200' }
 ];
 
-const ORANGE = '#f59e0b';
-const PANEL_BORDER = '#e5e7eb';
+const BRAND_ACCENT = '#4f46e5'; // indigo-600
+const BRAND_SECONDARY = '#818cf8'; // indigo-400
+const TEXT_MUTED = '#64748b'; // slate-500
+const GRID_LINE = '#e2e8f0'; // slate-200
 
 export default function Analyze() {
   return (
     <div className="p-4 md:p-8 space-y-4 md:space-y-6 bg-brand-bg min-h-full">
       <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl md:text-2xl font-bold tracking-tight text-gray-900">CRM Analytics Overview</h2>
-          <p className="text-gray-500 text-sm mt-1">System-level customer, lead, quotation, and activity insights</p>
+          <h2 className="text-xl md:text-2xl font-black tracking-tight text-brand-ink">CRM Analytics Overview</h2>
+          <p className="text-brand-text font-medium text-sm mt-1">System-level customer, lead, quotation, and activity insights</p>
         </div>
-        <button className="inline-flex items-center gap-2 px-4 py-2 bg-white border rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 w-full sm:w-auto justify-center" style={{ borderColor: PANEL_BORDER }}>
-          <RefreshCw size={14} /> Refresh
+        <button className="btn-secondary w-full sm:w-auto flex justify-center items-center gap-2">
+          <RefreshCw size={18} /> Refresh
         </button>
       </header>
 
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-        <div className="xl:col-span-2 bg-white border rounded-2xl p-6 shadow-sm" style={{ borderColor: PANEL_BORDER }}>
-          <div className="flex items-center justify-between mb-4">
+        <div className="xl:col-span-2 card !p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-5">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Customer & Quotation Growth</p>
-              <p className="text-2xl font-bold text-gray-900 leading-tight">3 Customers <span className="text-sm font-medium text-gray-400">/ 3 Quotations</span></p>
+              <p className="text-xs font-black uppercase tracking-[0.1em] text-brand-text">Customer & Quotation Growth</p>
+              <p className="text-2xl font-black text-brand-ink leading-tight mt-1">3 Customers <span className="text-sm font-bold text-slate-400">/ 3 Quotations</span></p>
             </div>
-            <p className="text-sm font-semibold text-gray-500 inline-flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: ORANGE }} /> MRR
+            <p className="text-[11px] font-black text-brand-text inline-flex items-center gap-2 uppercase tracking-[0.1em]">
+              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: BRAND_ACCENT }} /> MRR
             </p>
           </div>
 
           <div className="h-72 pt-2">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={monthlyGrowthData}>
-                <CartesianGrid strokeDasharray="4 4" stroke="#edf2f7" vertical={false} />
-                <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} domain={[0, 4]} />
-                <Tooltip />
-                <Area type="monotone" dataKey="customers" stroke="#2563eb" fill="#dbeafe" strokeWidth={2.5} />
-                <Area type="monotone" dataKey="quotations" stroke={ORANGE} fill="#ffedd5" strokeWidth={2.5} />
+                <CartesianGrid strokeDasharray="4 4" stroke={GRID_LINE} vertical={false} />
+                <XAxis dataKey="month" tick={{ fontSize: 11, fill: TEXT_MUTED, fontWeight: 700 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: TEXT_MUTED, fontWeight: 700 }} axisLine={false} tickLine={false} domain={[0, 4]} />
+                <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)', fontWeight: 'bold' }} />
+                <Area type="monotone" dataKey="customers" stroke={BRAND_ACCENT} fill={BRAND_ACCENT} fillOpacity={0.1} strokeWidth={3} />
+                <Area type="monotone" dataKey="quotations" stroke={BRAND_SECONDARY} fill={BRAND_SECONDARY} fillOpacity={0.1} strokeWidth={3} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
-          <div className="rounded-2xl border p-4" style={{ borderColor: '#f8e7c2', backgroundColor: '#fff9ee' }}>
-            <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center mb-3" style={{ color: ORANGE }}><Users size={15} /></div>
-            <p className="text-3xl font-bold text-gray-900">3</p>
-            <p className="text-gray-600 text-sm">Total Customers</p>
+          <div className="rounded-2xl border p-5 shadow-sm border-indigo-100 bg-indigo-50">
+            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center mb-3 text-indigo-600 shadow-sm"><Users size={18} /></div>
+            <p className="text-3xl font-black text-brand-ink">3</p>
+            <p className="text-indigo-800 font-bold text-xs mt-1 uppercase tracking-[0.05em]">Total Customers</p>
           </div>
-          <div className="rounded-2xl border p-4" style={{ borderColor: '#f0e5f5', backgroundColor: '#f8f1fb' }}>
-            <div className="w-8 h-8 rounded-lg bg-white text-[#d16fc8] flex items-center justify-center mb-3"><BarChart3 size={15} /></div>
-            <p className="text-3xl font-bold text-gray-900">2</p>
-            <p className="text-gray-600 text-sm">Quotations</p>
+          <div className="rounded-2xl border p-5 shadow-sm border-blue-100 bg-blue-50">
+            <div className="w-10 h-10 rounded-xl bg-white text-blue-600 flex items-center justify-center mb-3 shadow-sm"><BarChart3 size={18} /></div>
+            <p className="text-3xl font-black text-brand-ink">2</p>
+            <p className="text-blue-800 font-bold text-xs mt-1 uppercase tracking-[0.05em]">Quotations</p>
           </div>
-          <div className="rounded-2xl border border-[#e7f2ee] bg-[#edf8f2] p-4">
-            <div className="w-8 h-8 rounded-lg bg-white text-[#3ebd7a] flex items-center justify-center mb-3"><Activity size={15} /></div>
-            <p className="text-3xl font-bold text-gray-900">5</p>
-            <p className="text-gray-600 text-sm">Calls Logged</p>
+          <div className="rounded-2xl border p-5 shadow-sm border-emerald-100 bg-emerald-50">
+            <div className="w-10 h-10 rounded-xl bg-white text-emerald-600 flex items-center justify-center mb-3 shadow-sm"><Activity size={18} /></div>
+            <p className="text-3xl font-black text-brand-ink">5</p>
+            <p className="text-emerald-800 font-bold text-xs mt-1 uppercase tracking-[0.05em]">Calls Logged</p>
           </div>
-          <div className="rounded-2xl border border-[#f5f0df] bg-[#f8f4e8] p-4">
-            <div className="w-8 h-8 rounded-lg bg-white text-[#e2b84f] flex items-center justify-center mb-3"><UserRound size={15} /></div>
-            <p className="text-3xl font-bold text-gray-900">2</p>
-            <p className="text-gray-600 text-sm">Staff Active</p>
+          <div className="rounded-2xl border p-5 shadow-sm border-amber-100 bg-amber-50">
+            <div className="w-10 h-10 rounded-xl bg-white text-amber-600 flex items-center justify-center mb-3 shadow-sm"><UserRound size={18} /></div>
+            <p className="text-3xl font-black text-brand-ink">2</p>
+            <p className="text-amber-800 font-bold text-xs mt-1 uppercase tracking-[0.05em]">Staff Active</p>
           </div>
         </div>
       </section>
 
       <section className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <div className="bg-white border rounded-2xl p-6 shadow-sm" style={{ borderColor: PANEL_BORDER }}>
-          <h3 className="text-xl font-bold text-gray-900 mb-4">Lead Stage Distribution</h3>
+        <div className="card !p-6 shadow-sm">
+          <h3 className="text-sm font-black uppercase tracking-[0.1em] text-brand-ink mb-6">Lead Stage Distribution</h3>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={leadStageData}>
-                <CartesianGrid strokeDasharray="4 4" stroke="#edf2f7" vertical={false} />
-                <XAxis dataKey="stage" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} allowDecimals={false} />
-                <Tooltip />
-                <Bar dataKey="count" fill={ORANGE} radius={[8, 8, 0, 0]} />
+                <CartesianGrid strokeDasharray="4 4" stroke={GRID_LINE} vertical={false} />
+                <XAxis dataKey="stage" tick={{ fontSize: 11, fill: TEXT_MUTED, fontWeight: 700 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: TEXT_MUTED, fontWeight: 700 }} axisLine={false} tickLine={false} allowDecimals={false} />
+                <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)', fontWeight: 'bold' }} />
+                <Bar dataKey="count" fill={BRAND_ACCENT} radius={[6, 6, 0, 0]} barSize={40} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="bg-white border rounded-2xl p-6 shadow-sm" style={{ borderColor: PANEL_BORDER }}>
-          <h3 className="text-xl font-bold text-gray-900 mb-4">Weekly Activity Trend</h3>
+        <div className="card !p-6 shadow-sm">
+          <h3 className="text-sm font-black uppercase tracking-[0.1em] text-brand-ink mb-6">Weekly Activity Trend</h3>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={weeklyActivityData}>
-                <CartesianGrid strokeDasharray="4 4" stroke="#edf2f7" vertical={false} />
-                <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} allowDecimals={false} />
-                <Tooltip />
-                <Line type="monotone" dataKey="calls" stroke="#2563eb" strokeWidth={2.5} dot={{ r: 3 }} />
-                <Line type="monotone" dataKey="visits" stroke={ORANGE} strokeWidth={2.5} dot={{ r: 3 }} />
+                <CartesianGrid strokeDasharray="4 4" stroke={GRID_LINE} vertical={false} />
+                <XAxis dataKey="day" tick={{ fontSize: 11, fill: TEXT_MUTED, fontWeight: 700 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: TEXT_MUTED, fontWeight: 700 }} axisLine={false} tickLine={false} allowDecimals={false} />
+                <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)', fontWeight: 'bold' }} />
+                <Line type="monotone" dataKey="calls" stroke={BRAND_ACCENT} strokeWidth={3} dot={{ r: 4, fill: BRAND_ACCENT }} activeDot={{ r: 6 }} />
+                <Line type="monotone" dataKey="visits" stroke={BRAND_SECONDARY} strokeWidth={3} dot={{ r: 4, fill: BRAND_SECONDARY }} activeDot={{ r: 6 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -160,28 +162,28 @@ export default function Analyze() {
       </section>
 
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-        <div className="bg-white border rounded-2xl p-6 shadow-sm" style={{ borderColor: PANEL_BORDER }}>
-          <h3 className="text-xl font-bold text-gray-900 mb-4">Team Performance Radar</h3>
+        <div className="card !p-6 shadow-sm">
+          <h3 className="text-sm font-black uppercase tracking-[0.1em] text-brand-ink mb-6">Team Performance Radar</h3>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={teamRadarData}>
-                <PolarGrid stroke="#e5e7eb" />
-                <PolarAngleAxis dataKey="metric" tick={{ fontSize: 11, fill: '#64748b' }} />
-                <Tooltip />
-                <Radar dataKey="score" stroke="#2563eb" fill="#93c5fd" fillOpacity={0.45} />
+              <RadarChart data={teamRadarData} outerRadius="70%">
+                <PolarGrid stroke={GRID_LINE} />
+                <PolarAngleAxis dataKey="metric" tick={{ fontSize: 11, fill: TEXT_MUTED, fontWeight: 700 }} />
+                <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)', fontWeight: 'bold' }} />
+                <Radar dataKey="score" stroke={BRAND_ACCENT} fill={BRAND_ACCENT} fillOpacity={0.4} strokeWidth={2} />
               </RadarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="bg-white border rounded-2xl p-6 shadow-sm" style={{ borderColor: PANEL_BORDER }}>
-          <h3 className="text-xl font-bold text-gray-900 mb-4">System Details Snapshot</h3>
+        <div className="card !p-6 shadow-sm">
+          <h3 className="text-sm font-black uppercase tracking-[0.1em] text-brand-ink mb-6">System Details Snapshot</h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {systemDetails.map((item) => (
-              <div key={item.label} className={`rounded-xl border p-3 ${item.tone}`}>
-                <p className="text-[11px] font-medium text-gray-500">{item.label}</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">{item.value}</p>
+              <div key={item.label} className={`rounded-xl border p-4 ${item.tone} shadow-sm`}>
+                <p className="text-[11px] font-extrabold text-slate-500 uppercase tracking-[0.05em]">{item.label}</p>
+                <p className="text-2xl font-black text-brand-ink mt-1.5">{item.value}</p>
               </div>
             ))}
           </div>
