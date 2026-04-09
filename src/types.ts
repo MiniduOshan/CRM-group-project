@@ -24,6 +24,7 @@ export interface CustomerProfile {
   callLogs: CallLog[];
   quotationIds: string[];
   invoiceIds: string[];
+  status?: LeadStatus;
 }
 
 export interface Lead {

@@ -211,25 +211,25 @@ export default function Inventory({
     <div className="p-4 md:p-8 space-y-4 md:space-y-6">
       <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
-          <h2 className="text-xl md:text-2xl font-bold tracking-tight">Inventory & Stock</h2>
-          <p className="text-gray-500 text-sm">Item registration, GRN intake, and supplier payments in one place.</p>
+          <h2 className="text-xl md:text-2xl font-black tracking-tight text-brand-ink">Inventory & Stock</h2>
+          <p className="text-brand-text text-sm font-medium mt-1">Item registration, GRN intake, and supplier payments in one place.</p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
+        <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
           <button
             onClick={() => setActiveDialog('register-item')}
-            className="bg-brand-accent text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700"
+            className="btn-primary"
           >
             Register Item
           </button>
           <button
             onClick={() => setActiveDialog('create-grn')}
-            className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-green-700"
+            className="px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-600 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2"
           >
             Create GRN (Stock In)
           </button>
           <button
             onClick={() => setActiveDialog('supplier-payment')}
-            className="bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-amber-700"
+            className="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-600 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2"
           >
             Supplier Payment
           </button>
@@ -252,80 +252,80 @@ export default function Inventory({
             </div>
 
             {activeDialog === 'register-item' && (
-              <form onSubmit={handleCreateItem} className="p-4 space-y-2">
-                <input required value={itemForm.name} onChange={(e) => setItemForm((p) => ({ ...p, name: e.target.value }))} placeholder="Item name" className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm" />
-                <div className="grid grid-cols-2 gap-2">
-                  <input required value={itemForm.category} onChange={(e) => setItemForm((p) => ({ ...p, category: e.target.value }))} placeholder="Category" className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm" />
-                  <input required value={itemForm.unit} onChange={(e) => setItemForm((p) => ({ ...p, unit: e.target.value }))} placeholder="Unit" className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm" />
+              <form onSubmit={handleCreateItem} className="p-4 space-y-3">
+                <input required value={itemForm.name} onChange={(e) => setItemForm((p) => ({ ...p, name: e.target.value }))} placeholder="Item name" className="input-field !py-2.5" />
+                <div className="grid grid-cols-2 gap-3">
+                  <input required value={itemForm.category} onChange={(e) => setItemForm((p) => ({ ...p, category: e.target.value }))} placeholder="Category" className="input-field !py-2.5" />
+                  <input required value={itemForm.unit} onChange={(e) => setItemForm((p) => ({ ...p, unit: e.target.value }))} placeholder="Unit" className="input-field !py-2.5" />
                 </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <input type="number" min="0" step="0.01" value={itemForm.costPrice} onChange={(e) => setItemForm((p) => ({ ...p, costPrice: e.target.value }))} className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm" placeholder="Cost" />
-                  <input type="number" min="0" step="0.01" value={itemForm.sellingPrice} onChange={(e) => setItemForm((p) => ({ ...p, sellingPrice: e.target.value }))} className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm" placeholder="Sell" />
-                  <input type="number" min="0" value={itemForm.openingStock} onChange={(e) => setItemForm((p) => ({ ...p, openingStock: e.target.value }))} className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm" placeholder="Stock" />
+                <div className="grid grid-cols-3 gap-3">
+                  <input type="number" min="0" step="0.01" value={itemForm.costPrice} onChange={(e) => setItemForm((p) => ({ ...p, costPrice: e.target.value }))} className="input-field !py-2.5" placeholder="Cost" />
+                  <input type="number" min="0" step="0.01" value={itemForm.sellingPrice} onChange={(e) => setItemForm((p) => ({ ...p, sellingPrice: e.target.value }))} className="input-field !py-2.5" placeholder="Sell" />
+                  <input type="number" min="0" value={itemForm.openingStock} onChange={(e) => setItemForm((p) => ({ ...p, openingStock: e.target.value }))} className="input-field !py-2.5" placeholder="Stock" />
                 </div>
-                <input type="number" min="0" value={itemForm.minimumStockLevel} onChange={(e) => setItemForm((p) => ({ ...p, minimumStockLevel: e.target.value }))} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm" placeholder="Minimum stock level" />
-                <select value={itemForm.sourceType} onChange={(e) => setItemForm((p) => ({ ...p, sourceType: e.target.value as 'GRN' | 'DIRECT' }))} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm">
+                <input type="number" min="0" value={itemForm.minimumStockLevel} onChange={(e) => setItemForm((p) => ({ ...p, minimumStockLevel: e.target.value }))} className="input-field !py-2.5" placeholder="Minimum stock level" />
+                <select value={itemForm.sourceType} onChange={(e) => setItemForm((p) => ({ ...p, sourceType: e.target.value as 'GRN' | 'DIRECT' }))} className="input-field !py-2.5">
                   <option value="DIRECT">Direct / Service Item</option>
                   <option value="GRN">GRN Linked Item</option>
                 </select>
                 <div className="flex justify-end gap-2 pt-2">
-                  <button type="button" onClick={() => setActiveDialog(null)} className="px-3 py-2 rounded-lg border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50">Cancel</button>
-                  <button type="submit" className="px-3 py-2 rounded-lg bg-brand-accent text-white text-sm font-semibold hover:bg-blue-700">Save Item</button>
+                  <button type="button" onClick={() => setActiveDialog(null)} className="btn-secondary">Cancel</button>
+                  <button type="submit" className="btn-primary">Save Item</button>
                 </div>
               </form>
             )}
 
             {activeDialog === 'create-grn' && (
-              <form onSubmit={handleCreateGrn} className="p-4 space-y-2">
-                <input required value={grnForm.supplierName} onChange={(e) => setGrnForm((p) => ({ ...p, supplierName: e.target.value }))} placeholder="Supplier name" className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm" />
-                <select required value={grnForm.inventoryItemId} onChange={(e) => setGrnForm((p) => ({ ...p, inventoryItemId: e.target.value }))} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm">
+              <form onSubmit={handleCreateGrn} className="p-4 space-y-3">
+                <input required value={grnForm.supplierName} onChange={(e) => setGrnForm((p) => ({ ...p, supplierName: e.target.value }))} placeholder="Supplier name" className="input-field !py-2.5" />
+                <select required value={grnForm.inventoryItemId} onChange={(e) => setGrnForm((p) => ({ ...p, inventoryItemId: e.target.value }))} className="input-field !py-2.5">
                   <option value="">Select item</option>
                   {inventoryItems.map((item) => (
                     <option key={item.id} value={item.id}>{item.name}</option>
                   ))}
                 </select>
-                <div className="grid grid-cols-2 gap-2">
-                  <input type="number" min="1" value={grnForm.quantity} onChange={(e) => setGrnForm((p) => ({ ...p, quantity: e.target.value }))} className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm" placeholder="Qty" />
-                  <input type="number" min="0" step="0.01" value={grnForm.costPrice} onChange={(e) => setGrnForm((p) => ({ ...p, costPrice: e.target.value }))} className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm" placeholder="Cost price" />
+                <div className="grid grid-cols-2 gap-3">
+                  <input type="number" min="1" value={grnForm.quantity} onChange={(e) => setGrnForm((p) => ({ ...p, quantity: e.target.value }))} className="input-field !py-2.5" placeholder="Qty" />
+                  <input type="number" min="0" step="0.01" value={grnForm.costPrice} onChange={(e) => setGrnForm((p) => ({ ...p, costPrice: e.target.value }))} className="input-field !py-2.5" placeholder="Cost price" />
                 </div>
                 <div className="flex justify-end gap-2 pt-2">
-                  <button type="button" onClick={() => setActiveDialog(null)} className="px-3 py-2 rounded-lg border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50">Cancel</button>
-                  <button type="submit" className="px-3 py-2 rounded-lg bg-green-600 text-white text-sm font-semibold hover:bg-green-700">Post GRN</button>
+                  <button type="button" onClick={() => setActiveDialog(null)} className="btn-secondary">Cancel</button>
+                  <button type="submit" className="px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-bold shadow-md hover:bg-emerald-700 active:scale-[0.98] transition-all">Post GRN</button>
                 </div>
               </form>
             )}
 
             {activeDialog === 'supplier-payment' && (
-              <form onSubmit={handleAddPayment} className="p-4 space-y-2">
+              <form onSubmit={handleAddPayment} className="p-4 space-y-3">
                 <select required value={paymentForm.grnId} onChange={(e) => {
                   const selected = grnRecords.find((record) => record.id === e.target.value);
                   setPaymentForm((prev) => ({ ...prev, grnId: e.target.value, supplierName: selected?.supplierName ?? prev.supplierName }));
-                }} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm">
+                }} className="input-field !py-2.5">
                   <option value="">Select GRN</option>
                   {grnRecords.map((record) => (
                     <option key={record.id} value={record.id}>{record.id} - {record.supplierName}</option>
                   ))}
                 </select>
-                <input required value={paymentForm.supplierName} onChange={(e) => setPaymentForm((p) => ({ ...p, supplierName: e.target.value }))} placeholder="Supplier" className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm" />
-                <div className="grid grid-cols-2 gap-2">
-                  <input type="number" min="0" step="0.01" value={paymentForm.amount} onChange={(e) => setPaymentForm((p) => ({ ...p, amount: e.target.value }))} className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm" placeholder="Amount" />
-                  <select value={paymentForm.paymentMethod} onChange={(e) => setPaymentForm((p) => ({ ...p, paymentMethod: e.target.value as 'Cash' | 'Bank Transfer' | 'Cheque' }))} className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm">
+                <input required value={paymentForm.supplierName} onChange={(e) => setPaymentForm((p) => ({ ...p, supplierName: e.target.value }))} placeholder="Supplier" className="input-field !py-2.5" />
+                <div className="grid grid-cols-2 gap-3">
+                  <input type="number" min="0" step="0.01" value={paymentForm.amount} onChange={(e) => setPaymentForm((p) => ({ ...p, amount: e.target.value }))} className="input-field !py-2.5" placeholder="Amount" />
+                  <select value={paymentForm.paymentMethod} onChange={(e) => setPaymentForm((p) => ({ ...p, paymentMethod: e.target.value as 'Cash' | 'Bank Transfer' | 'Cheque' }))} className="input-field !py-2.5">
                     <option value="Bank Transfer">Bank Transfer</option>
                     <option value="Cash">Cash</option>
                     <option value="Cheque">Cheque</option>
                   </select>
                 </div>
-                <input value={paymentForm.reference} onChange={(e) => setPaymentForm((p) => ({ ...p, reference: e.target.value }))} placeholder="Reference" className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm" />
+                <input value={paymentForm.reference} onChange={(e) => setPaymentForm((p) => ({ ...p, reference: e.target.value }))} placeholder="Reference" className="input-field !py-2.5" />
                 <div className="flex justify-end gap-2 pt-2">
-                  <button type="button" onClick={() => setActiveDialog(null)} className="px-3 py-2 rounded-lg border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50">Cancel</button>
-                  <button type="submit" className="px-3 py-2 rounded-lg bg-amber-600 text-white text-sm font-semibold hover:bg-amber-700">Record Payment</button>
+                  <button type="button" onClick={() => setActiveDialog(null)} className="btn-secondary">Cancel</button>
+                  <button type="submit" className="px-5 py-2.5 rounded-xl bg-amber-600 text-white text-sm font-bold shadow-md hover:bg-amber-700 active:scale-[0.98] transition-all">Record Payment</button>
                 </div>
               </form>
             )}
 
             {activeDialog === 'edit-item' && (
-              <form onSubmit={handleUpdateItemPricing} className="p-4 space-y-2">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              <form onSubmit={handleUpdateItemPricing} className="p-4 space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <input
                     type="number"
                     min="0"
@@ -333,7 +333,7 @@ export default function Inventory({
                     value={updateForm.costPrice}
                     disabled={isCostLocked}
                     onChange={(e) => setUpdateForm((p) => ({ ...p, costPrice: e.target.value }))}
-                    className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm disabled:bg-gray-100 disabled:text-gray-400"
+                    className="input-field !py-2.5 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
                     placeholder="Cost price"
                   />
                   <input
@@ -342,7 +342,7 @@ export default function Inventory({
                     step="0.01"
                     value={updateForm.sellingPrice}
                     onChange={(e) => setUpdateForm((p) => ({ ...p, sellingPrice: e.target.value }))}
-                    className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm"
+                    className="input-field !py-2.5"
                     placeholder="Selling price"
                   />
                   <input
@@ -350,7 +350,7 @@ export default function Inventory({
                     min="0"
                     value={updateForm.minimumStockLevel}
                     onChange={(e) => setUpdateForm((p) => ({ ...p, minimumStockLevel: e.target.value }))}
-                    className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm"
+                    className="input-field !py-2.5"
                     placeholder="Minimum stock"
                   />
                 </div>
@@ -358,8 +358,8 @@ export default function Inventory({
                   <p className="text-xs text-amber-700">Cost price editing is disabled because this item is linked to GRN.</p>
                 )}
                 <div className="flex justify-end gap-2 pt-2">
-                  <button type="button" onClick={() => setActiveDialog(null)} className="px-3 py-2 rounded-lg border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50">Cancel</button>
-                  <button type="submit" className="px-3 py-2 rounded-lg bg-slate-700 text-white text-sm font-semibold hover:bg-slate-800">Update Item</button>
+                  <button type="button" onClick={() => setActiveDialog(null)} className="btn-secondary">Cancel</button>
+                  <button type="submit" className="px-5 py-2.5 rounded-xl bg-brand-ink text-white text-sm font-bold shadow-md hover:bg-brand-ink/90 active:scale-[0.98] transition-all">Update Item</button>
                 </div>
               </form>
             )}
@@ -368,109 +368,109 @@ export default function Inventory({
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-        <div className="bg-white p-6 rounded-xl border border-brand-line shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-blue-50 rounded-lg text-brand-accent">
+        <div className="card flex items-center gap-4 hover:shadow-elevated transition-shadow">
+          <div className="p-3 bg-brand-accent/10 rounded-2xl text-brand-accent">
             <Package size={24} />
           </div>
           <div>
-            <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Total Items</p>
-            <p className="text-2xl font-bold">{inventoryItems.length}</p>
+            <p className="text-xs text-brand-text font-black uppercase tracking-[0.1em]">Total Items</p>
+            <p className="text-2xl font-black text-brand-ink mt-0.5">{inventoryItems.length}</p>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-xl border border-brand-line shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-red-50 rounded-lg text-red-600">
+        <div className="card flex items-center gap-4 hover:shadow-elevated transition-shadow">
+          <div className="p-3 bg-red-500/10 rounded-2xl text-red-600">
             <AlertTriangle size={24} />
           </div>
           <div>
-            <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Low Stock Alerts</p>
-            <p className="text-2xl font-bold">{lowStockCount}</p>
+            <p className="text-xs text-brand-text font-black uppercase tracking-[0.1em]">Low Stock Alerts</p>
+            <p className="text-2xl font-black text-brand-ink mt-0.5">{lowStockCount}</p>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-xl border border-brand-line shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-green-50 rounded-lg text-green-600">
+        <div className="card flex items-center gap-4 hover:shadow-elevated transition-shadow">
+          <div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-600">
             <History size={24} />
           </div>
           <div>
-            <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Recent GRNs</p>
-            <p className="text-2xl font-bold">{grnRecords.length}</p>
+            <p className="text-xs text-brand-text font-black uppercase tracking-[0.1em]">Recent GRNs</p>
+            <p className="text-2xl font-black text-brand-ink mt-0.5">{grnRecords.length}</p>
           </div>
         </div>
       </div>
 
-      <div className="bg-white p-4 rounded-xl border border-brand-line shadow-sm flex gap-4 items-center">
+      <div className="card !p-4 flex gap-4 items-center">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <input 
             type="text" 
             placeholder="Search inventory..." 
-            className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent/20"
+            className="input-field pl-10"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-brand-line shadow-sm overflow-hidden">
+      <div className="data-grid w-full">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[600px]">
             <thead>
-              <tr className="bg-gray-50 border-b border-brand-line">
-                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Item Name</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Category</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-right">Cost Price</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-right">Selling Price</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-right">Profit / Unit</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-center">Stock Level</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-center">Min Stock</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Unit</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-center">Edit</th>
+              <tr>
+                <th className="data-header">Item Name</th>
+                <th className="data-header">Category</th>
+                <th className="data-header text-right">Cost Price</th>
+                <th className="data-header text-right">Selling Price</th>
+                <th className="data-header text-right">Profit / Unit</th>
+                <th className="data-header text-center">Stock Level</th>
+                <th className="data-header text-center">Min Stock</th>
+                <th className="data-header">Unit</th>
+                <th className="data-header text-center">Edit</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-brand-line">
               {filteredItems.map((item) => (
-                <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4">
-                    <p className="text-sm font-bold">{item.name}</p>
-                    <p className="text-[10px] text-gray-400 font-mono">{item.id}</p>
+                <tr key={item.id} className="data-row">
+                  <td className="data-cell">
+                    <p className="text-sm font-bold text-brand-ink">{item.name}</p>
+                    <p className="text-[10px] text-slate-400 font-mono tracking-tight mt-0.5">{item.id}</p>
                   </td>
-                  <td className="px-6 py-4">
-                    <span className="px-2 py-1 bg-gray-100 text-gray-600 text-[10px] font-bold rounded uppercase">
+                  <td className="data-cell">
+                    <span className="px-2.5 py-1 bg-brand-subtle text-brand-text text-[10px] font-bold rounded-md uppercase tracking-wide">
                       {item.category}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-right">
-                    <p className="text-xs font-mono text-gray-500">${item.costPrice.toFixed(2)}</p>
+                  <td className="data-cell text-right">
+                    <p className="mono-data">${item.costPrice.toFixed(2)}</p>
                   </td>
-                  <td className="px-6 py-4 text-right">
-                    <p className="text-xs font-mono font-bold text-brand-ink">${item.sellingPrice.toFixed(2)}</p>
+                  <td className="data-cell text-right">
+                    <p className="mono-data !font-bold">${item.sellingPrice.toFixed(2)}</p>
                   </td>
-                  <td className="px-6 py-4 text-right">
-                    <p className="text-xs font-mono font-bold text-emerald-600">${(item.sellingPrice - item.costPrice).toFixed(2)}</p>
+                  <td className="data-cell text-right">
+                    <p className="mono-data !font-bold text-emerald-600">${(item.sellingPrice - item.costPrice).toFixed(2)}</p>
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex flex-col items-center gap-1">
-                      <span className="text-xs font-bold text-gray-700">
+                  <td className="data-cell">
+                    <div className="flex flex-col items-center gap-1.5">
+                      <span className="text-xs font-black text-brand-ink">
                         {item.stockLevel}
                       </span>
-                      <div className="w-16 h-1 bg-gray-100 rounded-full overflow-hidden">
-                        <div className={`h-full ${(item.stockLevel <= (item.minimumStockLevel ?? 5)) ? 'bg-red-500' : 'bg-green-500'}`} style={{ width: '100%' }} />
+                      <div className="w-16 h-1.5 bg-brand-line rounded-full overflow-hidden shadow-inner">
+                        <div className={`h-full ${(item.stockLevel <= (item.minimumStockLevel ?? 5)) ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]' : 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]'}`} style={{ width: '100%' }} />
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-center">
-                    <p className="text-xs font-bold text-gray-700">{item.minimumStockLevel ?? 5}</p>
+                  <td className="data-cell text-center">
+                    <p className="text-xs font-bold text-brand-text">{item.minimumStockLevel ?? 5}</p>
                   </td>
-                  <td className="px-6 py-4">
-                    <p className="text-[10px] text-gray-400 font-bold uppercase">{item.unit}</p>
-                    <p className="text-[10px] text-gray-400 mt-1">{item.sourceType ?? 'DIRECT'}</p>
+                  <td className="data-cell">
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{item.unit}</p>
+                    <p className="text-[10px] text-brand-text mt-0.5 font-medium">{item.sourceType ?? 'DIRECT'}</p>
                   </td>
-                  <td className="px-6 py-4 text-center">
+                  <td className="data-cell text-center">
                     <button
                       onClick={() => {
                         handleSelectUpdateItem(item.id);
                         setActiveDialog('edit-item');
                       }}
-                      className="p-2 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-brand-accent"
+                      className="p-2 rounded-xl border border-brand-line bg-white text-slate-500 hover:bg-brand-subtle hover:text-brand-accent hover:border-brand-accent/30 transition-all shadow-sm"
                       title="Edit item"
                     >
                       <Pencil size={14} />
@@ -484,39 +484,49 @@ export default function Inventory({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="bg-white rounded-xl border border-brand-line shadow-sm p-4">
-          <h3 className="text-sm font-bold mb-3 flex items-center gap-2"><History size={16} /> GRN History</h3>
-          <div className="space-y-2 max-h-56 overflow-y-auto">
+        <div className="card">
+          <h3 className="text-sm font-extrabold mb-4 flex items-center gap-2 text-brand-ink"><History size={16} className="text-brand-accent" /> GRN History</h3>
+          <div className="space-y-3 max-h-56 overflow-y-auto pr-1">
             {grnRecords.map((record) => (
-              <div key={record.id} className="border border-gray-100 rounded-lg p-3 text-sm">
-                <p className="font-semibold">{record.id} - {record.supplierName}</p>
-                <p className="text-xs text-gray-500">Total ${record.totalAmount.toFixed(2)} | {record.paymentStatus}</p>
+              <div key={record.id} className="border border-brand-line bg-brand-subtle rounded-xl p-3 text-sm">
+                <p className="font-bold text-brand-ink">{record.id} - {record.supplierName}</p>
+                <p className="text-xs text-brand-text font-medium mt-1">
+                  Total <span className="font-bold text-emerald-600">${record.totalAmount.toFixed(2)}</span> | {record.paymentStatus}
+                </p>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-brand-line shadow-sm p-4">
-          <h3 className="text-sm font-bold mb-3 flex items-center gap-2"><Wallet size={16} /> Purchase Payment Log</h3>
-          <div className="space-y-2 max-h-56 overflow-y-auto">
+        <div className="card flex flex-col">
+          <h3 className="text-sm font-extrabold mb-4 flex items-center gap-2 text-brand-ink"><Wallet size={16} className="text-amber-500" /> Purchase Payment Log</h3>
+          <div className="space-y-3 max-h-56 overflow-y-auto pr-1 flex-1">
             {purchasePayments.map((payment) => (
-              <div key={payment.id} className="border border-gray-100 rounded-lg p-3 text-sm">
-                <p className="font-semibold">{payment.grnId} - ${payment.amount.toFixed(2)}</p>
-                <p className="text-xs text-gray-500">{payment.supplierName} | {payment.paymentMethod} | {payment.reference || 'No ref'}</p>
+              <div key={payment.id} className="border border-brand-line bg-brand-subtle rounded-xl p-3 text-sm">
+                <p className="font-bold text-brand-ink">{payment.grnId} - <span className="text-emerald-600">${payment.amount.toFixed(2)}</span></p>
+                <p className="text-xs text-brand-text font-medium mt-1">{payment.supplierName} | {payment.paymentMethod} | {payment.reference || 'No ref'}</p>
               </div>
             ))}
           </div>
-          <p className="text-xs text-gray-500 mt-3">GRN value ${totalGrnValue.toFixed(2)} | Paid ${totalPaid.toFixed(2)}</p>
+          <div className="mt-4 pt-3 border-t border-brand-line">
+            <p className="text-xs font-bold text-brand-text flex justify-between">
+              <span>GRN value <span className="text-brand-ink font-black">${totalGrnValue.toFixed(2)}</span></span>
+              <span>Paid <span className="text-emerald-600 font-black">${totalPaid.toFixed(2)}</span></span>
+            </p>
+          </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-brand-line shadow-sm p-4 lg:col-span-2">
-          <h3 className="text-sm font-bold mb-3 flex items-center gap-2"><History size={16} /> Stock History Log</h3>
-          <div className="space-y-2 max-h-64 overflow-y-auto">
+        <div className="card lg:col-span-2">
+          <h3 className="text-sm font-extrabold mb-4 flex items-center gap-2 text-brand-ink"><History size={16} className="text-brand-accent" /> Stock History Log</h3>
+          <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
             {stockHistory.map((entry) => (
-              <div key={entry.id} className="border border-gray-100 rounded-lg p-3 text-sm">
-                <p className="font-semibold">{entry.itemName} - {entry.changeType}</p>
-                <p className="text-xs text-gray-500">Qty {entry.quantityChange >= 0 ? `+${entry.quantityChange}` : entry.quantityChange} | Stock {entry.previousStock} -&gt; {entry.newStock}</p>
-                <p className="text-xs text-gray-500">{entry.note}</p>
+              <div key={entry.id} className="border border-brand-line bg-brand-subtle rounded-xl p-3 text-sm">
+                <p className="font-bold text-brand-ink">{entry.itemName} - <span className="text-brand-accent">{entry.changeType}</span></p>
+                <div className="flex items-center gap-3 mt-1.5">
+                  <p className="text-xs text-brand-text font-medium">Qty <span className={`font-bold ${entry.quantityChange >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>{entry.quantityChange >= 0 ? `+${entry.quantityChange}` : entry.quantityChange}</span></p>
+                  <p className="text-xs text-brand-text font-medium border-l border-brand-line pl-3">Stock <span className="mono-data">{entry.previousStock}</span> &rarr; <span className="mono-data font-bold text-brand-ink">{entry.newStock}</span></p>
+                </div>
+                {entry.note && <p className="text-xs text-slate-500 mt-2 bg-white px-2 py-1.5 rounded-lg border border-brand-line">{entry.note}</p>}
               </div>
             ))}
           </div>

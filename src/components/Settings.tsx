@@ -14,64 +14,64 @@ export default function Settings() {
   return (
     <div className="p-4 md:p-8 space-y-4 md:space-y-6">
       <header>
-        <h2 className="text-xl md:text-2xl font-bold tracking-tight">Settings</h2>
-        <p className="text-gray-500 text-sm">Configure account, security, notifications, and workspace preferences.</p>
+        <h2 className="text-xl md:text-2xl font-black tracking-tight text-brand-ink">Settings</h2>
+        <p className="text-brand-text font-medium text-sm mt-1">Configure account, security, notifications, and workspace preferences.</p>
       </header>
 
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-        <div className="lg:col-span-2 bg-white rounded-xl border border-brand-line shadow-sm p-6 space-y-6">
+        <div className="lg:col-span-2 card !p-6 space-y-8">
           <div>
-            <h3 className="text-sm font-bold flex items-center gap-2 mb-3"><UserCircle2 size={16} className="text-brand-accent" /> Account</h3>
-            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Company Name</label>
+            <h3 className="text-sm font-extrabold flex items-center gap-2 mb-4 text-brand-ink"><UserCircle2 size={18} className="text-brand-accent" /> Account</h3>
+            <label className="text-[10px] font-black text-brand-text uppercase tracking-[0.1em]">Company Name</label>
             <input
               value={settings.companyName}
               onChange={(e) => setSettings((prev) => ({ ...prev, companyName: e.target.value }))}
-              className="mt-1 w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm"
+              className="mt-1 input-field !py-2.5"
             />
           </div>
 
           <div>
-            <h3 className="text-sm font-bold flex items-center gap-2 mb-3"><Bell size={16} className="text-brand-accent" /> Notifications</h3>
+            <h3 className="text-sm font-extrabold flex items-center gap-2 mb-4 text-brand-ink"><Bell size={18} className="text-brand-accent" /> Notifications</h3>
             <div className="space-y-3">
-              <label className="flex items-center justify-between rounded-lg border border-gray-200 p-3 bg-gray-50">
-                <span className="text-sm text-gray-700">Email notifications</span>
+              <label className="flex items-center justify-between card !p-4 bg-brand-subtle hover:border-brand-accent/20 cursor-pointer transition-colors border">
+                <span className="text-sm font-semibold text-brand-ink">Email notifications</span>
                 <input
                   type="checkbox"
                   checked={settings.emailNotifications}
                   onChange={(e) => setSettings((prev) => ({ ...prev, emailNotifications: e.target.checked }))}
-                  className="accent-brand-accent"
+                  className="w-4 h-4 rounded border-brand-line text-brand-ink focus:ring-brand-ink"
                 />
               </label>
-              <label className="flex items-center justify-between rounded-lg border border-gray-200 p-3 bg-gray-50">
-                <span className="text-sm text-gray-700">SMS notifications</span>
+              <label className="flex items-center justify-between card !p-4 bg-brand-subtle hover:border-brand-accent/20 cursor-pointer transition-colors border">
+                <span className="text-sm font-semibold text-brand-ink">SMS notifications</span>
                 <input
                   type="checkbox"
                   checked={settings.smsNotifications}
                   onChange={(e) => setSettings((prev) => ({ ...prev, smsNotifications: e.target.checked }))}
-                  className="accent-brand-accent"
+                  className="w-4 h-4 rounded border-brand-line text-brand-ink focus:ring-brand-ink"
                 />
               </label>
             </div>
           </div>
 
           <div>
-            <h3 className="text-sm font-bold flex items-center gap-2 mb-3"><ShieldCheck size={16} className="text-brand-accent" /> Security</h3>
+            <h3 className="text-sm font-extrabold flex items-center gap-2 mb-4 text-brand-ink"><ShieldCheck size={18} className="text-brand-accent" /> Security</h3>
             <div className="space-y-3">
-              <label className="flex items-center justify-between rounded-lg border border-gray-200 p-3 bg-gray-50">
-                <span className="text-sm text-gray-700">Enable two-factor authentication</span>
+              <label className="flex items-center justify-between card !p-4 bg-brand-subtle hover:border-brand-accent/20 cursor-pointer transition-colors border">
+                <span className="text-sm font-semibold text-brand-ink">Enable two-factor authentication</span>
                 <input
                   type="checkbox"
                   checked={settings.twoFactorAuth}
                   onChange={(e) => setSettings((prev) => ({ ...prev, twoFactorAuth: e.target.checked }))}
-                  className="accent-brand-accent"
+                  className="w-4 h-4 rounded border-brand-line text-brand-ink focus:ring-brand-ink"
                 />
               </label>
-              <div className="rounded-lg border border-gray-200 p-3 bg-gray-50">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Session timeout (minutes)</label>
+              <div className="card !p-4 bg-brand-subtle border">
+                <label className="text-[10px] font-black text-brand-text uppercase tracking-[0.1em]">Session timeout (minutes)</label>
                 <select
                   value={settings.sessionTimeout}
                   onChange={(e) => setSettings((prev) => ({ ...prev, sessionTimeout: e.target.value }))}
-                  className="mt-1 w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm"
+                  className="mt-1.5 input-field !py-2 bg-white"
                 >
                   <option value="15">15</option>
                   <option value="30">30</option>
@@ -82,28 +82,28 @@ export default function Settings() {
           </div>
         </div>
 
-        <aside className="bg-white rounded-xl border border-brand-line shadow-sm p-6 space-y-4 h-fit">
-          <h3 className="text-sm font-bold flex items-center gap-2"><Palette size={16} className="text-brand-accent" /> Interface</h3>
-          <label className="flex items-center justify-between rounded-lg border border-gray-200 p-3 bg-gray-50">
-            <span className="text-sm text-gray-700">Dark sidebar theme</span>
+        <aside className="card !p-6 space-y-5 h-fit">
+          <h3 className="text-sm font-extrabold flex items-center gap-2 text-brand-ink"><Palette size={18} className="text-brand-accent" /> Interface</h3>
+          <label className="flex items-center justify-between card !p-4 bg-brand-subtle hover:border-brand-accent/20 cursor-pointer transition-colors border">
+            <span className="text-sm font-semibold text-brand-ink">Dark sidebar theme</span>
             <input
               type="checkbox"
               checked={settings.darkSidebar}
               onChange={(e) => setSettings((prev) => ({ ...prev, darkSidebar: e.target.checked }))}
-              className="accent-brand-accent"
+              className="w-4 h-4 rounded border-brand-line text-brand-ink focus:ring-brand-ink"
             />
           </label>
 
-          <div className="rounded-lg border border-blue-100 bg-blue-50 p-3 text-xs text-blue-700">
+          <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-xs font-semibold text-blue-800 shadow-sm">
             Security tip: keep two-factor authentication enabled for admin and finance roles.
           </div>
 
-          <button className="w-full bg-brand-accent text-white rounded-lg px-4 py-2 text-sm font-bold hover:bg-blue-700 inline-flex items-center justify-center gap-2">
-            <Save size={16} /> Save Settings
+          <button className="w-full btn-primary flex justify-center items-center gap-2">
+            <Save size={18} /> Save Settings
           </button>
 
-          <button className="w-full border border-gray-200 text-gray-600 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-50 inline-flex items-center justify-center gap-2">
-            <Lock size={16} /> Change Password
+          <button className="w-full btn-secondary flex justify-center items-center gap-2">
+            <Lock size={18} /> Change Password
           </button>
         </aside>
       </section>

@@ -488,43 +488,43 @@ export default function Invoices({
     <div className="p-4 md:p-8 space-y-4 md:space-y-6">
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-xl md:text-2xl font-bold tracking-tight">Invoices</h2>
-          <p className="text-gray-500 text-sm">Edit, print, and keep revision history for every invoice handed over from a quotation.</p>
+          <h2 className="text-xl md:text-2xl font-black tracking-tight text-brand-ink">Invoices</h2>
+          <p className="text-brand-text font-medium text-sm mt-1">Edit, print, and keep revision history for every invoice handed over from a quotation.</p>
         </div>
       </header>
 
       {(selectedInvoice || selectedQuotation) && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {selectedInvoice && (
-            <div className="bg-white p-4 rounded-xl border border-brand-line shadow-sm">
-              <p className="text-[10px] uppercase tracking-widest text-gray-400 font-bold">Selected Invoice</p>
+            <div className="card">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-brand-text font-black">Selected Invoice</p>
               <div className="mt-2 flex flex-col gap-1">
-                <p className="text-sm font-semibold text-gray-900">{selectedInvoice.id}</p>
-                <p className="text-sm text-gray-500">{selectedInvoice.customerName} ({selectedInvoice.customerPhone})</p>
-                <p className="text-xs text-gray-400">From quotation {selectedInvoice.quotationId}</p>
+                <p className="text-sm font-bold text-brand-ink">{selectedInvoice.id}</p>
+                <p className="text-sm text-slate-500 font-medium">{selectedInvoice.customerName} ({selectedInvoice.customerPhone})</p>
+                <p className="text-xs text-brand-text">From quotation {selectedInvoice.quotationId}</p>
               </div>
             </div>
           )}
           {selectedQuotation && (
-            <div className="bg-white p-4 rounded-xl border border-brand-line shadow-sm">
-              <p className="text-[10px] uppercase tracking-widest text-gray-400 font-bold">Linked Quotation</p>
+            <div className="card">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-brand-text font-black">Linked Quotation</p>
               <div className="mt-2 flex flex-col gap-1">
-                <p className="text-sm font-semibold text-gray-900">{selectedQuotation.id}</p>
-                <p className="text-sm text-gray-500">{selectedQuotation.customerName} ({selectedQuotation.customerPhone})</p>
-                <p className="text-xs text-gray-400">Status: {selectedQuotation.status}</p>
+                <p className="text-sm font-bold text-brand-ink">{selectedQuotation.id}</p>
+                <p className="text-sm text-slate-500 font-medium">{selectedQuotation.customerName} ({selectedQuotation.customerPhone})</p>
+                <p className="text-xs text-brand-text font-semibold">Status: <span className="text-brand-accent">{selectedQuotation.status}</span></p>
               </div>
             </div>
           )}
         </div>
       )}
 
-      <div className="bg-white p-4 rounded-xl border border-brand-line shadow-sm flex gap-4 items-center">
+      <div className="card !p-4 flex gap-4 items-center">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <input
             type="text"
             placeholder="Search invoices by ID, quotation, customer, phone, or status"
-            className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent/20"
+            className="input-field pl-10"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
@@ -533,7 +533,7 @@ export default function Invoices({
 
       <div className="grid grid-cols-1 gap-4">
         {filteredInvoices.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-dashed border-brand-line p-10 text-center text-sm text-gray-500">
+          <div className="card border-dashed p-10 text-center text-sm font-semibold text-brand-text">
             No invoices yet. Handover a quotation to start an invoice history.
           </div>
         ) : (
@@ -544,23 +544,23 @@ export default function Invoices({
                 key={invoice.id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className={`bg-white p-6 rounded-xl border shadow-sm transition-all group ${isSelected ? 'border-brand-accent/40 ring-1 ring-brand-accent/20' : 'border-brand-line hover:border-brand-accent/30'}`}
+                className={`card transition-all group ${isSelected ? 'border-brand-accent/50 ring-2 ring-brand-accent/20 shadow-md' : 'hover:border-brand-accent/30 hover:shadow-elevated'}`}
               >
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-brand-accent/5 group-hover:text-brand-accent transition-colors">
+                    <div className="w-12 h-12 rounded-xl bg-brand-subtle flex items-center justify-center text-slate-400 group-hover:bg-brand-accent/10 group-hover:text-brand-accent transition-colors shadow-sm">
                       <ReceiptText size={24} />
                     </div>
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="font-bold text-sm tracking-tight">{invoice.id}</h3>
-                        <span className={`px-2 py-0.5 rounded-[4px] text-[10px] font-bold uppercase tracking-wider border ${invoice.status === 'Draft' ? 'bg-gray-50 text-gray-500 border-gray-200' : invoice.status === 'Printed' ? 'bg-amber-50 text-amber-700 border-amber-100' : 'bg-green-50 text-green-600 border-green-100'}`}>
+                        <h3 className="font-extrabold text-brand-ink text-sm tracking-tight">{invoice.id}</h3>
+                        <span className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border ${invoice.status === 'Draft' ? 'bg-slate-50 text-slate-500 border-slate-200' : invoice.status === 'Printed' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200'}`}>
                           {invoice.status}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-400 mt-0.5">
+                      <p className="text-xs text-brand-text mt-1 font-medium">
                         Customer:{' '}
-                        <span className="text-gray-600 font-medium">
+                        <span className="text-slate-600 font-bold">
                           {invoice.customerName} ({invoice.customerPhone})
                         </span>
                       </p>
@@ -569,22 +569,22 @@ export default function Invoices({
 
                   <div className="flex items-center gap-8">
                     <div className="text-right">
-                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Total Amount</p>
-                      <p className="text-lg font-bold font-mono text-brand-ink">${invoice.totalAmount.toFixed(2)}</p>
+                      <p className="text-[10px] text-brand-text font-black uppercase tracking-[0.1em]">Total Amount</p>
+                      <p className="text-lg font-black font-mono text-brand-ink mt-0.5">${invoice.totalAmount.toFixed(2)}</p>
                     </div>
 
-                    <div className="flex items-center gap-2 flex-wrap justify-end">
+                    <div className="flex items-center gap-1.5 flex-wrap justify-end">
                       <button
                         title="Edit"
                         onClick={() => openEditComposer(invoice)}
-                        className="p-2 text-gray-400 hover:text-brand-accent hover:bg-brand-accent/5 rounded-lg transition-colors"
+                        className="p-2.5 text-slate-400 hover:text-brand-accent hover:bg-brand-accent/10 rounded-xl transition-all font-bold shadow-sm border border-transparent hover:border-brand-accent/20"
                       >
                         <Edit3 size={18} />
                       </button>
                       <button
                         title="Print"
                         onClick={() => handlePrintInvoice(invoice)}
-                        className="p-2 text-gray-400 hover:text-brand-accent hover:bg-brand-accent/5 rounded-lg transition-colors"
+                        className="p-2.5 text-slate-400 hover:text-brand-accent hover:bg-brand-accent/10 rounded-xl transition-all font-bold shadow-sm border border-transparent hover:border-brand-accent/20"
                       >
                         <Printer size={18} />
                       </button>
@@ -594,7 +594,7 @@ export default function Invoices({
                           setSelectedDetailId((current) => (current === invoice.id ? '' : invoice.id));
                           onSelectInvoice(invoice.id);
                         }}
-                        className="p-2 text-gray-400 hover:text-brand-accent hover:bg-brand-accent/5 rounded-lg transition-colors"
+                        className={`p-2.5 rounded-xl transition-all font-bold shadow-sm border ${isSelected ? 'bg-brand-accent/10 border-brand-accent/20 text-brand-accent' : 'text-slate-400 hover:text-brand-accent hover:bg-brand-accent/10 border-transparent hover:border-brand-accent/20'}`}
                       >
                         <History size={18} />
                       </button>
@@ -605,7 +605,7 @@ export default function Invoices({
                             onDeleteInvoice(invoice.id);
                           }
                         }}
-                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-2.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all font-bold shadow-sm border border-transparent hover:border-red-200"
                       >
                         <Trash2 size={18} />
                       </button>
@@ -613,84 +613,84 @@ export default function Invoices({
                   </div>
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-gray-50 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                <div className="mt-5 pt-4 border-t border-brand-line flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                   <div className="flex items-center gap-4 flex-wrap">
-                    <div className="flex items-center gap-1 text-[10px] text-gray-400">
-                      <Calculator size={12} className="text-violet-500" />
-                      <span>Print count {invoice.printCount}</span>
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-brand-text">
+                      <Calculator size={14} className="text-violet-500" />
+                      <span>Print count <span className="text-brand-ink">{invoice.printCount}</span></span>
                     </div>
-                    <div className="flex items-center gap-1 text-[10px] text-gray-400">
-                      <Wallet size={12} className="text-emerald-600" />
-                      <span>Advance ${((invoice.advancePaid ?? 0)).toFixed(2)} | Balance ${((invoice.balanceDue ?? invoice.totalAmount)).toFixed(2)}</span>
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-brand-text">
+                      <Wallet size={14} className="text-emerald-500" />
+                      <span>Advance <span className="text-emerald-600">${((invoice.advancePaid ?? 0)).toFixed(2)}</span> | Balance <span className="text-amber-600">${((invoice.balanceDue ?? invoice.totalAmount)).toFixed(2)}</span></span>
                     </div>
                   </div>
-                  <p className="text-[10px] text-gray-400 font-mono">Last modified: {new Date(invoice.updatedAt).toLocaleString()}</p>
+                  <p className="text-[10px] text-slate-400 font-mono font-medium">Last modified: {new Date(invoice.updatedAt).toLocaleString()}</p>
                 </div>
 
                 {isSelected && (
                   <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-widest text-gray-400 flex items-center gap-2 mb-3">
-                        <History size={14} /> Revision History
+                    <div className="bg-brand-subtle border border-brand-line rounded-xl p-4">
+                      <p className="text-xs font-black uppercase tracking-[0.1em] text-brand-text flex items-center gap-2 mb-3">
+                        <History size={14} className="text-brand-accent" /> Revision History
                       </p>
-                      <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                      <div className="space-y-3 max-h-56 overflow-y-auto pr-1">
                         {invoice.history.length === 0 ? (
-                          <p className="text-sm text-gray-500">No edits yet.</p>
+                          <p className="text-sm text-slate-500">No edits yet.</p>
                         ) : (
                           invoice.history.slice().reverse().map((entry) => (
-                            <div key={entry.id} className="bg-white border border-gray-100 rounded-lg p-3 shadow-sm">
-                              <div className="flex items-center justify-between gap-2 text-[11px] text-gray-400 font-semibold">
+                            <div key={entry.id} className="bg-white border border-brand-line rounded-xl p-3 shadow-sm">
+                              <div className="flex items-center justify-between gap-2 text-[11px] text-slate-400 font-bold tracking-wider uppercase">
                                 <span>{entry.editor}</span>
                                 <span>{new Date(entry.timestamp).toLocaleDateString()}</span>
                               </div>
-                              <p className="text-sm text-gray-700 mt-1">v{invoice.revisionNo ?? 1} - {entry.note}</p>
-                              <p className="text-xs text-gray-500 mt-1">Total: ${entry.totalAmount.toFixed(2)} | Discount: ${entry.discount.toFixed(2)}</p>
+                              <p className="text-sm text-brand-ink font-semibold mt-1">v{invoice.revisionNo ?? 1} - {entry.note}</p>
+                              <p className="text-xs text-brand-text font-medium mt-1">Total: <span className="font-bold text-brand-ink">${entry.totalAmount.toFixed(2)}</span> | Discount: ${entry.discount.toFixed(2)}</p>
                             </div>
                           ))
                         )}
                       </div>
                     </div>
 
-                    <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-widest text-gray-400 flex items-center gap-2 mb-3">
-                        <Calculator size={14} /> Invoice Preview
+                    <div className="bg-brand-bg border border-brand-line rounded-xl p-4">
+                      <p className="text-xs font-black uppercase tracking-[0.1em] text-brand-text flex items-center gap-2 mb-3">
+                        <Calculator size={14} className="text-brand-accent" /> Invoice Preview
                       </p>
-                      <div className="space-y-2 text-sm text-gray-600">
+                      <div className="space-y-3 text-sm text-brand-text font-medium">
                         {invoice.items.map((item) => (
-                          <div key={item.itemId} className="flex items-center justify-between gap-4 bg-white border border-gray-100 rounded-lg px-3 py-2">
+                          <div key={item.itemId} className="flex items-center justify-between gap-4 card !p-3">
                             <div>
-                              <p className="font-semibold text-gray-800">{item.name}</p>
-                              <p className="text-xs text-gray-500">Qty {item.quantity} x ${item.unitPrice.toFixed(2)}</p>
+                              <p className="font-bold text-brand-ink">{item.name}</p>
+                              <p className="text-xs text-slate-500 mt-0.5">Qty <span className="font-bold">{item.quantity}</span> x ${item.unitPrice.toFixed(2)}</p>
                             </div>
-                            <p className="font-semibold text-gray-900">${item.total.toFixed(2)}</p>
+                            <p className="font-black text-brand-ink">${item.total.toFixed(2)}</p>
                           </div>
                         ))}
-                        <div className="pt-2 border-t border-gray-200 space-y-1 text-xs text-gray-500">
-                          <p>Subtotal: ${invoice.subtotal.toFixed(2)}</p>
-                          <p>Discount: ${invoice.discount.toFixed(2)}</p>
-                          <p className="text-sm font-bold text-brand-accent">Total: ${invoice.totalAmount.toFixed(2)}</p>
-                          <p className="text-sm font-bold text-emerald-600">Advance: ${((invoice.advancePaid ?? 0)).toFixed(2)}</p>
-                          <p className="text-sm font-bold text-amber-600">Balance: ${((invoice.balanceDue ?? invoice.totalAmount)).toFixed(2)}</p>
+                        <div className="pt-3 border-t border-brand-line space-y-1.5 text-xs text-brand-text">
+                          <p className="flex justify-between"><span>Subtotal:</span> <span>${invoice.subtotal.toFixed(2)}</span></p>
+                          <p className="flex justify-between"><span>Discount:</span> <span>${invoice.discount.toFixed(2)}</span></p>
+                          <p className="flex justify-between text-sm font-black text-brand-ink mt-1 pt-1 border-t border-slate-200"><span>Total:</span> <span>${invoice.totalAmount.toFixed(2)}</span></p>
+                          <p className="flex justify-between text-xs font-bold text-emerald-600 mt-1"><span>Advance:</span> <span>${((invoice.advancePaid ?? 0)).toFixed(2)}</span></p>
+                          <p className="flex justify-between text-sm font-black text-brand-accent mt-1"><span>Balance:</span> <span>${((invoice.balanceDue ?? invoice.totalAmount)).toFixed(2)}</span></p>
                         </div>
                       </div>
                     </div>
 
-                    <div className="lg:col-span-2 bg-gray-50 border border-gray-100 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Advance Payment & Delivery</p>
-                      <div className="grid grid-cols-1 md:grid-cols-5 gap-2">
+                    <div className="lg:col-span-2 bg-brand-subtle border border-brand-line rounded-xl p-5">
+                      <p className="text-xs font-black uppercase tracking-[0.1em] text-brand-text mb-4">Advance Payment & Delivery</p>
+                      <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
                         <input
                           type="number"
                           min="0"
                           step="0.01"
                           value={paymentForm.amount}
                           onChange={(event) => setPaymentForm((prev) => ({ ...prev, amount: event.target.value }))}
-                          className="md:col-span-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm"
+                          className="md:col-span-1 input-field !py-2.5"
                           placeholder="Amount"
                         />
                         <select
                           value={paymentForm.method}
                           onChange={(event) => setPaymentForm((prev) => ({ ...prev, method: event.target.value as 'Cash' | 'Card' | 'Bank Transfer' }))}
-                          className="md:col-span-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm"
+                          className="md:col-span-1 input-field !py-2.5"
                         >
                           <option value="Bank Transfer">Bank Transfer</option>
                           <option value="Card">Card</option>
@@ -699,37 +699,37 @@ export default function Invoices({
                         <input
                           value={paymentForm.reference}
                           onChange={(event) => setPaymentForm((prev) => ({ ...prev, reference: event.target.value }))}
-                          className="md:col-span-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm"
+                          className="md:col-span-2 input-field !py-2.5"
                           placeholder="Reference"
                         />
                         <button
                           onClick={() => handleAdvancePayment(invoice.id)}
-                          className="md:col-span-1 px-3 py-2 bg-emerald-600 text-white rounded-lg text-sm font-bold hover:bg-emerald-700"
+                          className="md:col-span-1 btn-primary !bg-emerald-600 hover:!bg-emerald-700 w-full"
                         >
                           Record
                         </button>
                       </div>
-                      <div className="mt-3 flex flex-wrap gap-2">
+                      <div className="mt-4 flex flex-wrap gap-3">
                         <button
                           onClick={() => onSendInvoiceByEmail(invoice.id)}
-                          className="px-3 py-2 border border-gray-200 rounded-lg text-xs font-bold text-gray-700 bg-white hover:bg-gray-50"
+                          className="btn-secondary flex items-center justify-center gap-2 text-xs"
                         >
-                          <Mail size={14} className="inline mr-1" /> Send by Email
+                          <Mail size={16} className="text-brand-accent inline" /> Send by Email
                         </button>
                         <button
                           onClick={() => onDownloadInvoicePdf(invoice.id)}
-                          className="px-3 py-2 border border-gray-200 rounded-lg text-xs font-bold text-gray-700 bg-white hover:bg-gray-50"
+                          className="btn-secondary flex items-center justify-center gap-2 text-xs"
                         >
-                          <Download size={14} className="inline mr-1" /> Download PDF
+                          <Download size={16} className="text-brand-accent inline" /> Download PDF
                         </button>
                       </div>
-                      <div className="mt-3 space-y-1">
-                        <p className="text-xs text-gray-500 font-semibold">Invoice delivery history</p>
+                      <div className="mt-4 pt-3 border-t border-brand-line space-y-1.5">
+                        <p className="text-xs text-brand-text font-black uppercase tracking-[0.1em]">Invoice delivery history</p>
                         {(invoice.emailLog ?? []).length === 0 ? (
-                          <p className="text-xs text-gray-400">No email sent yet.</p>
+                          <p className="text-xs text-slate-400 font-medium">No email sent yet.</p>
                         ) : (
                           (invoice.emailLog ?? []).map((entry) => (
-                            <p key={entry} className="text-xs text-gray-600">{entry}</p>
+                            <p key={entry} className="text-xs text-slate-600 font-medium">{entry}</p>
                           ))
                         )}
                       </div>
@@ -753,8 +753,8 @@ export default function Invoices({
             >
               <div className="p-6 border-b border-brand-line flex items-center justify-between gap-4">
                 <div>
-                  <h3 className="font-bold text-lg">Edit Invoice</h3>
-                  <p className="text-xs text-gray-500">Update invoice details. Previous version is captured in invoice history.</p>
+                  <h3 className="font-extrabold text-lg text-brand-ink">Edit Invoice</h3>
+                  <p className="text-xs text-brand-text font-medium mt-1">Update invoice details. Previous version is captured in invoice history.</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -773,7 +773,7 @@ export default function Invoices({
               <form onSubmit={handleSaveInvoice} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase">Customer</label>
+                    <label className="text-[10px] uppercase font-black tracking-[0.1em] text-brand-text">Customer</label>
                     <select
                       value={invoiceDraft.customerId}
                       onChange={(event) => {
@@ -786,7 +786,7 @@ export default function Invoices({
                         }));
                         onSelectCustomer(event.target.value);
                       }}
-                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm"
+                      className="input-field !py-2.5"
                     >
                       <option value="">Select customer</option>
                       {customers.map((customer) => (
@@ -797,32 +797,32 @@ export default function Invoices({
                     </select>
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase">Customer Phone</label>
+                    <label className="text-[10px] uppercase font-black tracking-[0.1em] text-brand-text">Customer Phone</label>
                     <input
                       required
                       value={invoiceDraft.customerPhone}
                       onChange={(event) => setInvoiceDraft((prev) => ({ ...prev, customerPhone: event.target.value }))}
-                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm"
+                      className="input-field !py-2.5"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase">Customer Name</label>
+                  <label className="text-[10px] uppercase font-black tracking-[0.1em] text-brand-text">Customer Name</label>
                   <input
                     required
                     value={invoiceDraft.customerName}
                     onChange={(event) => setInvoiceDraft((prev) => ({ ...prev, customerName: event.target.value }))}
-                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm"
+                    className="input-field !py-2.5"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase">Status</label>
+                  <label className="text-[10px] uppercase font-black tracking-[0.1em] text-brand-text">Status</label>
                   <select
                     value={invoiceDraft.status}
                     onChange={(event) => setInvoiceDraft((prev) => ({ ...prev, status: event.target.value as Invoice['status'] }))}
-                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm"
+                    className="input-field !py-2.5"
                   >
                     <option value="Draft">Draft</option>
                     <option value="Printed">Printed</option>
@@ -832,23 +832,23 @@ export default function Invoices({
 
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-bold">Line Items</h4>
+                    <h4 className="text-sm font-extrabold text-brand-ink">Line Items</h4>
                     <button
                       type="button"
                       onClick={addLineItem}
-                      className="text-xs px-3 py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50"
+                      className="btn-secondary !py-1.5 !px-3 text-xs"
                     >
                       Add Item
                     </button>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {lineItems.map((item, index) => (
-                      <div key={`inv-line-${index}`} className="grid grid-cols-1 md:grid-cols-12 gap-2 items-center">
+                      <div key={`inv-line-${index}`} className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
                         <input
                           value={item.name}
                           onChange={(event) => updateLineItem(index, 'name', event.target.value)}
-                          className="md:col-span-5 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm"
+                          className="md:col-span-5 input-field !py-2.5"
                           placeholder="Item name"
                           required
                         />
@@ -857,7 +857,7 @@ export default function Invoices({
                           min="1"
                           value={item.quantity}
                           onChange={(event) => updateLineItem(index, 'quantity', event.target.value)}
-                          className="md:col-span-2 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm"
+                          className="md:col-span-2 input-field !py-2.5"
                           placeholder="Qty"
                           required
                         />
@@ -867,7 +867,7 @@ export default function Invoices({
                           step="0.01"
                           value={item.unitPrice}
                           onChange={(event) => updateLineItem(index, 'unitPrice', event.target.value)}
-                          className="md:col-span-3 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm"
+                          className="md:col-span-3 input-field !py-2.5"
                           placeholder="Unit price"
                           required
                         />
@@ -875,7 +875,7 @@ export default function Invoices({
                           type="button"
                           onClick={() => removeLineItem(index)}
                           disabled={lineItems.length === 1}
-                          className="md:col-span-2 px-3 py-2 border border-gray-200 rounded-lg text-sm text-red-500 hover:bg-red-50 disabled:text-gray-300 disabled:hover:bg-transparent"
+                          className="md:col-span-2 btn-danger disabled:opacity-50 disabled:cursor-not-allowed !py-2.5 w-full"
                         >
                           Remove
                         </button>
@@ -886,35 +886,35 @@ export default function Invoices({
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase">Discount</label>
+                    <label className="text-[10px] uppercase font-black tracking-[0.1em] text-brand-text">Discount</label>
                     <input
                       type="number"
                       min="0"
                       step="0.01"
                       value={invoiceDraft.discount}
                       onChange={(event) => setInvoiceDraft((prev) => ({ ...prev, discount: event.target.value }))}
-                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm"
+                      className="input-field !py-2.5"
                     />
                   </div>
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm">
-                    <p className="text-gray-500 flex items-center gap-1 mb-1"><Calculator size={14} /> Summary</p>
-                    <p>Subtotal: <span className="font-semibold">${subTotal.toFixed(2)}</span></p>
-                    <p>Discount: <span className="font-semibold">${discountValue.toFixed(2)}</span></p>
-                    <p className="text-base mt-1">Total: <span className="font-bold text-brand-accent">${total.toFixed(2)}</span></p>
+                  <div className="card !p-4 bg-brand-subtle flex flex-col justify-center">
+                    <p className="text-brand-text font-black text-xs uppercase tracking-[0.1em] flex items-center gap-2 mb-2"><Calculator size={14} className="text-brand-accent" /> Summary</p>
+                    <p className="flex justify-between items-center text-sm font-medium text-slate-600">Subtotal: <span className="font-bold text-brand-ink">${subTotal.toFixed(2)}</span></p>
+                    <p className="flex justify-between items-center text-sm font-medium text-slate-600">Discount: <span className="font-bold text-brand-ink">${discountValue.toFixed(2)}</span></p>
+                    <p className="flex justify-between items-center text-sm font-black text-brand-ink mt-2 pt-2 border-t border-brand-line">Total: <span className="text-brand-accent text-lg">${total.toFixed(2)}</span></p>
                   </div>
                 </div>
 
-                <div className="pt-2 flex gap-3">
+                <div className="pt-4 mt-4 border-t border-brand-line flex gap-3">
                   <button
                     type="button"
                     onClick={closeComposer}
-                    className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm font-bold text-gray-600 hover:bg-gray-50"
+                    className="flex-1 btn-secondary"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 px-4 py-2 bg-brand-accent text-white rounded-lg text-sm font-bold hover:bg-blue-700"
+                    className="flex-1 btn-primary"
                   >
                     Save as New Revision
                   </button>
@@ -925,16 +925,18 @@ export default function Invoices({
         )}
       </AnimatePresence>
 
-      <div className="bg-white rounded-xl border border-brand-line shadow-sm p-4">
-        <p className="text-xs font-bold uppercase tracking-widest text-gray-500">Advance Payment Ledger</p>
-        <div className="mt-2 max-h-44 overflow-y-auto space-y-2">
+      <div className="card">
+        <p className="text-xs font-black uppercase tracking-[0.1em] text-brand-text flex items-center gap-2 mb-3">
+          <Wallet size={16} className="text-brand-accent" /> Advance Payment Ledger
+        </p>
+        <div className="mt-2 max-h-44 overflow-y-auto space-y-3 pr-1">
           {advancePayments.length === 0 ? (
-            <p className="text-sm text-gray-500">No advance payments recorded.</p>
+            <p className="text-sm text-slate-500 font-medium">No advance payments recorded.</p>
           ) : (
             advancePayments.map((entry) => (
-              <div key={entry.id} className="border border-gray-100 rounded-lg p-2 text-sm">
-                <p className="font-semibold">{entry.invoiceId} - ${entry.amount.toFixed(2)}</p>
-                <p className="text-xs text-gray-500">{entry.method} | {entry.reference || 'No ref'} | {new Date(entry.paidAt).toLocaleString()}</p>
+              <div key={entry.id} className="border border-brand-line bg-brand-subtle rounded-xl p-3 text-sm">
+                <p className="font-bold text-brand-ink">{entry.invoiceId} - <span className="text-emerald-600">${entry.amount.toFixed(2)}</span></p>
+                <p className="text-xs font-medium text-brand-text mt-1">{entry.method} | {entry.reference || 'No ref'} | {new Date(entry.paidAt).toLocaleString()}</p>
               </div>
             ))
           )}

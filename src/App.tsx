@@ -30,7 +30,8 @@ import type {
   QuotationItem,
   SiteVisit,
   StockHistoryEntry,
-  StaffUser
+  StaffUser,
+  LeadStatus
 } from './types';
 
 type ActiveTab = 'dashboard' | 'leads' | 'inventory' | 'quotations' | 'invoices' | 'site-visits' | 'user-management' | 'settings' | 'analyze';
@@ -838,28 +839,28 @@ const loadStoredState = (): StoredCrmState => {
 
     const customersWithDemoLinks = shouldBackfillDemoTransactions
       ? customersWithOwner.map((customer) => {
-          if (customer.phone === '0771234567') {
-            return {
-              ...customer,
-              quotationIds: customer.quotationIds.length > 0 ? customer.quotationIds : ['QT-2026-001'],
-              invoiceIds: customer.invoiceIds.length > 0 ? customer.invoiceIds : ['INV-2026-001']
-            };
-          }
-          if (customer.phone === '0779876543') {
-            return {
-              ...customer,
-              quotationIds: customer.quotationIds.length > 0 ? customer.quotationIds : ['QT-2026-002'],
-              invoiceIds: customer.invoiceIds.length > 0 ? customer.invoiceIds : ['INV-2026-002']
-            };
-          }
-          if (customer.phone === '0774455123') {
-            return {
-              ...customer,
-              quotationIds: customer.quotationIds.length > 0 ? customer.quotationIds : ['QT-2026-003']
-            };
-          }
-          return customer;
-        })
+        if (customer.phone === '0771234567') {
+          return {
+            ...customer,
+            quotationIds: customer.quotationIds.length > 0 ? customer.quotationIds : ['QT-2026-001'],
+            invoiceIds: customer.invoiceIds.length > 0 ? customer.invoiceIds : ['INV-2026-001']
+          };
+        }
+        if (customer.phone === '0779876543') {
+          return {
+            ...customer,
+            quotationIds: customer.quotationIds.length > 0 ? customer.quotationIds : ['QT-2026-002'],
+            invoiceIds: customer.invoiceIds.length > 0 ? customer.invoiceIds : ['INV-2026-002']
+          };
+        }
+        if (customer.phone === '0774455123') {
+          return {
+            ...customer,
+            quotationIds: customer.quotationIds.length > 0 ? customer.quotationIds : ['QT-2026-003']
+          };
+        }
+        return customer;
+      })
       : customersWithOwner;
 
     const normalizedQuotations = ((shouldBackfillDemoTransactions ? seedState.quotations : parsed.quotations) ?? seedState.quotations).map((quotation) => ({
@@ -1038,23 +1039,23 @@ export default function App() {
       prev.map((customer) =>
         customer.id === customerId
           ? {
-              ...customer,
-              name: updates.name.trim(),
-              phone: updates.phone.trim(),
-              address: updates.address.trim(),
-              updatedAt: timestamp,
-              history: [
-                {
-                  id: `hist-${Date.now()}`,
-                  timestamp,
-                  user: cleanActor,
-                  action: 'Customer updated',
-                  note: 'Customer profile details were updated.',
-                  type: 'profile'
-                },
-                ...customer.history
-              ]
-            }
+            ...customer,
+            name: updates.name.trim(),
+            phone: updates.phone.trim(),
+            address: updates.address.trim(),
+            updatedAt: timestamp,
+            history: [
+              {
+                id: `hist-${Date.now()}`,
+                timestamp,
+                user: cleanActor,
+                action: 'Customer updated',
+                note: 'Customer profile details were updated.',
+                type: 'profile'
+              },
+              ...customer.history
+            ]
+          }
           : customer
       )
     );
@@ -1082,22 +1083,22 @@ export default function App() {
       prev.map((customer) =>
         customer.id === customerId
           ? {
-              ...customer,
-              updatedAt: timestamp,
-              callLogs: [entry, ...customer.callLogs],
-              history: [
-                {
-                  id: `hist-${Date.now()}`,
-                  timestamp,
-                  user: callLog.agent,
-                  action: `${callLog.direction} call logged`,
-                  note: `${callLog.summary} (${callLog.durationMinutes} min).`,
-                  type: 'call',
-                  refId: entry.id
-                },
-                ...customer.history
-              ]
-            }
+            ...customer,
+            updatedAt: timestamp,
+            callLogs: [entry, ...customer.callLogs],
+            history: [
+              {
+                id: `hist-${Date.now()}`,
+                timestamp,
+                user: callLog.agent,
+                action: `${callLog.direction} call logged`,
+                note: `${callLog.summary} (${callLog.durationMinutes} min).`,
+                type: 'call',
+                refId: entry.id
+              },
+              ...customer.history
+            ]
+          }
           : customer
       )
     );
@@ -1109,11 +1110,11 @@ export default function App() {
       prev.map((customer) =>
         customer.id === customerId
           ? {
-              ...customer,
-              updatedAt: timestamp,
-              callLogs: customer.callLogs.filter((log) => log.id !== callLogId),
-              history: customer.history.filter((entry) => !(entry.type === 'call' && entry.refId === callLogId))
-            }
+            ...customer,
+            updatedAt: timestamp,
+            callLogs: customer.callLogs.filter((log) => log.id !== callLogId),
+            history: customer.history.filter((entry) => !(entry.type === 'call' && entry.refId === callLogId))
+          }
           : customer
       )
     );
@@ -1328,21 +1329,21 @@ export default function App() {
       prev.map((entry) =>
         entry.id === visit.customerId
           ? {
-              ...entry,
-              updatedAt: timestamp,
-              history: [
-                {
-                  id: `hist-${Date.now()}`,
-                  timestamp,
-                  user: visit.designer.trim(),
-                  action: 'Site visit note added',
-                  note: visit.notes.trim(),
-                  type: 'site-visit',
-                  refId: siteVisit.id
-                },
-                ...entry.history
-              ]
-            }
+            ...entry,
+            updatedAt: timestamp,
+            history: [
+              {
+                id: `hist-${Date.now()}`,
+                timestamp,
+                user: visit.designer.trim(),
+                action: 'Site visit note added',
+                note: visit.notes.trim(),
+                type: 'site-visit',
+                refId: siteVisit.id
+              },
+              ...entry.history
+            ]
+          }
           : entry
       )
     );
@@ -1377,22 +1378,22 @@ export default function App() {
       prev.map((customer) =>
         customer.id === input.customerId
           ? {
-              ...customer,
-              updatedAt: timestamp,
-              quotationIds: [quotation.id, ...customer.quotationIds],
-              history: [
-                {
-                  id: `hist-${Date.now()}`,
-                  timestamp,
-                  user: currentSalesperson,
-                  action: 'Quotation created',
-                  note: `Quotation ${quotation.id} created for ${input.customerName}.`,
-                  type: 'quotation',
-                  refId: quotation.id
-                },
-                ...customer.history
-              ]
-            }
+            ...customer,
+            updatedAt: timestamp,
+            quotationIds: [quotation.id, ...customer.quotationIds],
+            history: [
+              {
+                id: `hist-${Date.now()}`,
+                timestamp,
+                user: currentSalesperson,
+                action: 'Quotation created',
+                note: `Quotation ${quotation.id} created for ${input.customerName}.`,
+                type: 'quotation',
+                refId: quotation.id
+              },
+              ...customer.history
+            ]
+          }
           : customer
       )
     );
@@ -1445,13 +1446,13 @@ export default function App() {
       prev.map((customer) =>
         customer.id === quotation.customerId
           ? {
-              ...customer,
-              quotationIds: customer.quotationIds.filter((id) => id !== quotationId),
-              invoiceIds: customer.invoiceIds.filter((id) => !relatedInvoiceIds.includes(id)),
-              history: customer.history.filter(
-                (entry) => entry.refId !== quotationId && !relatedInvoiceIds.includes(entry.refId ?? '')
-              )
-            }
+            ...customer,
+            quotationIds: customer.quotationIds.filter((id) => id !== quotationId),
+            invoiceIds: customer.invoiceIds.filter((id) => !relatedInvoiceIds.includes(id)),
+            history: customer.history.filter(
+              (entry) => entry.refId !== quotationId && !relatedInvoiceIds.includes(entry.refId ?? '')
+            )
+          }
           : customer
       )
     );
@@ -1549,10 +1550,10 @@ export default function App() {
       prev.map((entry) =>
         entry.id === invoiceId
           ? {
-              ...entry,
-              updatedAt: timestamp,
-              emailLog: [`Sent on ${new Date(timestamp).toLocaleString()}`, ...(entry.emailLog ?? [])]
-            }
+            ...entry,
+            updatedAt: timestamp,
+            emailLog: [`Sent on ${new Date(timestamp).toLocaleString()}`, ...(entry.emailLog ?? [])]
+          }
           : entry
       )
     );
@@ -1564,24 +1565,24 @@ export default function App() {
       prev.map((entry) =>
         entry.id === invoiceId
           ? {
-              ...entry,
-              updatedAt: timestamp,
-              printCount: entry.printCount + 1,
-              history: [
-                ...entry.history,
-                {
-                  id: `ihist-${Date.now()}`,
-                  timestamp,
-                  editor: currentSalesperson,
-                  note: 'Invoice PDF downloaded',
-                  subtotal: entry.subtotal,
-                  discount: entry.discount,
-                  totalAmount: entry.totalAmount,
-                  status: entry.status,
-                  items: cloneItems(entry.items)
-                }
-              ]
-            }
+            ...entry,
+            updatedAt: timestamp,
+            printCount: entry.printCount + 1,
+            history: [
+              ...entry.history,
+              {
+                id: `ihist-${Date.now()}`,
+                timestamp,
+                editor: currentSalesperson,
+                note: 'Invoice PDF downloaded',
+                subtotal: entry.subtotal,
+                discount: entry.discount,
+                totalAmount: entry.totalAmount,
+                status: entry.status,
+                items: cloneItems(entry.items)
+              }
+            ]
+          }
           : entry
       )
     );
@@ -1598,10 +1599,10 @@ export default function App() {
       prev.map((customer) =>
         customer.id === invoice.customerId
           ? {
-              ...customer,
-              invoiceIds: customer.invoiceIds.filter((id) => id !== invoiceId),
-              history: customer.history.filter((entry) => entry.refId !== invoiceId)
-            }
+            ...customer,
+            invoiceIds: customer.invoiceIds.filter((id) => id !== invoiceId),
+            history: customer.history.filter((entry) => entry.refId !== invoiceId)
+          }
           : customer
       )
     );
@@ -1609,10 +1610,10 @@ export default function App() {
       prev.map((quotation) =>
         quotation.id === invoice.quotationId
           ? {
-              ...quotation,
-              handoverInvoiceId: quotation.handoverInvoiceId === invoiceId ? undefined : quotation.handoverInvoiceId,
-              status: quotation.handoverInvoiceId === invoiceId && quotation.status === 'Invoiced' ? 'Sent' : quotation.status
-            }
+            ...quotation,
+            handoverInvoiceId: quotation.handoverInvoiceId === invoiceId ? undefined : quotation.handoverInvoiceId,
+            status: quotation.handoverInvoiceId === invoiceId && quotation.status === 'Invoiced' ? 'Sent' : quotation.status
+          }
           : quotation
       )
     );
@@ -1683,24 +1684,24 @@ export default function App() {
       prev.map((item) =>
         item.id === quotation.id
           ? {
-              ...item,
-              status: 'Invoiced',
-              handoverInvoiceId: invoiceId,
-              updatedAt: timestamp,
-              history: [
-                ...item.history,
-                {
-                  id: `qhist-${Date.now()}`,
-                  timestamp,
-                  editor: currentSalesperson,
-                  note: 'Quotation handed over to invoice',
-                  totalAmount: item.totalAmount,
-                  discount: item.discount,
-                  status: item.status,
-                  items: cloneItems(item.items)
-                }
-              ]
-            }
+            ...item,
+            status: 'Invoiced',
+            handoverInvoiceId: invoiceId,
+            updatedAt: timestamp,
+            history: [
+              ...item.history,
+              {
+                id: `qhist-${Date.now()}`,
+                timestamp,
+                editor: currentSalesperson,
+                note: 'Quotation handed over to invoice',
+                totalAmount: item.totalAmount,
+                discount: item.discount,
+                status: item.status,
+                items: cloneItems(item.items)
+              }
+            ]
+          }
           : item
       )
     );
@@ -1709,22 +1710,22 @@ export default function App() {
       prev.map((item) =>
         item.id === quotation.customerId
           ? {
-              ...item,
-              updatedAt: timestamp,
-              invoiceIds: item.invoiceIds.includes(invoiceId) ? item.invoiceIds : [invoiceId, ...item.invoiceIds],
-              history: [
-                {
-                  id: `hist-${Date.now()}`,
-                  timestamp,
-                  user: currentSalesperson,
-                  action: 'Invoice created',
-                  note: `Invoice ${invoiceId} created from quotation ${quotation.id}.`,
-                  type: 'invoice',
-                  refId: invoiceId
-                },
-                ...item.history
-              ]
-            }
+            ...item,
+            updatedAt: timestamp,
+            invoiceIds: item.invoiceIds.includes(invoiceId) ? item.invoiceIds : [invoiceId, ...item.invoiceIds],
+            history: [
+              {
+                id: `hist-${Date.now()}`,
+                timestamp,
+                user: currentSalesperson,
+                action: 'Invoice created',
+                note: `Invoice ${invoiceId} created from quotation ${quotation.id}.`,
+                type: 'invoice',
+                refId: invoiceId
+              },
+              ...item.history
+            ]
+          }
           : item
       )
     );
@@ -1742,6 +1743,15 @@ export default function App() {
     setOpenQuotationComposer(true);
     setActiveTab('quotations');
     setSidebarOpen(false);
+  };
+  const handleEditCustomer = (customerId: string, updatedData: { ownerName: string; status: LeadStatus }) => {
+    setCustomers((prevCustomers) =>
+      prevCustomers.map((customer) =>
+        customer.id === customerId
+          ? { ...customer, ownerName: updatedData.ownerName, status: updatedData.status } // Status සහ Salesperson අලුත් කරනවා
+          : customer
+      )
+    );
   };
 
   const renderContent = () => {
@@ -1776,6 +1786,7 @@ export default function App() {
             onAddCallLog={addCallLog}
             onDeleteCallLog={deleteCallLog}
             onDeleteCustomer={deleteCustomer}
+            onEditCustomer={handleEditCustomer}
           />
         );
       case 'inventory':
