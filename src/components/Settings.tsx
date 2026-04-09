@@ -12,13 +12,13 @@ export default function Settings() {
   });
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-4 md:p-8 space-y-4 md:space-y-6">
       <header>
-        <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
+        <h2 className="text-xl md:text-2xl font-bold tracking-tight">Settings</h2>
         <p className="text-gray-500 text-sm">Configure account, security, notifications, and workspace preferences.</p>
       </header>
 
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         <div className="lg:col-span-2 bg-white rounded-xl border border-brand-line shadow-sm p-6 space-y-6">
           <div>
             <h3 className="text-sm font-bold flex items-center gap-2 mb-3"><UserCircle2 size={16} className="text-brand-accent" /> Account</h3>

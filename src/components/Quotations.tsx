@@ -149,15 +149,15 @@ export default function Quotations() {
   };
 
   return (
-    <div className="p-8 space-y-6">
-      <header className="flex justify-between items-center">
+    <div className="p-4 md:p-8 space-y-4 md:space-y-6">
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Quotations & Invoices</h2>
+          <h2 className="text-xl md:text-2xl font-bold tracking-tight">Quotations & Invoices</h2>
           <p className="text-gray-500 text-sm">Generate and manage professional pricing documents.</p>
         </div>
         <button
           onClick={() => setIsCreating(true)}
-          className="bg-brand-accent text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-blue-700 transition-colors shadow-lg shadow-brand-accent/20"
+          className="bg-brand-accent text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-blue-700 transition-colors shadow-lg shadow-brand-accent/20 w-full sm:w-auto justify-center"
         >
           <Plus size={18} />
           Create New Quotation

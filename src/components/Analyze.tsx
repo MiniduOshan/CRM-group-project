@@ -65,18 +65,18 @@ const PANEL_BORDER = '#e5e7eb';
 
 export default function Analyze() {
   return (
-    <div className="p-8 space-y-6 bg-brand-bg min-h-full">
-      <header className="flex items-start justify-between gap-4">
+    <div className="p-4 md:p-8 space-y-4 md:space-y-6 bg-brand-bg min-h-full">
+      <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-gray-900">CRM Analytics Overview</h2>
+          <h2 className="text-xl md:text-2xl font-bold tracking-tight text-gray-900">CRM Analytics Overview</h2>
           <p className="text-gray-500 text-sm mt-1">System-level customer, lead, quotation, and activity insights</p>
         </div>
-        <button className="inline-flex items-center gap-2 px-4 py-2 bg-white border rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50" style={{ borderColor: PANEL_BORDER }}>
+        <button className="inline-flex items-center gap-2 px-4 py-2 bg-white border rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 w-full sm:w-auto justify-center" style={{ borderColor: PANEL_BORDER }}>
           <RefreshCw size={14} /> Refresh
         </button>
       </header>
 
-      <section className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         <div className="xl:col-span-2 bg-white border rounded-2xl p-6 shadow-sm" style={{ borderColor: PANEL_BORDER }}>
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -102,7 +102,7 @@ export default function Analyze() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
           <div className="rounded-2xl border p-4" style={{ borderColor: '#f8e7c2', backgroundColor: '#fff9ee' }}>
             <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center mb-3" style={{ color: ORANGE }}><Users size={15} /></div>
             <p className="text-3xl font-bold text-gray-900">3</p>
@@ -159,7 +159,7 @@ export default function Analyze() {
         </div>
       </section>
 
-      <section className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         <div className="bg-white border rounded-2xl p-6 shadow-sm" style={{ borderColor: PANEL_BORDER }}>
           <h3 className="text-xl font-bold text-gray-900 mb-4">Team Performance Radar</h3>
           <div className="h-72">

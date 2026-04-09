@@ -182,16 +182,16 @@ export default function Dashboard() {
   const inputStyles = "w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all duration-200 placeholder:text-slate-400";
 
   return (
-    <div className="min-h-screen bg-slate-50/50 p-8 font-sans text-slate-800">
+    <div className="min-h-screen bg-slate-50/50 p-4 md:p-8 font-sans text-slate-800">
 
       <div className="space-y-8 max-w-7xl mx-auto">
         <header className="space-y-1">
-          <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">Workspace</h2>
+          <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">Workspace</h2>
           <p className="text-slate-500 text-sm font-medium">Search or register a customer, then generate a quotation.</p>
         </header>
 
         {/* Top Stat Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center justify-between">
             <div>
               <p className="text-xs uppercase tracking-widest text-slate-400 font-bold mb-1">Total Customers</p>
@@ -217,10 +217,10 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
 
           {/* STEP 1: Find or Register Customer OR Active Profile */}
-          <section className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm flex flex-col h-[450px]">
+          <section className="bg-white rounded-2xl border border-slate-100 p-4 md:p-6 shadow-sm flex flex-col h-[400px] md:h-[450px]">
             <div className="flex items-center justify-between mb-5">
               <h3 className="font-bold text-slate-800 flex items-center gap-2">
                 <span className="bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-black">1</span>
