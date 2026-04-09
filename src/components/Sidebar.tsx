@@ -1,9 +1,11 @@
 import { 
   LayoutDashboard, 
   Users, 
+  UserCog,
   FileText, 
   Package, 
   MapPin, 
+  BarChart3,
   Settings,
   ChevronRight
 } from 'lucide-react';
@@ -20,6 +22,8 @@ const navItems = [
   { id: 'quotations', label: 'Quotations', icon: FileText },
   { id: 'site-visits', label: 'Site Visits', icon: MapPin },
   { id: 'inventory', label: 'Inventory', icon: Package },
+  { id: 'user-management', label: 'User Management', icon: UserCog },
+  { id: 'analyze', label: 'Analyze', icon: BarChart3 },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
@@ -72,7 +76,7 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
           </div>
           <div>
             <p className="text-xs font-bold">Admin User</p>
-            <p className="text-[10px] text-gray-400 uppercase">Super Admin</p>
+            <p className="text-[10px] text-gray-400 uppercase">Staff</p>
           </div>
         </div>
       </div>

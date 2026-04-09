@@ -9,6 +9,7 @@ export interface Lead {
   status: LeadStatus;
   createdAt: string;
   history: HistoryEntry[];
+  callLogs: CallLog[];
 }
 
 export interface HistoryEntry {
@@ -17,6 +18,33 @@ export interface HistoryEntry {
   user: string;
   action: string;
   note: string;
+}
+
+export interface CallLog {
+  id: string;
+  timestamp: string;
+  agent: string;
+  summary: string;
+  durationMinutes: number;
+}
+
+export type UserPermission =
+  | 'Dashboard'
+  | 'Customer Management'
+  | 'Quotations'
+  | 'Site Visits'
+  | 'Inventory'
+  | 'User Management';
+
+export interface StaffUser {
+  id: string;
+  name: string;
+  role: 'Accountment' | 'Manager' | 'Sales Person' | 'Designer';
+  phone: string;
+  email: string;
+  status: 'Active' | 'Inactive';
+  createdAt: string;
+  permissions: UserPermission[];
 }
 
 export interface InventoryItem {
@@ -32,6 +60,8 @@ export interface InventoryItem {
 export interface Quotation {
   id: string;
   leadId: string;
+  customerName?: string;
+  customerPhone?: string;
   items: QuotationItem[];
   totalAmount: number;
   discount: number;

@@ -10,6 +10,9 @@ import Leads from './components/Leads';
 import Inventory from './components/Inventory';
 import Quotations from './components/Quotations';
 import SiteVisits from './components/SiteVisits';
+import UserManagement from './components/UserManagement';
+import Settings from './components/Settings';
+import Analyze from './components/Analyze';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function App() {
@@ -22,6 +25,9 @@ export default function App() {
       case 'inventory': return <Inventory />;
       case 'quotations': return <Quotations />;
       case 'site-visits': return <SiteVisits />;
+      case 'user-management': return <UserManagement />;
+      case 'settings': return <Settings />;
+      case 'analyze': return <Analyze />;
       default: return <Dashboard />;
     }
   };
