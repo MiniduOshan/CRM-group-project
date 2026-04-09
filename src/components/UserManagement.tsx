@@ -119,13 +119,13 @@ export default function UserManagement() {
   };
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-4 md:p-8 space-y-4 md:space-y-6">
       <header>
-        <h2 className="text-2xl font-bold tracking-tight">User Management</h2>
+        <h2 className="text-xl md:text-2xl font-bold tracking-tight">User Management</h2>
         <p className="text-gray-500 text-sm">Manage staff accounts and permissions.</p>
       </header>
 
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="bg-white rounded-xl border border-brand-line shadow-sm p-4">
           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Users</p>
           <p className="text-2xl font-bold mt-1 text-gray-700 flex items-center gap-2">

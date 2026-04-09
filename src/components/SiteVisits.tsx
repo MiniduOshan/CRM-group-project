@@ -34,19 +34,19 @@ export default function SiteVisits() {
   const [visits] = useState<SiteVisit[]>(mockVisits);
 
   return (
-    <div className="p-8 space-y-6">
-      <header className="flex justify-between items-center">
+    <div className="p-4 md:p-8 space-y-4 md:space-y-6">
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Site Visits & Design</h2>
+          <h2 className="text-xl md:text-2xl font-bold tracking-tight">Site Visits & Design</h2>
           <p className="text-gray-500 text-sm">Coordinate measurements and technical site notes.</p>
         </div>
-        <button className="bg-brand-accent text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-blue-700 transition-colors">
+        <button className="bg-brand-accent text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-blue-700 transition-colors w-full sm:w-auto justify-center">
           <Calendar size={18} />
           Schedule Visit
         </button>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         {visits.map((visit) => (
           <motion.div 
             key={visit.id}

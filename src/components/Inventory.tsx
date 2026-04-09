@@ -28,25 +28,25 @@ export default function Inventory() {
   );
 
   return (
-    <div className="p-8 space-y-6">
-      <header className="flex justify-between items-center">
+    <div className="p-4 md:p-8 space-y-4 md:space-y-6">
+      <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Inventory & Stock</h2>
+          <h2 className="text-xl md:text-2xl font-bold tracking-tight">Inventory & Stock</h2>
           <p className="text-gray-500 text-sm">Manage your materials and production stock.</p>
         </div>
-        <div className="flex gap-3">
-          <button className="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-gray-50 transition-colors">
+        <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+          <button className="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-gray-50 transition-colors justify-center">
             <ArrowDownCircle size={18} className="text-green-600" />
-            GRN (Add Stock)
+            Add Stock
           </button>
-          <button className="bg-brand-accent text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-blue-700 transition-colors">
+          <button className="bg-brand-accent text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-blue-700 transition-colors justify-center">
             <Plus size={18} />
             Register Item
           </button>
         </div>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         <div className="bg-white p-6 rounded-xl border border-brand-line shadow-sm flex items-center gap-4">
           <div className="p-3 bg-blue-50 rounded-lg text-brand-accent">
             <Package size={24} />
@@ -90,55 +90,54 @@ export default function Inventory() {
       </div>
 
       <div className="bg-white rounded-xl border border-brand-line shadow-sm overflow-hidden">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-gray-50 border-b border-brand-line">
-              <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Item Name</th>
-              <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Category</th>
-              <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-right">Cost Price</th>
-              <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-right">Selling Price</th>
-              <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-center">Stock Level</th>
-              <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Unit</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {filteredItems.map((item) => (
-              <tr key={item.id} className="hover:bg-gray-50/50 transition-colors">
-                <td className="px-6 py-4">
-                  <p className="text-sm font-bold">{item.name}</p>
-                  <p className="text-[10px] text-gray-400 font-mono">#SKU-{item.id.padStart(4, '0')}</p>
-                </td>
-                <td className="px-6 py-4">
-                  <span className="px-2 py-1 bg-gray-100 text-gray-600 text-[10px] font-bold rounded uppercase">
-                    {item.category}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <p className="text-xs font-mono text-gray-500">${item.costPrice.toFixed(2)}</p>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <p className="text-xs font-mono font-bold text-brand-ink">${item.sellingPrice.toFixed(2)}</p>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex flex-col items-center gap-1">
-                    <span className={`text-xs font-bold ${item.stockLevel < 10 ? 'text-red-600' : 'text-gray-700'}`}>
-                      {item.stockLevel}
-                    </span>
-                    <div className="w-16 h-1 bg-gray-100 rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full ${item.stockLevel < 10 ? 'bg-red-500' : 'bg-green-500'}`}
-                        style={{ width: `${Math.min((item.stockLevel / 50) * 100, 100)}%` }}
-                      />
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <p className="text-[10px] text-gray-400 font-bold uppercase">{item.unit}</p>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse min-w-[600px]">
+            <thead>
+              <tr className="bg-gray-50 border-b border-brand-line">
+                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Item Name</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Category</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-right">Cost Price</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-right">Selling Price</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-center">Stock Level</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Unit</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {filteredItems.map((item) => (
+                <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4">
+                    <p className="text-sm font-bold">{item.name}</p>
+                    <p className="text-[10px] text-gray-400 font-mono">{item.id}</p>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="px-2 py-1 bg-gray-100 text-gray-600 text-[10px] font-bold rounded uppercase">
+                      {item.category}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <p className="text-xs font-mono text-gray-500">${item.costPrice.toFixed(2)}</p>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <p className="text-xs font-mono font-bold text-brand-ink">${item.sellingPrice.toFixed(2)}</p>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex flex-col items-center gap-1">
+                      <span className="text-xs font-bold text-gray-700">
+                        {item.stockLevel}
+                      </span>
+                      <div className="w-16 h-1 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-green-500" style={{ width: '50%' }} />
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <p className="text-[10px] text-gray-400 font-bold uppercase">{item.unit}</p>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

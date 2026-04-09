@@ -11,7 +11,7 @@ import {
   Clock,
   NotebookPen
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { Lead, LeadStatus } from '../types';
 
 const mockLeads: Lead[] = [
@@ -177,15 +177,15 @@ export default function Leads() {
   };
 
   return (
-    <div className="p-8 space-y-6">
-      <header className="flex justify-between items-center">
+    <div className="p-4 md:p-8 space-y-4 md:space-y-6">
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Customer Registration & Call Tracking</h2>
+          <h2 className="text-xl md:text-2xl font-bold tracking-tight">Customer Registration & Call Tracking</h2>
           <p className="text-gray-500 text-sm">Register by phone number and view every call made with each customer.</p>
         </div>
         <button 
           onClick={() => setIsAdding(true)}
-          className="bg-brand-accent text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-blue-700 transition-colors"
+          className="bg-brand-accent text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-blue-700 transition-colors w-full sm:w-auto justify-center"
         >
           <Plus size={18} />
           Add New Lead
@@ -209,7 +209,8 @@ export default function Leads() {
       </div>
 
       <div className="bg-white rounded-xl border border-brand-line shadow-sm overflow-hidden">
-        <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse min-w-[600px]">
           <thead>
             <tr className="bg-gray-50 border-b border-brand-line">
               <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Customer</th>
@@ -271,8 +272,9 @@ export default function Leads() {
           </tbody>
         </table>
       </div>
+      </div>
 
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         <div className="lg:col-span-2 bg-white rounded-xl border border-brand-line shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-brand-line flex items-center justify-between">
             <div>
@@ -351,22 +353,16 @@ export default function Leads() {
         </div>
       </section>
 
-      <AnimatePresence>
-        {isAdding && (
-          <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-2xl shadow-2xl border border-brand-line w-full max-w-lg overflow-hidden"
-            >
-              <div className="p-6 border-b border-brand-line flex justify-between items-center">
-                <h3 className="font-bold text-lg">Register New Customer</h3>
-                <button onClick={() => setIsAdding(false)} className="text-gray-400 hover:text-gray-600">
-                  <Plus size={24} className="rotate-45" />
-                </button>
-              </div>
-              <form className="p-6 space-y-4" onSubmit={handleCreateLead}>
+      {isAdding && (
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl border border-brand-line w-full max-w-lg overflow-hidden">
+            <div className="p-6 border-b border-brand-line flex justify-between items-center">
+              <h3 className="font-bold text-lg">Register New Customer</h3>
+              <button onClick={() => setIsAdding(false)} className="text-gray-400 hover:text-gray-600">
+                <Plus size={24} className="rotate-45" />
+              </button>
+            </div>
+            <form className="p-6 space-y-4" onSubmit={handleCreateLead}>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <label className="text-[10px] font-bold text-gray-400 uppercase">Full Name</label>
@@ -429,10 +425,9 @@ export default function Leads() {
                   </button>
                 </div>
               </form>
-            </motion.div>
+            </div>
           </div>
         )}
-      </AnimatePresence>
     </div>
   );
 }

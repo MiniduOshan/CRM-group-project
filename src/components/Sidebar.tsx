@@ -29,7 +29,7 @@ const navItems = [
 
 export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
   return (
-    <div className="w-64 h-screen bg-white border-r border-brand-line flex flex-col">
+    <div className="w-64 h-screen bg-white border-r border-brand-line flex flex-col shadow-lg lg:shadow-none">
       <div className="p-6 border-b border-brand-line">
         <h1 className="text-xl font-bold tracking-tighter flex items-center gap-2">
           <div className="w-8 h-8 bg-brand-accent rounded-lg flex items-center justify-center text-white text-[11px] font-black tracking-tight">
