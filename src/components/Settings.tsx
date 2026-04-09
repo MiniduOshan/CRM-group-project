@@ -3,7 +3,7 @@ import { Bell, Lock, Palette, Save, ShieldCheck, UserCircle2 } from 'lucide-reac
 
 export default function Settings() {
   const [settings, setSettings] = useState({
-    companyName: 'Pantry Solutions',
+    companyName: 'CRM Solutions',
     emailNotifications: true,
     smsNotifications: false,
     darkSidebar: false,

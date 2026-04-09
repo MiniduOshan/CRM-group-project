@@ -32,12 +32,12 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
     <div className="w-64 h-screen bg-white border-r border-brand-line flex flex-col">
       <div className="p-6 border-b border-brand-line">
         <h1 className="text-xl font-bold tracking-tighter flex items-center gap-2">
-          <div className="w-8 h-8 bg-brand-accent rounded-lg flex items-center justify-center text-white">
-            P
+          <div className="w-8 h-8 bg-brand-accent rounded-lg flex items-center justify-center text-white text-[11px] font-black tracking-tight">
+            CS
           </div>
-          PANTRY SOLUTIONS
+          CRM SOLUTIONS
         </h1>
-        <p className="text-[10px] text-gray-400 font-mono mt-1 uppercase tracking-widest">CRM & ERP v1.0</p>
+        <p className="text-[10px] text-gray-400 font-mono mt-1 uppercase tracking-widest">CRM v1</p>
       </div>
       
       <nav className="flex-1 py-4">
@@ -72,7 +72,7 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
       <div className="p-6 border-t border-brand-line">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold">
-            AD
+            CS
           </div>
           <div>
             <p className="text-xs font-bold">Admin User</p>
