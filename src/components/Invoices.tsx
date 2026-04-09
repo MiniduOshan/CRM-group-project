@@ -491,14 +491,6 @@ export default function Invoices({
           <h2 className="text-xl md:text-2xl font-bold tracking-tight">Invoices</h2>
           <p className="text-gray-500 text-sm">Edit, print, and keep revision history for every invoice handed over from a quotation.</p>
         </div>
-        <button
-          onClick={() => selectedInvoice && openEditComposer(selectedInvoice)}
-          disabled={!selectedInvoice}
-          className="bg-brand-accent text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-blue-700 transition-colors shadow-lg shadow-brand-accent/20 w-full sm:w-auto justify-center disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <Edit3 size={18} />
-          Edit Selected
-        </button>
       </header>
 
       {(selectedInvoice || selectedQuotation) && (
@@ -764,9 +756,18 @@ export default function Invoices({
                   <h3 className="font-bold text-lg">Edit Invoice</h3>
                   <p className="text-xs text-gray-500">Update invoice details. Previous version is captured in invoice history.</p>
                 </div>
-                <button onClick={closeComposer} className="text-gray-400 hover:text-gray-600">
-                  <X size={20} />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={closeComposer}
+                    className="px-3 py-1.5 border border-gray-200 rounded-lg text-xs font-bold text-gray-600 hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button type="button" onClick={closeComposer} className="text-gray-400 hover:text-gray-600" title="Close">
+                    <X size={20} />
+                  </button>
+                </div>
               </div>
 
               <form onSubmit={handleSaveInvoice} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
