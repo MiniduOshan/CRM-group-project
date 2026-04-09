@@ -6,16 +6,16 @@ import {
   Calculator,
   Phone,
   ClipboardList,
-  BadgeDollarSign,
   NotebookPen,
   Upload,
   Plus,
   Pencil,
   MapPin,
-  Share2,
   Clock3,
   Crown,
-  CircleDot
+  CircleDot,
+  Search,
+  X
 } from 'lucide-react';
 
 interface DashboardCustomer {
@@ -44,23 +44,35 @@ const initialCustomers: DashboardCustomer[] = [
 export default function Dashboard() {
   const [customers, setCustomers] = useState<DashboardCustomer[]>(initialCustomers);
   const [quotations, setQuotations] = useState<DashboardQuotation[]>([]);
-  const [activeCustomerId, setActiveCustomerId] = useState(initialCustomers[0]?.id ?? '');
+  const [activeCustomerId, setActiveCustomerId] = useState<string>('');
+
+  // State for the Activity Pop-up Modal
+  const [showActivity, setShowActivity] = useState(false);
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isRegistering, setIsRegistering] = useState(false);
+
   const [newCustomer, setNewCustomer] = useState({ name: '', phone: '', address: '' });
   const [quoteForm, setQuoteForm] = useState({ amount: '0', discount: '0', note: '' });
+
   const [isEditingCustomer, setIsEditingCustomer] = useState(false);
   const [editCustomer, setEditCustomer] = useState({ name: '', phone: '', address: '' });
   const amountInputRef = useRef<HTMLInputElement | null>(null);
 
   const selectedCustomer = customers.find((customer) => customer.id === activeCustomerId);
 
+  // Filtered customers: Return empty array if search is empty
+  const filteredCustomers = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const query = searchQuery.toLowerCase();
+    return customers.filter(
+      (c) => c.name.toLowerCase().includes(query) || c.phone.includes(query)
+    );
+  }, [customers, searchQuery]);
+
   const quoteAmount = Number(quoteForm.amount) || 0;
   const quoteDiscount = Number(quoteForm.discount) || 0;
   const quoteFinal = Math.max(0, quoteAmount - quoteDiscount);
-
-  const totalRevenue = useMemo(
-    () => quotations.reduce((sum, quotation) => sum + quotation.finalAmount, 0),
-    [quotations]
-  );
 
   const selectedCustomerQuotations = useMemo(
     () => quotations.filter((quotation) => quotation.customerId === activeCustomerId),
@@ -84,13 +96,15 @@ export default function Dashboard() {
     setCustomers((prev) => [customer, ...prev]);
     setActiveCustomerId(customer.id);
     setNewCustomer({ name: '', phone: '', address: '' });
+    setIsRegistering(false);
+    setSearchQuery('');
+    setShowActivity(false);
+
+    setTimeout(() => amountInputRef.current?.focus(), 100);
   };
 
   const beginEditSelectedCustomer = () => {
-    if (!selectedCustomer) {
-      return;
-    }
-
+    if (!selectedCustomer) return;
     setEditCustomer({
       name: selectedCustomer.name,
       phone: selectedCustomer.phone,
@@ -101,27 +115,23 @@ export default function Dashboard() {
 
   const saveSelectedCustomer = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!selectedCustomer) {
-      return;
-    }
+    if (!selectedCustomer) return;
 
     const duplicatePhone = customers.some(
       (customer) => customer.id !== selectedCustomer.id && customer.phone === editCustomer.phone.trim()
     );
 
-    if (duplicatePhone) {
-      return;
-    }
+    if (duplicatePhone) return;
 
     setCustomers((prev) =>
       prev.map((customer) =>
         customer.id === selectedCustomer.id
           ? {
-              ...customer,
-              name: editCustomer.name.trim(),
-              phone: editCustomer.phone.trim(),
-              address: editCustomer.address.trim()
-            }
+            ...customer,
+            name: editCustomer.name.trim(),
+            phone: editCustomer.phone.trim(),
+            address: editCustomer.address.trim()
+          }
           : customer
       )
     );
@@ -131,9 +141,7 @@ export default function Dashboard() {
 
   const createQuotation = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!selectedCustomer || quoteAmount <= 0) {
-      return;
-    }
+    if (!selectedCustomer || quoteAmount <= 0) return;
 
     const quotation: DashboardQuotation = {
       id: `QT-${new Date().getFullYear()}-${String(quotations.length + 1).padStart(3, '0')}`,
@@ -148,6 +156,7 @@ export default function Dashboard() {
 
     setQuotations((prev) => [quotation, ...prev]);
     setQuoteForm({ amount: '0', discount: '0', note: '' });
+    setShowActivity(true); // Pop up the timeline automatically when a quote is created
   };
 
   const handleQuickAction = (action: 'call-note' | 'generate-quote' | 'upload-design') => {
@@ -158,12 +167,10 @@ export default function Dashboard() {
       }));
       return;
     }
-
     if (action === 'generate-quote') {
       amountInputRef.current?.focus();
       return;
     }
-
     setQuoteForm((prev) => ({
       ...prev,
       note: prev.note.trim() === '' ? 'Design document uploaded and shared.' : prev.note
@@ -172,307 +179,433 @@ export default function Dashboard() {
 
   const customerDuplicatePhone = customers.some((customer) => customer.phone === newCustomer.phone.trim());
 
-  const handleShareDetails = async () => {
-    if (!selectedCustomer) {
-      return;
-    }
-
-    const message = `${selectedCustomer.name} | ${selectedCustomer.phone} | ${selectedCustomer.address}`;
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      await navigator.clipboard.writeText(message);
-    }
-  };
+  const inputStyles = "w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all duration-200 placeholder:text-slate-400";
 
   return (
-    <div className="p-8 space-y-6">
-      <header>
-        <h2 className="text-2xl font-bold tracking-tight">Single Customer Workspace</h2>
-        <p className="text-gray-500 text-sm">Select one customer, edit details if needed, then create a quotation for that same customer.</p>
-      </header>
+    <div className="min-h-screen bg-slate-50/50 p-8 font-sans text-slate-800">
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl border border-brand-line shadow-sm p-4">
-          <p className="text-[10px] uppercase tracking-wider text-gray-400 font-bold">Customers</p>
-          <p className="mt-1 text-2xl font-bold text-gray-700 flex items-center gap-2"><Users size={20} className="text-brand-accent" />{customers.length}</p>
-        </div>
-        <div className="bg-white rounded-xl border border-brand-line shadow-sm p-4">
-          <p className="text-[10px] uppercase tracking-wider text-gray-400 font-bold">Selected Customer</p>
-          <p className="mt-1 text-lg font-bold text-gray-700 truncate">{selectedCustomer?.name ?? 'None selected'}</p>
-        </div>
-        <div className="bg-white rounded-xl border border-brand-line shadow-sm p-4">
-          <p className="text-[10px] uppercase tracking-wider text-gray-400 font-bold">Quotations Created</p>
-          <p className="mt-1 text-2xl font-bold text-gray-700 flex items-center gap-2"><ClipboardList size={20} className="text-brand-accent" />{quotations.length}</p>
-        </div>
-      </div>
+      <div className="space-y-8 max-w-7xl mx-auto">
+        <header className="space-y-1">
+          <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">Workspace</h2>
+          <p className="text-slate-500 text-sm font-medium">Search or register a customer, then generate a quotation.</p>
+        </header>
 
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-        <section className="xl:col-span-1 bg-white rounded-xl border border-brand-line p-6 shadow-sm space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-bold text-sm">Customers</h3>
-            <span className="text-xs font-mono text-gray-400">{customers.length}</span>
+        {/* Top Stat Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-slate-400 font-bold mb-1">Total Customers</p>
+              <p className="text-2xl font-black text-slate-800">{customers.length}</p>
+            </div>
+            <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl"><Users size={24} /></div>
           </div>
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center justify-between">
+            <div className="truncate pr-4">
+              <p className="text-xs uppercase tracking-widest text-slate-400 font-bold mb-1">Active Customer</p>
+              <p className="text-lg font-bold text-slate-800 truncate">
+                {selectedCustomer?.name ?? 'None selected'}
+              </p>
+            </div>
+            <div className="p-3 bg-amber-50 text-amber-600 rounded-xl"><Crown size={24} /></div>
+          </div>
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-slate-400 font-bold mb-1">Quotations</p>
+              <p className="text-2xl font-black text-slate-800">{quotations.length}</p>
+            </div>
+            <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl"><ClipboardList size={24} /></div>
+          </div>
+        </div>
 
-          <div className="space-y-2 max-h-56 overflow-y-auto">
-            {customers.map((customer) => {
-              const active = customer.id === activeCustomerId;
-              return (
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+          {/* STEP 1: Find or Register Customer OR Active Profile */}
+          <section className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm flex flex-col h-[450px]">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                <span className="bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-black">1</span>
+                {selectedCustomer ? 'Active Customer' : 'Find or Register'}
+              </h3>
+
+              {selectedCustomer && !isEditingCustomer ? (
                 <button
-                  key={customer.id}
                   onClick={() => {
-                    setActiveCustomerId(customer.id);
-                    setIsEditingCustomer(false);
+                    setActiveCustomerId('');
+                    setSearchQuery('');
+                    setShowActivity(false);
                   }}
-                  className={`w-full text-left rounded-lg border px-3 py-2 ${active ? 'border-brand-accent bg-brand-accent/5' : 'border-gray-200 bg-gray-50 hover:bg-gray-100'}`}
+                  className="text-xs font-bold text-slate-400 hover:text-slate-600 flex items-center gap-1"
                 >
-                  <p className="text-sm font-semibold text-gray-700">{customer.name}</p>
-                  <p className="text-xs text-gray-500">{customer.phone}</p>
+                  <X size={14} /> Clear Selection
                 </button>
-              );
-            })}
-          </div>
-
-          {selectedCustomer && (
-            <button
-              type="button"
-              onClick={beginEditSelectedCustomer}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 flex items-center justify-center gap-2"
-            >
-              <Pencil size={14} /> Edit Selected Customer
-            </button>
-          )}
-        </section>
-
-        <section className="xl:col-span-1 bg-white rounded-xl border border-brand-line p-6 shadow-sm">
-          <h3 className="font-bold text-sm flex items-center gap-2 mb-4"><UserPlus size={16} className="text-brand-accent" /> Add Customer</h3>
-          <form onSubmit={addCustomer} className="space-y-3">
-            <input
-              required
-              value={newCustomer.name}
-              onChange={(e) => setNewCustomer((prev) => ({ ...prev, name: e.target.value }))}
-              placeholder="Customer full name"
-              className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm"
-            />
-            <input
-              required
-              value={newCustomer.phone}
-              onChange={(e) => setNewCustomer((prev) => ({ ...prev, phone: e.target.value }))}
-              placeholder="Telephone number"
-              className={`w-full px-3 py-2 bg-gray-50 border rounded-lg text-sm ${customerDuplicatePhone ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}
-            />
-            {customerDuplicatePhone && <p className="text-xs text-red-600">This phone number is already registered.</p>}
-            <textarea
-              required
-              value={newCustomer.address}
-              onChange={(e) => setNewCustomer((prev) => ({ ...prev, address: e.target.value }))}
-              placeholder="Address"
-              className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm h-20"
-            />
-            <button
-              type="submit"
-              disabled={customerDuplicatePhone}
-              className="w-full bg-brand-accent text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Save Customer
-            </button>
-          </form>
-
-          {isEditingCustomer && selectedCustomer && (
-            <form onSubmit={saveSelectedCustomer} className="space-y-2 mt-5 pt-4 border-t border-gray-100">
-              <p className="text-xs font-bold uppercase text-gray-400 tracking-wider">Edit Active Customer</p>
-              <input
-                required
-                value={editCustomer.name}
-                onChange={(e) => setEditCustomer((prev) => ({ ...prev, name: e.target.value }))}
-                className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm"
-              />
-              <input
-                required
-                value={editCustomer.phone}
-                onChange={(e) => setEditCustomer((prev) => ({ ...prev, phone: e.target.value }))}
-                className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm"
-              />
-              <textarea
-                required
-                value={editCustomer.address}
-                onChange={(e) => setEditCustomer((prev) => ({ ...prev, address: e.target.value }))}
-                className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm h-20"
-              />
-              <div className="flex gap-2">
-                <button type="button" onClick={() => setIsEditingCustomer(false)} className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-xs font-semibold text-gray-600">
-                  Cancel
+              ) : isRegistering ? (
+                <button onClick={() => setIsRegistering(false)} className="text-xs font-bold text-slate-400 hover:text-slate-600 flex items-center gap-1">
+                  <X size={14} /> Cancel
                 </button>
-                <button type="submit" className="flex-1 px-3 py-2 bg-brand-accent text-white rounded-lg text-xs font-semibold">
-                  Save Edit
-                </button>
+              ) : null}
+            </div>
+
+            {selectedCustomer ? (
+              <div className="flex-1 flex flex-col animate-in fade-in zoom-in-95 duration-200">
+                {isEditingCustomer ? (
+                  <div className="flex-1 flex flex-col justify-center">
+                    <h3 className="font-bold text-slate-800 flex items-center gap-2 mb-4 text-sm">
+                      <Pencil size={14} className="text-amber-500" /> Edit Information
+                    </h3>
+                    <form onSubmit={saveSelectedCustomer} className="space-y-3">
+                      <input
+                        required
+                        value={editCustomer.name}
+                        onChange={(e) => setEditCustomer((prev) => ({ ...prev, name: e.target.value }))}
+                        className={inputStyles}
+                      />
+                      <input
+                        required
+                        value={editCustomer.phone}
+                        onChange={(e) => setEditCustomer((prev) => ({ ...prev, phone: e.target.value }))}
+                        className={inputStyles}
+                      />
+                      <textarea
+                        required
+                        value={editCustomer.address}
+                        onChange={(e) => setEditCustomer((prev) => ({ ...prev, address: e.target.value }))}
+                        className={`${inputStyles} h-20 resize-none`}
+                      />
+                      <div className="flex gap-3 pt-2">
+                        <button type="button" onClick={() => setIsEditingCustomer(false)} className="flex-1 px-4 py-2.5 border border-slate-200 bg-white hover:bg-slate-50 rounded-xl text-sm font-bold text-slate-600 transition-colors">
+                          Cancel
+                        </button>
+                        <button type="submit" className="flex-1 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm active:scale-[0.98] transition-all">
+                          Save
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                ) : (
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden relative flex-1 flex flex-col h-full">
+                    <div className="h-16 bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-700 opacity-90" />
+                    <div className="px-5 pb-5 -mt-8 relative z-10 flex-1 flex flex-col">
+                      <div className="w-16 h-16 rounded-xl border-4 border-white bg-slate-900 text-white flex items-center justify-center text-lg font-black shadow-md">
+                        {selectedCustomer.name.split(' ').map((part) => part[0]).join('').slice(0, 2)}
+                      </div>
+
+                      <p className="mt-3 text-lg font-black text-slate-900">{selectedCustomer.name}</p>
+
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold uppercase tracking-wider flex items-center gap-1">
+                          <Crown size={10} /> Premium
+                        </span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold uppercase tracking-wider">
+                          Stage: {selectedCustomerQuotations.length > 0 ? 'Active' : 'Lead'}
+                        </span>
+                      </div>
+
+                      <div className="mt-4 space-y-2 text-xs text-slate-600 font-medium">
+                        <div className="flex items-center gap-2 p-2 bg-white rounded-lg border border-slate-100 shadow-sm">
+                          <Phone size={14} className="text-indigo-500" />
+                          <p>{selectedCustomer.phone}</p>
+                        </div>
+                        <div className="flex items-start gap-2 p-2 bg-white rounded-lg border border-slate-100 shadow-sm">
+                          <MapPin size={14} className="text-slate-400 mt-0.5" />
+                          <p className="leading-relaxed line-clamp-2">{selectedCustomer.address}</p>
+                        </div>
+                      </div>
+
+                      <div className="mt-auto pt-3 flex gap-2">
+                        <button onClick={beginEditSelectedCustomer} className="flex-1 flex justify-center items-center gap-1.5 bg-white border border-slate-200 px-3 py-2 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm">
+                          <Pencil size={12} /> Edit
+                        </button>
+
+                        {/* Check Activity Button */}
+                        <button
+                          onClick={() => setShowActivity(true)}
+                          className="flex-1 flex justify-center items-center gap-1.5 bg-slate-900 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-slate-800 shadow-sm transition-colors active:scale-[0.98]"
+                        >
+                          <Clock3 size={12} /> Activity
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-            </form>
-          )}
-        </section>
+            ) : !isRegistering ? (
+              <>
+                <div className="relative mb-4">
+                  <Search className="absolute left-3.5 top-3 text-slate-400" size={18} />
+                  <input
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search by name or phone..."
+                    className={`${inputStyles} pl-10`}
+                  />
+                </div>
 
-        <section className="xl:col-span-1 bg-white rounded-xl border border-brand-line p-6 shadow-sm">
-          <h3 className="font-bold text-sm flex items-center gap-2 mb-4"><FileText size={16} className="text-brand-accent" /> Make Quotation</h3>
-          <form onSubmit={createQuotation} className="space-y-3">
-            {selectedCustomer && (
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-xs text-gray-600 space-y-1">
-                <p className="font-semibold text-gray-700">Selected Customer</p>
-                <p className="flex items-center gap-1"><Phone size={12} className="text-gray-400" /> {selectedCustomer.phone}</p>
-                <p>{selectedCustomer.address}</p>
+                <div className="flex-1 overflow-y-auto pr-2 space-y-2">
+                  {!searchQuery.trim() ? (
+                    <div className="h-full flex flex-col items-center justify-center text-center space-y-4 pt-10">
+                      <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300">
+                        <Search size={32} />
+                      </div>
+                      <div>
+                        <p className="text-slate-800 font-bold">Search Customer</p>
+                        <p className="text-sm text-slate-500 mt-1 mb-4">Enter a name or phone number to find an existing customer.</p>
+                        <button
+                          onClick={() => setIsRegistering(true)}
+                          className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-indigo-700 active:scale-[0.98] transition-all shadow-sm"
+                        >
+                          Register New Customer
+                        </button>
+                      </div>
+                    </div>
+                  ) : filteredCustomers.length > 0 ? (
+                    <>
+                      {filteredCustomers.map((customer) => (
+                        <button
+                          key={customer.id}
+                          onClick={() => {
+                            setActiveCustomerId(customer.id);
+                            setIsEditingCustomer(false);
+                            setShowActivity(false);
+                            amountInputRef.current?.focus();
+                          }}
+                          className="w-full text-left rounded-xl px-4 py-3 transition-all duration-200 border border-slate-100 bg-slate-50 hover:bg-slate-100 hover:border-slate-200"
+                        >
+                          <p className="text-sm font-bold text-slate-700">{customer.name}</p>
+                          <p className="text-xs mt-1 text-slate-500">{customer.phone}</p>
+                        </button>
+                      ))}
+                    </>
+                  ) : (
+                    <div className="h-full flex flex-col items-center justify-center text-center space-y-4 pt-10">
+                      <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300">
+                        <Users size={32} />
+                      </div>
+                      <div>
+                        <p className="text-slate-800 font-bold">No customer found</p>
+                        <p className="text-sm text-slate-500 mt-1 mb-4">Try a different search or register a new one.</p>
+                        <button
+                          onClick={() => setIsRegistering(true)}
+                          className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-indigo-700 active:scale-[0.98] transition-all shadow-sm"
+                        >
+                          Register Customer
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <form onSubmit={addCustomer} className="space-y-4 flex-1 flex flex-col justify-center animate-in fade-in slide-in-from-bottom-4 duration-300">
+                <input
+                  required
+                  value={newCustomer.name}
+                  onChange={(e) => setNewCustomer((prev) => ({ ...prev, name: e.target.value }))}
+                  placeholder="Full Name"
+                  className={inputStyles}
+                />
+                <div>
+                  <input
+                    required
+                    value={newCustomer.phone}
+                    onChange={(e) => setNewCustomer((prev) => ({ ...prev, phone: e.target.value }))}
+                    placeholder="Telephone Number"
+                    className={`${inputStyles} ${customerDuplicatePhone ? 'border-red-300 bg-red-50 focus:border-red-500' : ''}`}
+                  />
+                  {customerDuplicatePhone && <p className="text-xs text-red-500 font-medium mt-1.5 ml-1">Phone number already registered.</p>}
+                </div>
+                <textarea
+                  required
+                  value={newCustomer.address}
+                  onChange={(e) => setNewCustomer((prev) => ({ ...prev, address: e.target.value }))}
+                  placeholder="Full Address"
+                  className={`${inputStyles} h-24 resize-none`}
+                />
+                <button
+                  type="submit"
+                  disabled={customerDuplicatePhone}
+                  className="w-full bg-slate-900 text-white px-4 py-3 rounded-xl text-sm font-bold hover:bg-slate-800 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm mt-auto"
+                >
+                  Save & Continue
+                </button>
+              </form>
+            )}
+          </section>
+
+          {/* STEP 2: Make Quotation */}
+          <section className={`bg-white rounded-2xl border border-slate-100 p-6 shadow-sm h-[450px] transition-opacity duration-300 relative ${!selectedCustomer ? 'opacity-50' : 'opacity-100'}`}>
+            {!selectedCustomer && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/40 backdrop-blur-[1px] rounded-2xl">
+                <p className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg">Select a customer first</p>
               </div>
             )}
 
-            <input
-              ref={amountInputRef}
-              type="number"
-              min="0"
-              value={quoteForm.amount}
-              onChange={(e) => setQuoteForm((prev) => ({ ...prev, amount: e.target.value }))}
-              placeholder="Quotation amount"
-              className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm"
-            />
-            <input
-              type="number"
-              min="0"
-              value={quoteForm.discount}
-              onChange={(e) => setQuoteForm((prev) => ({ ...prev, discount: e.target.value }))}
-              placeholder="Discount"
-              className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm"
-            />
+            <h3 className="font-bold text-slate-800 flex items-center gap-2 mb-5">
+              <span className="bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-black">2</span>
+              Create Quotation
+            </h3>
 
-            <textarea
-              value={quoteForm.note}
-              onChange={(e) => setQuoteForm((prev) => ({ ...prev, note: e.target.value }))}
-              placeholder="Optional note"
-              className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm h-20"
-            />
+            <form onSubmit={createQuotation} className="space-y-4 flex flex-col h-[calc(100%-2.5rem)]">
+              <div className="flex gap-4">
+                <div className="relative flex-1">
+                  <span className="absolute left-4 top-3 text-slate-400 font-semibold">$</span>
+                  <input
+                    ref={amountInputRef}
+                    type="number"
+                    min="0"
+                    value={quoteForm.amount}
+                    onChange={(e) => setQuoteForm((prev) => ({ ...prev, amount: e.target.value }))}
+                    placeholder="Amount"
+                    className={`${inputStyles} pl-8`}
+                    disabled={!selectedCustomer}
+                  />
+                </div>
 
-            <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 text-sm">
-              <p className="flex items-center gap-1 font-medium text-blue-700"><Calculator size={14} /> Final Total</p>
-              <p className="text-lg font-bold text-blue-800 mt-1">${quoteFinal.toFixed(2)}</p>
+                <div className="relative flex-1">
+                  <span className="absolute left-4 top-3 text-slate-400 font-semibold">$</span>
+                  <input
+                    type="number"
+                    min="0"
+                    value={quoteForm.discount}
+                    onChange={(e) => setQuoteForm((prev) => ({ ...prev, discount: e.target.value }))}
+                    placeholder="Discount"
+                    className={`${inputStyles} pl-8`}
+                    disabled={!selectedCustomer}
+                  />
+                </div>
+              </div>
+
+              <textarea
+                value={quoteForm.note}
+                onChange={(e) => setQuoteForm((prev) => ({ ...prev, note: e.target.value }))}
+                placeholder="Optional notes or terms..."
+                className={`${inputStyles} h-24 resize-none`}
+                disabled={!selectedCustomer}
+              />
+
+              <div className="bg-slate-900 rounded-xl p-4 text-white shadow-md mt-auto mb-4">
+                <p className="flex items-center gap-2 text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+                  <Calculator size={14} /> Final Total
+                </p>
+                <p className="text-3xl font-black">${quoteFinal.toFixed(2)}</p>
+              </div>
+
+              <button
+                type="submit"
+                disabled={!selectedCustomer || quoteAmount <= 0}
+                className="w-full bg-indigo-600 text-white px-4 py-3 rounded-xl text-sm font-bold hover:bg-indigo-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+              >
+                Generate Document
+              </button>
+            </form>
+          </section>
+
+          {/* Quick Actions */}
+          <aside className="bg-slate-100/50 rounded-2xl border border-slate-200 p-6 shadow-inner h-[450px] flex flex-col">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-5">Quick Tools</p>
+
+            <div className="space-y-3">
+              {[
+                { id: 'call-note', icon: NotebookPen, label: 'Log a Call/Note' },
+                { id: 'generate-quote', icon: FileText, label: 'Prepare Quote' },
+                { id: 'upload-design', icon: Upload, label: 'Upload Design Doc' }
+              ].map((action) => (
+                <button
+                  key={action.id}
+                  type="button"
+                  onClick={() => handleQuickAction(action.id as any)}
+                  disabled={!selectedCustomer}
+                  className="group w-full flex items-center justify-between rounded-xl bg-white border border-slate-200 px-4 py-4 text-sm font-bold text-slate-700 hover:border-indigo-300 hover:shadow-sm transition-all disabled:opacity-50 disabled:pointer-events-none"
+                >
+                  <span className="flex items-center gap-3">
+                    <action.icon size={18} className="text-slate-400 group-hover:text-indigo-500 transition-colors" />
+                    {action.label}
+                  </span>
+                  <Plus size={16} className="text-slate-300 group-hover:text-indigo-500 transition-colors" />
+                </button>
+              ))}
             </div>
 
-            <button
-              type="submit"
-              disabled={!selectedCustomer || quoteAmount <= 0}
-              className="w-full bg-brand-accent text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Create Quotation
-            </button>
-          </form>
-        </section>
-
-        <aside className="xl:col-span-1 bg-[#f8fafc] rounded-2xl border border-gray-200 p-4 shadow-sm h-fit">
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-3">Quick Actions</p>
-          <div className="space-y-2">
-            <button
-              type="button"
-              onClick={() => handleQuickAction('call-note')}
-              className="w-full flex items-center justify-between rounded-lg border border-gray-200 bg-[#eef2f7] px-3 py-2 text-sm text-gray-700 hover:bg-[#e9eef6]"
-            >
-              <span className="inline-flex items-center gap-2"><NotebookPen size={14} /> Log a Call/Note</span>
-              <Plus size={14} className="text-gray-400" />
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickAction('generate-quote')}
-              className="w-full flex items-center justify-between rounded-lg border border-gray-200 bg-[#eef2f7] px-3 py-2 text-sm text-gray-700 hover:bg-[#e9eef6]"
-            >
-              <span className="inline-flex items-center gap-2"><FileText size={14} /> Generate Quote</span>
-              <Plus size={14} className="text-gray-400" />
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickAction('upload-design')}
-              className="w-full flex items-center justify-between rounded-lg border border-gray-200 bg-[#eef2f7] px-3 py-2 text-sm text-gray-700 hover:bg-[#e9eef6]"
-            >
-              <span className="inline-flex items-center gap-2"><Upload size={14} /> Upload Design Doc</span>
-              <Plus size={14} className="text-gray-400" />
-            </button>
-          </div>
-
-          <div className="mt-3 text-xs text-gray-500 bg-white border border-gray-200 rounded-lg p-3">
-            Actions apply to: <span className="font-semibold text-gray-700">{selectedCustomer?.name ?? 'No customer selected'}</span>
-          </div>
-        </aside>
+            <div className="mt-auto pt-4">
+              <div className="text-xs text-slate-500 bg-white/60 border border-slate-200 rounded-xl p-4 text-center">
+                Active Context:<br />
+                <span className="font-bold text-slate-800 text-sm mt-1 block truncate">
+                  {selectedCustomer?.name ?? '—'}
+                </span>
+              </div>
+            </div>
+          </aside>
+        </div>
       </div>
 
-      <section className="bg-white rounded-xl border border-brand-line shadow-sm overflow-hidden">
-        <div className="p-5 border-b border-brand-line flex items-center justify-between">
-          <h3 className="text-xl font-bold tracking-tight">Customer Profile</h3>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={beginEditSelectedCustomer}
-              className="inline-flex items-center gap-2 border border-gray-200 px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50"
-            >
-              <Pencil size={12} /> Edit Profile
-            </button>
-            <button
-              type="button"
-              onClick={handleShareDetails}
-              className="inline-flex items-center gap-2 border border-gray-200 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-gray-900 hover:bg-gray-800"
-            >
-              <Share2 size={12} /> Share Details
-            </button>
-          </div>
-        </div>
+      {/* Activity Pop-up Modal */}
+      {selectedCustomer && showActivity && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200"
+          onClick={() => setShowActivity(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col animate-in zoom-in-95 duration-200 overflow-hidden"
+            onClick={(e) => e.stopPropagation()} // Prevent clicks inside the modal from closing it
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-white z-10">
+              <div className="flex flex-col">
+                <h3 className="font-bold text-slate-900 flex items-center gap-2 text-xl">
+                  <Clock3 size={22} className="text-indigo-500" /> Activity Timeline
+                </h3>
+                <p className="text-sm text-slate-500 font-medium ml-8">
+                  History for <span className="text-slate-700 font-bold">{selectedCustomer.name}</span>
+                </p>
+              </div>
+              <button
+                onClick={() => setShowActivity(false)}
+                className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors"
+                aria-label="Close activity modal"
+              >
+                <X size={24} />
+              </button>
+            </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3">
-          <div className="lg:col-span-1 p-4 border-r border-brand-line bg-gray-50/40">
-            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-              <div className="h-16 bg-gradient-to-r from-slate-900 to-slate-700" />
-              <div className="px-4 pb-4 -mt-6">
-                <div className="w-12 h-12 rounded-lg border-2 border-white bg-slate-800 text-white flex items-center justify-center text-sm font-bold shadow-sm">
-                  {selectedCustomer?.name.split(' ').map((part) => part[0]).join('').slice(0, 2) ?? 'NA'}
-                </div>
-                <p className="mt-3 text-lg font-bold text-gray-800">{selectedCustomer?.name ?? 'No customer selected'}</p>
-                <div className="flex items-center gap-2 mt-1">
-                  <p className="text-xs text-gray-500">Premium Client</p>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-bold uppercase tracking-wider">
-                    Stage: {selectedCustomerQuotations.length > 0 ? 'In Production' : 'New'}
-                  </span>
-                </div>
-                <p className="text-[11px] text-gray-400 mt-1">since 2023</p>
+            {/* Modal Content (Scrollable) */}
+            <div className="overflow-y-auto p-6 flex-1 bg-slate-50/30">
+              <div className="space-y-5 max-w-2xl mx-auto">
+                {selectedCustomerQuotations.length === 0 ? (
+                  <div className="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center text-sm text-slate-500 font-medium bg-slate-50/50">
+                    No activity tracked yet. Generate a quotation to start the timeline.
+                  </div>
+                ) : (
+                  selectedCustomerQuotations.map((quotation, index) => (
+                    <div key={`timeline-${quotation.id}`} className="relative border border-slate-100 rounded-2xl p-6 pl-12 bg-white shadow-sm hover:shadow-md transition-shadow">
+                      <div className="absolute left-5 top-7 text-indigo-500"><CircleDot size={16} /></div>
+                      {index !== selectedCustomerQuotations.length - 1 && (
+                        <div className="absolute left-[1.65rem] top-12 bottom-[-1.5rem] w-px bg-slate-200" />
+                      )}
 
-                <div className="mt-4 space-y-3 text-xs text-gray-600">
-                  <p className="flex items-center gap-2"><Phone size={12} className="text-emerald-600" /> {selectedCustomer?.phone ?? 'Not available'}</p>
-                  <p className="flex items-start gap-2"><MapPin size={12} className="text-gray-500 mt-0.5" /> {selectedCustomer?.address ?? 'No address'}</p>
-                  <p className="flex items-center gap-2"><Crown size={12} className="text-amber-500" /> Owner: Salesperson One</p>
-                </div>
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="text-xs font-black text-indigo-600 uppercase tracking-widest">Quotation Created</p>
+                        <span className="text-[11px] px-3 py-1 rounded-md bg-slate-100 text-slate-600 font-bold">
+                          {new Date(quotation.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+
+                      <p className="text-slate-800 mt-2 font-medium">
+                        Generated <strong className="text-slate-900">{quotation.id}</strong>. Final amount finalized at <strong className="text-emerald-600">${quotation.finalAmount.toFixed(2)}</strong>.
+                      </p>
+
+                      {quotation.note && (
+                        <div className="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-100 text-sm text-slate-600 italic">
+                          "{quotation.note}"
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>
-
-          <div className="lg:col-span-2 p-5">
-            <div className="flex items-center justify-between mb-4">
-              <p className="font-bold text-gray-800 flex items-center gap-2"><Clock3 size={16} className="text-emerald-600" /> Interaction Timeline</p>
-              <button className="text-xs text-emerald-700 font-semibold">Filter Activity</button>
-            </div>
-
-            <div className="space-y-4">
-              {selectedCustomerQuotations.length === 0 ? (
-                <div className="border border-gray-200 rounded-xl p-4 text-sm text-gray-500">
-                  No activity yet for this customer. Create a quotation to start timeline tracking.
-                </div>
-              ) : (
-                selectedCustomerQuotations.slice(0, 4).map((quotation) => (
-                  <div key={`timeline-${quotation.id}`} className="relative border border-gray-200 rounded-xl p-4 pl-8 bg-gray-50/40">
-                    <div className="absolute left-3 top-4 text-emerald-500"><CircleDot size={12} /></div>
-                    <div className="flex items-center justify-between">
-                      <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">Invoice Revision</p>
-                      <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 font-bold uppercase">Paid Advance</span>
-                    </div>
-                    <p className="text-xs text-gray-400 mt-0.5">{new Date(quotation.createdAt).toLocaleString()}</p>
-                    <p className="text-sm text-gray-700 mt-2">
-                      {quotation.id} created for {quotation.customerName}. Final amount Rs. {quotation.finalAmount.toLocaleString()}.
-                    </p>
-                    {quotation.note && <p className="text-sm text-gray-600 mt-2 italic">"{quotation.note}"</p>}
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
         </div>
-      </section>
+      )}
+
     </div>
   );
 }
