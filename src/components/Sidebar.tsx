@@ -68,8 +68,7 @@ export default function Sidebar({ activeTab, activeUser, setActiveTab }: Sidebar
           </div>
         </h1>
       </div>
-
-      <nav className="flex-1 py-4 overflow-y-auto px-4">
+      <nav className="flex-1 py-4 overflow-y-auto scrollbar-hide px-4">
         {navGroups.map((group, index) => (
           <div key={group.title} className={index > 0 ? "mt-6" : ""}>
             <h3 className="px-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2">
