@@ -1,3 +1,7 @@
+<p align="center">
+   <img src="./public/logo.svg" alt="CRM Logo" width="96" />
+</p>
+
 # Run and deploy your CRM Solutions app
 
 This contains everything you need to run your app locally and deploy it to Vercel.

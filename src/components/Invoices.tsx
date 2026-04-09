@@ -30,6 +30,241 @@ interface LineItemDraft {
 
 const emptyLineItem = (): LineItemDraft => ({ name: '', quantity: '1', unitPrice: '0' });
 
+const formatCurrency = (amount: number) => `$${amount.toFixed(2)}`;
+
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+const buildInvoicePrintHtml = (
+  invoice: Invoice,
+  quotation: Quotation | undefined
+) => {
+  const issueDate = new Date(invoice.createdAt).toLocaleDateString();
+  const updatedAt = new Date(invoice.updatedAt).toLocaleString();
+
+  const itemRows = invoice.items
+    .map(
+      (item, index) => `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${escapeHtml(item.name)}</td>
+          <td class="num">${item.quantity}</td>
+          <td class="num">${formatCurrency(item.unitPrice)}</td>
+          <td class="num">${formatCurrency(item.total)}</td>
+        </tr>
+      `
+    )
+    .join('');
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Invoice ${escapeHtml(invoice.id)}</title>
+  <style>
+    @page { margin: 14mm; }
+    body {
+      font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+      color: #111827;
+      margin: 0;
+      background: #ffffff;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .invoice {
+      max-width: 900px;
+      margin: 0 auto;
+      border: 1px solid #e5e7eb;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+    }
+    .company h1 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: 0.5px;
+    }
+    .company p, .meta p {
+      margin: 2px 0;
+      color: #4b5563;
+      font-size: 11px;
+    }
+    .meta {
+      text-align: right;
+    }
+    .meta .invoice-id {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1d4ed8;
+      margin-bottom: 6px;
+    }
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin: 12px 0 16px;
+    }
+    .card {
+      border: 1px solid #e5e7eb;
+      padding: 10px;
+      border-radius: 6px;
+      min-height: 74px;
+    }
+    .card-title {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #6b7280;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #e5e7eb;
+      padding: 7px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #f9fafb;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #374151;
+    }
+    .num { text-align: right; }
+    .summary {
+      margin-top: 14px;
+      width: 320px;
+      margin-left: auto;
+    }
+    .summary td {
+      border: none;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 6px 0;
+    }
+    .summary tr:last-child td {
+      border-bottom: 2px solid #1d4ed8;
+      font-weight: 700;
+      color: #1d4ed8;
+      font-size: 14px;
+    }
+    .section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: #374151;
+      font-weight: 700;
+      margin: 20px 0 8px;
+    }
+    .footer {
+      margin-top: 24px;
+      border-top: 1px solid #e5e7eb;
+      padding-top: 10px;
+      font-size: 11px;
+      color: #6b7280;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="invoice">
+    <div class="header">
+      <div class="company">
+        <h1>CRM Solutions</h1>
+        <p>Kitchen and Interior Specialists</p>
+        <p>Colombo, Sri Lanka</p>
+        <p>Phone: +94 77 000 0000</p>
+      </div>
+      <div class="meta">
+        <p class="invoice-id">INVOICE ${escapeHtml(invoice.id)}</p>
+        <p>Issue Date: ${escapeHtml(issueDate)}</p>
+        <p>Status: ${escapeHtml(invoice.status)}</p>
+        <p>Revision: ${invoice.revisionNo ?? 1}</p>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Bill To</div>
+        <p><strong>${escapeHtml(invoice.customerName)}</strong></p>
+        <p>Phone: ${escapeHtml(invoice.customerPhone)}</p>
+      </div>
+      <div class="card">
+        <div class="card-title">Reference</div>
+        <p>Quotation: ${escapeHtml(invoice.quotationId)}</p>
+        <p>Printed Copies: ${invoice.printCount + 1}</p>
+        <p>Last Updated: ${escapeHtml(updatedAt)}</p>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 42px;">#</th>
+          <th>Description</th>
+          <th style="width: 90px;" class="num">Qty</th>
+          <th style="width: 110px;" class="num">Unit Price</th>
+          <th style="width: 120px;" class="num">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${itemRows}
+      </tbody>
+    </table>
+
+    <table class="summary">
+      <tbody>
+        <tr>
+          <td>Subtotal</td>
+          <td class="num">${formatCurrency(invoice.subtotal)}</td>
+        </tr>
+        <tr>
+          <td>Discount</td>
+          <td class="num">${formatCurrency(invoice.discount)}</td>
+        </tr>
+        <tr>
+          <td>Advance Paid</td>
+          <td class="num">${formatCurrency(invoice.advancePaid ?? 0)}</td>
+        </tr>
+        <tr>
+          <td>Balance Due</td>
+          <td class="num">${formatCurrency(invoice.balanceDue ?? invoice.totalAmount)}</td>
+        </tr>
+        <tr>
+          <td>Total Due</td>
+          <td class="num">${formatCurrency(invoice.totalAmount)}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="footer">
+      <span>Thank you for your business.</span>
+      <span>${escapeHtml(quotation ? `Source quotation: ${quotation.id}` : 'Generated from invoice module')}</span>
+    </div>
+  </div>
+</body>
+</html>`;
+};
+
 export default function Invoices({
   customers,
   quotations,
@@ -188,6 +423,30 @@ export default function Invoices({
   };
 
   const handlePrintInvoice = (invoice: Invoice) => {
+    const relatedQuotation = quotations.find((quotation) => quotation.id === invoice.quotationId);
+    const printMarkup = buildInvoicePrintHtml(invoice, relatedQuotation);
+
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    iframe.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(iframe);
+
+    const iframeDocument = iframe.contentDocument ?? iframe.contentWindow?.document;
+    if (!iframeDocument || !iframe.contentWindow) {
+      document.body.removeChild(iframe);
+      window.alert('Unable to start print. Please try again.');
+      return;
+    }
+
+    iframeDocument.open();
+    iframeDocument.write(printMarkup);
+    iframeDocument.close();
+
     onSelectInvoice(invoice.id);
     onSelectCustomer(invoice.customerId);
     onSelectQuotation(invoice.quotationId);
@@ -196,7 +455,18 @@ export default function Invoices({
       printCount: invoice.printCount + 1
     });
     onPrintInvoice(invoice.id);
-    window.print();
+
+    iframe.onload = () => {
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+
+      // Cleanup the temporary print frame once print dialog has had time to initialize.
+      window.setTimeout(() => {
+        if (iframe.parentNode) {
+          iframe.parentNode.removeChild(iframe);
+        }
+      }, 1000);
+    };
   };
 
   const handleAdvancePayment = (invoiceId: string) => {
