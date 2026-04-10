@@ -195,16 +195,16 @@ export default function Quotations({
     setLineItems(
       quotation.items.length > 0
         ? quotation.items.map((item) => ({
-            mode: item.sourceType === 'ADHOC' ? 'adhoc' : 'catalog',
-            inventoryItemId: item.inventoryItemId ?? '',
-            sourceType: item.sourceType ?? 'DIRECT',
-            name: item.name,
-            unit: item.unit ?? 'Pieces',
-            quantity: String(item.quantity),
-            unitPrice: String(item.unitPrice),
-            lineDiscount: String(item.lineDiscount ?? 0),
-            lockPrice: item.sourceType === 'GRN'
-          }))
+          mode: item.sourceType === 'ADHOC' ? 'adhoc' : 'catalog',
+          inventoryItemId: item.inventoryItemId ?? '',
+          sourceType: item.sourceType ?? 'DIRECT',
+          name: item.name,
+          unit: item.unit ?? 'Pieces',
+          quantity: String(item.quantity),
+          unitPrice: String(item.unitPrice),
+          lineDiscount: String(item.lineDiscount ?? 0),
+          lockPrice: item.sourceType === 'GRN'
+        }))
         : [emptyLineItem()]
     );
   };
@@ -261,16 +261,16 @@ export default function Quotations({
       prev.map((line, lineIndex) =>
         lineIndex === index
           ? {
-              ...line,
-              mode: 'catalog',
-              inventoryItemId,
-              sourceType: item.sourceType === 'GRN' ? 'GRN' : 'DIRECT',
-              name: item.name,
-              unit: item.unit,
-              unitPrice: String(item.sellingPrice),
-              lockPrice: item.sourceType === 'GRN',
-              lineDiscount: line.lineDiscount || '0'
-            }
+            ...line,
+            mode: 'catalog',
+            inventoryItemId,
+            sourceType: item.sourceType === 'GRN' ? 'GRN' : 'DIRECT',
+            name: item.name,
+            unit: item.unit,
+            unitPrice: String(item.sellingPrice),
+            lockPrice: item.sourceType === 'GRN',
+            lineDiscount: line.lineDiscount || '0'
+          }
           : line
       )
     );
@@ -380,15 +380,14 @@ export default function Quotations({
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="font-extrabold text-sm tracking-tight text-brand-ink">{quotation.id}</h3>
                         <span
-                          className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border ${
-                            quotation.status === 'Draft'
-                              ? 'bg-slate-50 text-slate-500 border-slate-200'
-                              : quotation.status === 'Sent'
-                                ? 'bg-blue-50 text-blue-600 border-blue-200'
-                                : quotation.status === 'Invoiced'
-                                  ? 'bg-violet-50 text-violet-600 border-violet-200'
-                                  : 'bg-emerald-50 text-emerald-600 border-emerald-200'
-                          }`}
+                          className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border ${quotation.status === 'Draft'
+                            ? 'bg-slate-50 text-slate-500 border-slate-200'
+                            : quotation.status === 'Sent'
+                              ? 'bg-blue-50 text-blue-600 border-blue-200'
+                              : quotation.status === 'Invoiced'
+                                ? 'bg-violet-50 text-violet-600 border-violet-200'
+                                : 'bg-emerald-50 text-emerald-600 border-emerald-200'
+                            }`}
                         >
                           {quotation.status}
                         </span>
@@ -465,51 +464,51 @@ export default function Quotations({
                   <p className="text-[10px] text-slate-400 font-mono font-medium">Last modified: {new Date(quotation.updatedAt).toLocaleString()}</p>
                 </div>
 
-                  <div className="mt-4 pt-4 border-t border-brand-line grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    <div className="bg-brand-subtle border border-brand-line rounded-xl p-4">
-                      <p className="text-xs font-black uppercase tracking-[0.1em] text-brand-text flex items-center gap-2 mb-3">
-                        <History size={14} className="text-brand-accent" /> Revision History
-                      </p>
-                      <div className="space-y-3 max-h-56 overflow-y-auto pr-1">
-                        {quotation.history.length === 0 ? (
-                          <p className="text-sm text-slate-500">No edits yet.</p>
-                        ) : (
-                          quotation.history.slice().reverse().map((entry) => (
-                            <div key={entry.id} className="bg-white border border-brand-line rounded-xl p-3 shadow-sm">
-                              <div className="flex items-center justify-between gap-2 text-[11px] text-slate-400 font-bold tracking-wider uppercase">
-                                <span>{entry.editor}</span>
-                                <span>{new Date(entry.timestamp).toLocaleDateString()}</span>
-                              </div>
-                              <p className="text-sm text-brand-ink font-semibold mt-1">{entry.note}</p>
-                              <p className="text-xs text-brand-text font-medium mt-1">Total: <span className="font-bold text-brand-ink">${entry.totalAmount.toFixed(2)}</span> | Discount: ${entry.discount.toFixed(2)}</p>
+                <div className="mt-4 pt-4 border-t border-brand-line grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div className="bg-brand-subtle border border-brand-line rounded-xl p-4">
+                    <p className="text-xs font-black uppercase tracking-[0.1em] text-brand-text flex items-center gap-2 mb-3">
+                      <History size={14} className="text-brand-accent" /> Revision History
+                    </p>
+                    <div className="space-y-3 max-h-56 overflow-y-auto pr-1">
+                      {quotation.history.length === 0 ? (
+                        <p className="text-sm text-slate-500">No edits yet.</p>
+                      ) : (
+                        quotation.history.slice().reverse().map((entry) => (
+                          <div key={entry.id} className="bg-white border border-brand-line rounded-xl p-3 shadow-sm">
+                            <div className="flex items-center justify-between gap-2 text-[11px] text-slate-400 font-bold tracking-wider uppercase">
+                              <span>{entry.editor}</span>
+                              <span>{new Date(entry.timestamp).toLocaleDateString()}</span>
                             </div>
-                          ))
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="bg-brand-bg border border-brand-line rounded-xl p-4">
-                      <p className="text-xs font-black uppercase tracking-[0.1em] text-brand-text flex items-center gap-2 mb-3">
-                        <Calculator size={14} className="text-brand-accent" /> Document Preview
-                      </p>
-                      <div className="space-y-3 text-sm text-brand-text font-medium">
-                        {quotation.items.map((item) => (
-                          <div key={item.itemId} className="flex items-center justify-between gap-4 card !p-3">
-                            <div>
-                              <p className="font-bold text-brand-ink">{item.name}</p>
-                              <p className="text-xs text-slate-500 mt-0.5">Qty <span className="font-bold">{item.quantity}</span> x ${item.unitPrice.toFixed(2)} | {item.sourceType ?? 'DIRECT'}</p>
-                            </div>
-                            <p className="font-black text-brand-ink">${item.total.toFixed(2)}</p>
+                            <p className="text-sm text-brand-ink font-semibold mt-1">{entry.note}</p>
+                            <p className="text-xs text-brand-text font-medium mt-1">Total: <span className="font-bold text-brand-ink">${entry.totalAmount.toFixed(2)}</span> | Discount: ${entry.discount.toFixed(2)}</p>
                           </div>
-                        ))}
-                        <div className="pt-3 border-t border-brand-line space-y-1.5 text-xs text-brand-text">
-                          <p className="flex justify-between"><span>Subtotal:</span> <span>${quotation.items.reduce((sum, item) => sum + item.total, 0).toFixed(2)}</span></p>
-                          <p className="flex justify-between"><span>Discount:</span> <span>${quotation.discount.toFixed(2)}</span></p>
-                          <p className="flex justify-between text-sm font-black text-brand-ink mt-1 pt-1 border-t border-slate-200"><span>Total:</span> <span>${quotation.totalAmount.toFixed(2)}</span></p>
+                        ))
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="bg-brand-bg border border-brand-line rounded-xl p-4">
+                    <p className="text-xs font-black uppercase tracking-[0.1em] text-brand-text flex items-center gap-2 mb-3">
+                      <Calculator size={14} className="text-brand-accent" /> Document Preview
+                    </p>
+                    <div className="space-y-3 text-sm text-brand-text font-medium">
+                      {quotation.items.map((item) => (
+                        <div key={item.itemId} className="flex items-center justify-between gap-4 card !p-3">
+                          <div>
+                            <p className="font-bold text-brand-ink">{item.name}</p>
+                            <p className="text-xs text-slate-500 mt-0.5">Qty <span className="font-bold">{item.quantity}</span> x ${item.unitPrice.toFixed(2)} | {item.sourceType ?? 'DIRECT'}</p>
+                          </div>
+                          <p className="font-black text-brand-ink">${item.total.toFixed(2)}</p>
                         </div>
+                      ))}
+                      <div className="pt-3 border-t border-brand-line space-y-1.5 text-xs text-brand-text">
+                        <p className="flex justify-between"><span>Subtotal:</span> <span>${quotation.items.reduce((sum, item) => sum + item.total, 0).toFixed(2)}</span></p>
+                        <p className="flex justify-between"><span>Discount:</span> <span>${quotation.discount.toFixed(2)}</span></p>
+                        <p className="flex justify-between text-sm font-black text-brand-ink mt-1 pt-1 border-t border-slate-200"><span>Total:</span> <span>${quotation.totalAmount.toFixed(2)}</span></p>
                       </div>
                     </div>
                   </div>
+                </div>
               </motion.div>
             );
           })
@@ -607,93 +606,115 @@ export default function Quotations({
 
                   <div className="space-y-4">
                     {lineItems.map((item, index) => (
-                      <div key={`line-${index}`} className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center bg-brand-subtle p-3 rounded-xl border border-brand-line">
-                        <div className="md:col-span-2 flex gap-1 bg-white border border-brand-line rounded-lg p-1">
-                          <button
-                            type="button"
-                            onClick={() => toggleLineMode(index, 'catalog')}
-                            className={`flex-1 text-[11px] py-1.5 rounded-md font-bold transition-colors ${item.mode === 'catalog' ? 'bg-brand-accent text-white shadow-sm' : 'text-slate-500 hover:text-brand-ink'}`}
-                          >
-                            Catalog
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => toggleLineMode(index, 'adhoc')}
-                            className={`flex-1 text-[11px] py-1.5 rounded-md font-bold transition-colors ${item.mode === 'adhoc' ? 'bg-brand-accent text-white shadow-sm' : 'text-slate-500 hover:text-brand-ink'}`}
-                          >
-                            Ad-hoc
-                          </button>
+                      <div key={`line-${index}`} className="flex flex-col gap-2 bg-brand-subtle p-3 rounded-xl border border-brand-line">
+
+                        {/* --- Inputs ටික තියෙන ප්‍රධාන පේළිය --- */}
+                        <div className="flex flex-col xl:flex-row gap-3 items-start xl:items-center w-full">
+
+                          {/* 1. Toggle Buttons */}
+                          <div className="flex gap-1 bg-white border border-brand-line rounded-lg p-1 w-full xl:w-auto shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => toggleLineMode(index, 'catalog')}
+                              className={`flex-1 xl:flex-none xl:w-20 text-[11px] py-1.5 rounded-md font-bold transition-colors ${item.mode === 'catalog' ? 'bg-brand-accent text-white shadow-sm' : 'text-slate-500 hover:text-brand-ink'}`}
+                            >
+                              Catalog
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => toggleLineMode(index, 'adhoc')}
+                              className={`flex-1 xl:flex-none xl:w-20 text-[11px] py-1.5 rounded-md font-bold transition-colors ${item.mode === 'adhoc' ? 'bg-brand-accent text-white shadow-sm' : 'text-slate-500 hover:text-brand-ink'}`}
+                            >
+                              Ad-hoc
+                            </button>
+                          </div>
+
+                          {/* 2. Select Item / Custom Name Input */}
+                          <div className="w-full xl:flex-1 min-w-[150px]">
+                            {item.mode === 'catalog' ? (
+                              <select
+                                value={item.inventoryItemId}
+                                onChange={(event) => applyCatalogItem(index, event.target.value)}
+                                className="input-field w-full !py-2.5 truncate"
+                                required
+                              >
+                                <option value="">Select item</option>
+                                {inventoryItems.map((inventoryItem) => (
+                                  <option key={inventoryItem.id} value={inventoryItem.id}>
+                                    {inventoryItem.name} ({inventoryItem.sourceType ?? 'DIRECT'})
+                                  </option>
+                                ))}
+                              </select>
+                            ) : (
+                              <input
+                                value={item.name}
+                                onChange={(event) => updateLineItem(index, 'name', event.target.value)}
+                                className="input-field w-full !py-2.5"
+                                placeholder="Custom item name"
+                                required
+                              />
+                            )}
+                          </div>
+
+                          {/* 3. Value Inputs & Remove Button */}
+                          <div className="flex flex-wrap sm:flex-nowrap gap-2 w-full xl:w-auto shrink-0">
+                            <input
+                              value={item.unit}
+                              onChange={(event) => updateLineItem(index, 'unit', event.target.value)}
+                              className="input-field !py-2.5 flex-1 min-w-[70px] sm:w-[80px]"
+                              placeholder="Unit"
+                              required
+                            />
+                            <input
+                              type="number"
+                              min="1"
+                              value={item.quantity}
+                              onChange={(event) => updateLineItem(index, 'quantity', event.target.value)}
+                              className="input-field !py-2.5 flex-1 min-w-[60px] sm:w-[70px]"
+                              placeholder="Qty"
+                              required
+                            />
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              value={item.unitPrice}
+                              onChange={(event) => updateLineItem(index, 'unitPrice', event.target.value)}
+                              readOnly={item.lockPrice}
+                              className="input-field !py-2.5 flex-1 min-w-[80px] sm:w-[100px] read-only:bg-slate-100 read-only:text-slate-500"
+                              placeholder="Unit price"
+                              required
+                            />
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              value={item.lineDiscount}
+                              onChange={(event) => updateLineItem(index, 'lineDiscount', event.target.value)}
+                              className="input-field !py-2.5 flex-1 min-w-[60px] sm:w-[70px]"
+                              placeholder="Disc"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeLineItem(index)}
+                              disabled={lineItems.length === 1}
+                              className="btn-danger disabled:opacity-50 disabled:cursor-not-allowed !py-2.5 px-4 w-full sm:w-auto mt-2 sm:mt-0"
+                            >
+                              Remove
+                            </button>
+                          </div>
+
                         </div>
-                        {item.mode === 'catalog' ? (
-                          <select
-                            value={item.inventoryItemId}
-                            onChange={(event) => applyCatalogItem(index, event.target.value)}
-                            className="md:col-span-3 input-field !py-2.5"
-                            required
-                          >
-                            <option value="">Select item</option>
-                            {inventoryItems.map((inventoryItem) => (
-                              <option key={inventoryItem.id} value={inventoryItem.id}>
-                                {inventoryItem.name} ({inventoryItem.sourceType ?? 'DIRECT'})
-                              </option>
-                            ))}
-                          </select>
-                        ) : (
-                          <input
-                            value={item.name}
-                            onChange={(event) => updateLineItem(index, 'name', event.target.value)}
-                            className="md:col-span-3 input-field !py-2.5"
-                            placeholder="Custom item name"
-                            required
-                          />
-                        )}
-                        <input
-                          value={item.unit}
-                          onChange={(event) => updateLineItem(index, 'unit', event.target.value)}
-                          className="md:col-span-1 input-field !py-2.5"
-                          placeholder="Unit"
-                          required
-                        />
-                        <input
-                          type="number"
-                          min="1"
-                          value={item.quantity}
-                          onChange={(event) => updateLineItem(index, 'quantity', event.target.value)}
-                          className="md:col-span-1 input-field !py-2.5"
-                          placeholder="Qty"
-                          required
-                        />
-                        <input
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          value={item.unitPrice}
-                          onChange={(event) => updateLineItem(index, 'unitPrice', event.target.value)}
-                          readOnly={item.lockPrice}
-                          className="md:col-span-2 input-field !py-2.5 read-only:bg-slate-100 read-only:text-slate-500"
-                          placeholder="Unit price"
-                          required
-                        />
-                        <input
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          value={item.lineDiscount}
-                          onChange={(event) => updateLineItem(index, 'lineDiscount', event.target.value)}
-                          className="md:col-span-1 input-field !py-2.5"
-                          placeholder="Disc"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeLineItem(index)}
-                          disabled={lineItems.length === 1}
-                          className="md:col-span-2 btn-danger disabled:opacity-50 disabled:cursor-not-allowed !py-2.5 w-full"
-                        >
-                          Remove
-                        </button>
+
+                        {/* --- Warning මැසේජ් එක යටින් --- */}
                         {item.lockPrice && (
-                          <p className="md:col-span-12 text-[11px] text-amber-600 px-2 font-bold flex items-center gap-1.5"><History size={12}/> GRN item detected: base selling price is locked. Apply discount only.</p>
+                          <div className="w-full pt-2 mt-1 border-t border-brand-line/50">
+                            <p className="text-[11px] text-amber-600 font-bold flex items-center gap-1.5">
+                              <History size={12} /> GRN item detected: base selling price is locked. Apply discount only.
+                            </p>
+                          </div>
                         )}
+
                       </div>
                     ))}
                   </div>
