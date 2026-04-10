@@ -6,7 +6,8 @@ import {
   FileUp,
   Star,
   MessageSquare,
-  Search
+  Search,
+  X // Added for remove button
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { CustomerProfile, SiteVisit } from '../types';
@@ -26,13 +27,20 @@ interface SiteVisitsProps {
 
 export default function SiteVisits({ customers, visits, onCreateVisit }: SiteVisitsProps) {
   const [search, setSearch] = useState('');
-  const [visitForm, setVisitForm] = useState({
+  const [visitForm, setVisitForm] = useState<{
+    customerId: string;
+    designer: string;
+    visitDate: string;
+    difficultyRating: string;
+    notes: string;
+    attachments: File[];
+  }>({
     customerId: '',
     designer: 'Field Officer',
     visitDate: new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16),
     difficultyRating: '3',
     notes: '',
-    attachments: ''
+    attachments: [] // Changed to array
   });
 
   const filteredCustomers = useMemo(() => {
@@ -45,28 +53,47 @@ export default function SiteVisits({ customers, visits, onCreateVisit }: SiteVis
     );
   }, [customers, search]);
 
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      const filesArray = Array.from(event.target.files);
+      setVisitForm((prev) => ({
+        ...prev,
+        attachments: [...prev.attachments, ...filesArray]
+      }));
+    }
+  };
+
+  // Upload karapu file ekak remove karanna
+  const removeAttachment = (indexToRemove: number) => {
+    setVisitForm((prev) => ({
+      ...prev,
+      attachments: prev.attachments.filter((_, index) => index !== indexToRemove)
+    }));
+  };
+
   const handleCreateVisit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!visitForm.customerId || !visitForm.notes.trim()) {
       return;
     }
+
+    const attachmentUrls = visitForm.attachments.map(file => URL.createObjectURL(file));
+
     onCreateVisit({
       customerId: visitForm.customerId,
       designer: visitForm.designer,
       visitDate: visitForm.visitDate,
       notes: visitForm.notes,
       difficultyRating: Number(visitForm.difficultyRating) as 1 | 2 | 3 | 4 | 5,
-      attachments: visitForm.attachments
-        .split(',')
-        .map((entry) => entry.trim())
-        .filter((entry) => entry.length > 0)
+      attachments: attachmentUrls
     });
 
     setVisitForm((prev) => ({
       ...prev,
       customerId: '',
       notes: '',
-      attachments: ''
+      attachments: []
     }));
   };
 
@@ -140,12 +167,40 @@ export default function SiteVisits({ customers, visits, onCreateVisit }: SiteVis
             className="input-field !py-2.5 h-24 resize-none"
           />
 
-          <input
-            value={visitForm.attachments}
-            onChange={(event) => setVisitForm((prev) => ({ ...prev, attachments: event.target.value }))}
-            placeholder="Attachments (comma separated)"
-            className="input-field !py-2.5"
-          />
+          {/* Photo Upload Area */}
+          <div className="space-y-2">
+            <label className="flex flex-col items-center justify-center w-full p-4 border-2 border-dashed border-slate-300 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+              <div className="flex flex-col items-center gap-1 text-slate-500">
+                <FileUp size={20} />
+                <span className="text-sm font-medium">Upload Photos</span>
+              </div>
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+            </label>
+
+            {/* Selected Photos Preview */}
+            {visitForm.attachments.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {visitForm.attachments.map((file, idx) => (
+                  <span key={idx} className="text-xs bg-slate-100 border border-slate-200 text-slate-600 px-2.5 py-1.5 rounded-lg flex items-center gap-2">
+                    <span className="truncate max-w-[120px]">{file.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeAttachment(idx)}
+                      className="text-slate-400 hover:text-red-500 transition-colors"
+                    >
+                      <X size={14} />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
 
           <button className="btn-primary w-full flex justify-center items-center gap-2">
             <Calendar size={18} /> Save Visit Note
@@ -153,71 +208,71 @@ export default function SiteVisits({ customers, visits, onCreateVisit }: SiteVis
         </form>
 
         <div className="xl:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-        {visits.map((visit) => (
-          <motion.div 
-            key={visit.id}
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="card !p-0 overflow-hidden flex flex-col hover:shadow-elevated transition-shadow"
-          >
-            <div className="p-6 border-b border-brand-line bg-brand-subtle">
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-white border border-brand-line flex items-center justify-center text-brand-accent shadow-sm">
-                    <MapPin size={20} />
+          {visits.map((visit) => (
+            <motion.div
+              key={visit.id}
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="card !p-0 overflow-hidden flex flex-col hover:shadow-elevated transition-shadow"
+            >
+              <div className="p-6 border-b border-brand-line bg-brand-subtle">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-white border border-brand-line flex items-center justify-center text-brand-accent shadow-sm">
+                      <MapPin size={20} />
+                    </div>
+                    <div>
+                      <h3 className="font-extrabold text-brand-ink text-sm">Visit #{visit.id}</h3>
+                      <p className="text-[10px] text-brand-text font-black font-mono uppercase tracking-[0.1em] mt-0.5">Customer: {visit.customerName ?? visit.leadId}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-extrabold text-brand-ink text-sm">Visit #{visit.id}</h3>
-                    <p className="text-[10px] text-brand-text font-black font-mono uppercase tracking-[0.1em] mt-0.5">Customer: {visit.customerName ?? visit.leadId}</p>
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        size={14}
+                        className={star <= visit.difficultyRating ? 'text-amber-500 fill-amber-500' : 'text-slate-200'}
+                      />
+                    ))}
+                    <span className="text-[10px] font-black text-brand-text ml-1 mt-0.5 tracking-[0.1em]">DIFFICULTY</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star 
-                      key={star} 
-                      size={14} 
-                      className={star <= visit.difficultyRating ? 'text-amber-500 fill-amber-500' : 'text-slate-200'} 
-                    />
-                  ))}
-                  <span className="text-[10px] font-black text-brand-text ml-1 mt-0.5 tracking-[0.1em]">DIFFICULTY</span>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-6 mt-1">
-                <div className="flex items-center gap-2">
-                  <User size={14} className="text-brand-accent" />
-                  <span className="text-xs font-bold text-slate-600">{visit.designer}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Calendar size={14} className="text-brand-accent" />
-                  <span className="text-xs font-bold text-slate-600">
-                    {new Date(visit.visitDate).toLocaleString()}
-                  </span>
-                </div>
-              </div>
-            </div>
 
-            <div className="p-6 space-y-4 flex-1">
-              <div className="space-y-2.5">
-                <div className="flex items-center gap-2 text-[10px] font-black text-brand-text uppercase tracking-[0.1em]">
-                  <MessageSquare size={14} className="text-slate-400" />
-                  Technical Notes
+                <div className="flex items-center gap-6 mt-1">
+                  <div className="flex items-center gap-2">
+                    <User size={14} className="text-brand-accent" />
+                    <span className="text-xs font-bold text-slate-600">{visit.designer}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Calendar size={14} className="text-brand-accent" />
+                    <span className="text-xs font-bold text-slate-600">
+                      {new Date(visit.visitDate).toLocaleString()}
+                    </span>
+                  </div>
                 </div>
-                <p className="text-sm text-slate-600 font-medium leading-relaxed bg-brand-subtle p-4 rounded-xl border border-brand-line italic">
-                  "{visit.notes}"
-                </p>
               </div>
 
-              <div className="pt-4 flex items-center justify-between">
-                <button className="flex items-center gap-2 text-xs font-bold text-brand-accent hover:text-blue-700 transition-colors">
-                  <FileUp size={16} />
-                  {visit.attachments?.length ? `${visit.attachments.length} attachment(s)` : 'No attachments'}
-                </button>
-                <span className="text-xs font-bold text-slate-400">{visit.customerPhone ?? 'No phone'}</span>
+              <div className="p-6 space-y-4 flex-1">
+                <div className="space-y-2.5">
+                  <div className="flex items-center gap-2 text-[10px] font-black text-brand-text uppercase tracking-[0.1em]">
+                    <MessageSquare size={14} className="text-slate-400" />
+                    Technical Notes
+                  </div>
+                  <p className="text-sm text-slate-600 font-medium leading-relaxed bg-brand-subtle p-4 rounded-xl border border-brand-line italic">
+                    "{visit.notes}"
+                  </p>
+                </div>
+
+                <div className="pt-4 flex items-center justify-between">
+                  <button className="flex items-center gap-2 text-xs font-bold text-brand-accent hover:text-blue-700 transition-colors">
+                    <FileUp size={16} />
+                    {visit.attachments?.length ? `${visit.attachments.length} attachment(s)` : 'No attachments'}
+                  </button>
+                  <span className="text-xs font-bold text-slate-400">{visit.customerPhone ?? 'No phone'}</span>
+                </div>
               </div>
-            </div>
-          </motion.div>
-        ))}
+            </motion.div>
+          ))}
         </div>
       </div>
     </div>
