@@ -25,6 +25,16 @@
   body {
     @apply bg-brand-bg text-brand-ink font-sans antialiased selection:bg-brand-accent selection:text-white;
   }
+
+  /* Hide scrollbars while keeping scroll functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;      /* Firefox */
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;              /* Chrome, Safari and Opera */
+  }
 }
 
 @layer components {
